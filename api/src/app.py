@@ -32,7 +32,7 @@ def custom_openapi(app: FastAPI):
     openapi_schema = get_openapi(
         title="RECO Api",
         version="1.0.0",
-        summary="Api for Reco ",
+        summary="Api for Reco",
         description="",
         routes=app.routes,
     )
