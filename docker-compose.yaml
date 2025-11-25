@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
   postgres:
@@ -9,9 +9,15 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: db
     ports:
-      - "5452:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  llm:
+    image: ollama/ollama:latest
+    container_name: llm-reco
+    ports:
+      - "11434:11434"
 
 volumes:
   postgres_data:

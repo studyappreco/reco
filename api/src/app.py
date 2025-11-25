@@ -7,6 +7,7 @@ from src.router.api import router as router_example
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from sqlmodel import SQLModel
+from ollama import Client
 
 def create_app():
     import src.model as _models
@@ -31,7 +32,7 @@ def custom_openapi(app: FastAPI):
     openapi_schema = get_openapi(
         title="RECO Api",
         version="1.0.0",
-        summary="Api for Reco ",
+        summary="Api for Reco",
         description="",
         routes=app.routes,
     )
@@ -47,6 +48,16 @@ def create_db_engine(settings: Settings, echo=False):
     logger.info("tables created")
     return engine
 
+def create_ollama_model():
+    client = Client()
+    response = client.create(
+    model='reco-llm-model',
+    from_='llama3.2:latest',
+    system='You are a friendly and smart helper',
+    stream=False,
+    )
+    logger.info(f"creating the model returned: {response.status}")
+
 
 def get_lifespan(settings: Settings):
     @asynccontextmanager
@@ -54,6 +65,7 @@ def get_lifespan(settings: Settings):
         # Do setup
         app.state.settings = settings
         app.state.engine = create_db_engine(settings)
+        create_ollama_model()
         yield
         # Do teardown
         app.state.engine = None
