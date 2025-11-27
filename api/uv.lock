@@ -39,6 +39,9 @@ name = "api"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "baml-cli" },
+    { name = "baml-py" },
+    { name = "dotenv" },
     { name = "fastapi" },
     { name = "loguru" },
     { name = "ollama" },
@@ -54,6 +57,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "baml-cli", specifier = ">=0.1.0" },
+    { name = "baml-py", specifier = ">=0.214.0" },
+    { name = "dotenv", specifier = ">=0.9.9" },
     { name = "fastapi", specifier = ">=0.121.3" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "ollama", specifier = ">=0.6.1" },
@@ -65,6 +71,33 @@ requires-dist = [
     { name = "sqlmodel", specifier = ">=0.0.27" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "uvicorn", specifier = ">=0.38.0" },
+]
+
+[[package]]
+name = "baml-cli"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "baml-py" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/7e/cb2cf7f8aa35496f9fe62ece35350b494d3db6a407802ade453d84f45418/baml_cli-0.1.0.tar.gz", hash = "sha256:ebc3c325f167282918d397e0597dadf2323f463be7be1249b8664a6d2c48166c", size = 1251, upload-time = "2024-05-03T21:17:04.076Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bb/d1/bc2ec74ccd7c9315a062cf1310283ba824c3c1dc332652cfd785b6a14aeb/baml_cli-0.1.0-py3-none-any.whl", hash = "sha256:3e0630a10bf940c539e57fc37daf70ea6c097a7feda423f01822a936c2439cdb", size = 1579, upload-time = "2024-05-03T21:17:02.399Z" },
+]
+
+[[package]]
+name = "baml-py"
+version = "0.214.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/49/7a026382bba4d2dbf5da868c3b0dc4b48eecd62acdb520661a2e6606bb2e/baml_py-0.214.0-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:6edf8fcf7b7fea9808634c075d9c178c6977c29ad833a63b3754b00ecd78a1cd", size = 21169975, upload-time = "2025-11-24T05:44:48.894Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/78/5980345c26d32d567fab3a04aaaa7eaccceddb410064b05ff0140161903b/baml_py-0.214.0-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:d341d2a686b6907eb37b43c55fc191ff0920549c3e5978db23ac72fb52d81ef1", size = 20124734, upload-time = "2025-11-24T05:44:51.45Z" },
+    { url = "https://files.pythonhosted.org/packages/09/da/107268e14d03bcce98c17e8a2e922baf7b00d8b59111ae462031877c5102/baml_py-0.214.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:35fa097a5d0d4d08308f7d6f1226264b9a110dd11f8b9d9c7e4e46c120d358e7", size = 23842499, upload-time = "2025-11-24T05:44:53.981Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/4a/69ea1c7f14cdd3c8308dbf4ba32e26ff1a2fc2f34c7514534258981254ab/baml_py-0.214.0-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:53b13dee5851f54725b7f57d61207519d28bbd48e079d891910de7c329b15ef2", size = 23293155, upload-time = "2025-11-24T05:44:57.325Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/73/e5aee294c2dadf2093d7954382a6936ca5729d930d000ae02771c1e5be3a/baml_py-0.214.0-cp38-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:9c3aa6a1e236da034ab86b44b685c110aa0aed3202a316191e2554efcc9f1ed6", size = 23550445, upload-time = "2025-11-24T05:44:59.961Z" },
+    { url = "https://files.pythonhosted.org/packages/96/a5/3075da0abeed88f259c13249a33009fc40b68f3dc766e8f6507054bf578c/baml_py-0.214.0-cp38-abi3-musllinux_1_1_x86_64.whl", hash = "sha256:057b48b0319a36ac6d48fe80a293e30da9088f3f0735ba8014b9b5e504e7beee", size = 23995902, upload-time = "2025-11-24T05:45:02.209Z" },
+    { url = "https://files.pythonhosted.org/packages/13/19/4c4a38e808063091bb892e566995ff8b30300d3b6c824ac793573865c7f9/baml_py-0.214.0-cp38-abi3-win_amd64.whl", hash = "sha256:34ab27384264acbba1cbd179c074f584d9282af3f180b3b65f5dcd9ae9218f9c", size = 21369122, upload-time = "2025-11-24T05:45:04.663Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/95/a68e09b3029bd77c92805a1b837f8ff9e9395cdf25ba334c19176419ac34/baml_py-0.214.0-cp38-abi3-win_arm64.whl", hash = "sha256:c02bdd5ae388e405239b9c0677808366db4ee5803323991d8405cf4250b6fe72", size = 19645123, upload-time = "2025-11-24T05:45:06.874Z" },
 ]
 
 [[package]]
@@ -265,6 +298,17 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/6e/1c8331ddf91ca4730ab3086a0f1be19c65510a33b5a441cb334e7a2d2560/cryptography-46.0.3-cp38-abi3-win32.whl", hash = "sha256:6276eb85ef938dc035d59b87c8a7dc559a232f954962520137529d77b18ff1df", size = 3036695, upload-time = "2025-10-15T23:18:08.672Z" },
     { url = "https://files.pythonhosted.org/packages/90/45/b0d691df20633eff80955a0fc7695ff9051ffce8b69741444bd9ed7bd0db/cryptography-46.0.3-cp38-abi3-win_amd64.whl", hash = "sha256:416260257577718c05135c55958b674000baef9a1c7d9e8f306ec60d71db850f", size = 3501720, upload-time = "2025-10-15T23:18:10.632Z" },
     { url = "https://files.pythonhosted.org/packages/e8/cb/2da4cc83f5edb9c3257d09e1e7ab7b23f049c7962cae8d842bbef0a9cec9/cryptography-46.0.3-cp38-abi3-win_arm64.whl", hash = "sha256:d89c3468de4cdc4f08a57e214384d0471911a3830fcdaf7a8cc587e42a866372", size = 2918740, upload-time = "2025-10-15T23:18:12.277Z" },
+]
+
+[[package]]
+name = "dotenv"
+version = "0.9.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dotenv" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/b7/545d2c10c1fc15e48653c91efde329a790f2eecfbbf2bd16003b5db2bab0/dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9", size = 1892, upload-time = "2025-02-19T22:15:01.647Z" },
 ]
 
 [[package]]
@@ -765,6 +809,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432, upload-time = "2024-03-01T18:36:20.211Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
+]
+
+[[package]]
+name = "python-dotenv"
+version = "1.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f0/26/19cadc79a718c5edbec86fd4919a6b6d3f681039a2f6d66d14be94e75fb9/python_dotenv-1.2.1.tar.gz", hash = "sha256:42667e897e16ab0d66954af0e60a9caa94f0fd4ecf3aaf6d2d260eec1aa36ad6", size = 44221, upload-time = "2025-10-26T15:12:10.434Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/1b/a298b06749107c305e1fe0f814c6c74aea7b2f1e10989cb30f544a1b3253/python_dotenv-1.2.1-py3-none-any.whl", hash = "sha256:b81ee9561e9ca4004139c6cbba3a238c32b03e4894671e181b671e8cb8425d61", size = 21230, upload-time = "2025-10-26T15:12:09.109Z" },
 ]
 
 [[package]]

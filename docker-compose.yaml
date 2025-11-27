@@ -1,5 +1,4 @@
 
-
 services:
   postgres:
     image: postgres:16
@@ -18,6 +17,26 @@ services:
     container_name: llm-reco
     ports:
       - "11434:11434"
+  
+  baml:
+    read_only: true
+    container_name: baml-reco
+    build:
+      context: ./api
+      dockerfile: Dockerfile.baml
+    ports:
+      - "2024:2024"
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -sf http://0.0.0.0:2024/_debug/ping || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - baml-client:/app/baml_client
+    depends_on:
+      - llm
+      - postgres
 
 volumes:
   postgres_data:
+  baml-client:

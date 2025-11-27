@@ -1,30 +1,35 @@
 from typing import Optional
 from sqlalchemy import URL
+from dotenv import load_dotenv
+import os
 
 class Settings:
 
-    develop : bool = True
+    def __init__(self):
+        load_dotenv()
+        self.develop = os.getenv("DEVELOP", "True").lower() == "true"
+        self.root_path = os.getenv("ROOT_PATH", "")
+        self.port = int(os.getenv("PORT", "8000"))
+        self.host = os.getenv("HOST", "0.0.0.0")
+        self.log_level = os.getenv("LOG_LEVEL", "INFO")
+        
+        self.db_auto_migrate = os.getenv("DB_AUTO_MIGRATE", "True").lower() == "true"
+        self.db_host = os.getenv("DB_HOST", "localhost")
+        self.db_port = int(os.getenv("DB_PORT", "5432"))
+        self.db_name = os.getenv("DB_NAME", "db")
+        self.db_user = os.getenv("DB_USER", "postgres")
+        self.db_password = os.getenv("DB_PASSWORD", "postgres")
+        
+        self.llm_model = os.getenv("OLLAMA_MODEL", "llama:3.2:latest")
+        self.reco_model = os.getenv("RECO_MODEL", "reco-llm-model")
+        self.llm_port = int(os.getenv("LLM_PORT", "11434"))
+        self.llm_host = os.getenv("OLLAMA_BASE_PATH", "http://localhost:11434")
+        self.llm_host_local = "http://localhost:11434"
 
-    root_path: str = ""
-    port: int = 8000
-    host: str = "0.0.0.0"
-    log_level: str = "INFO"
-
-    db_auto_migrate: bool = True
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_name: str = "db"
-    db_user: str = "postgres"
-    db_password: str = "postgres"
-
-    llm_model : str = "llama:3.2:latest"
-    reco_model : str = "reco-llm-model"
-    llm_port : int = 11434
-    llm_host: str = "localhost"
-
+    #for now, change when running on docker
     def llm_url(self) -> str:
-        return f"http://{self.llm_host}:{self.llm_port}"
-
+        return f"http://{self.llm_host_local}:{self.llm_port}"
+    
 
 
     def database_url(self) -> URL:

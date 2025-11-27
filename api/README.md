@@ -4,6 +4,7 @@
     - python 3.12
     - uv package manager (installed)
     - Docker desktop installed
+    - just build system
 
 # Getting started
     cd api
