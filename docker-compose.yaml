@@ -2,7 +2,6 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres-reco
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -11,16 +10,18 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reco-net
   
   llm:
     image: ollama/ollama:latest
-    container_name: llm-reco
     ports:
       - "11434:11434"
+    networks:
+      - reco-net
   
   baml:
     read_only: true
-    container_name: baml-reco
     build:
       context: ./api
       dockerfile: Dockerfile.baml
@@ -36,7 +37,13 @@ services:
     depends_on:
       - llm
       - postgres
+    networks:
+      - reco-net
 
 volumes:
   postgres_data:
   baml-client:
+
+networks:
+  reco-net:
+    driver: bridge
