@@ -4,12 +4,12 @@
     - python 3.12
     - uv package manager (installed)
     - Docker desktop installed
-    - just build system
 
 # Getting started
     cd api
     uv sync
-    docker compose build --no-cache && docker compose up
+    uv run baml-cli generate
+    docker compose build --no-cache && docker compose up ; optionally omit the no-cache flag
     uv run main.py
 
     check localhost:8000/docs for openApi spec
