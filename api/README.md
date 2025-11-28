@@ -8,6 +8,7 @@
 # Getting started
     cd api
     uv sync
+    copy the contents of .env.example into an an .env in the ./api folder
     uv run baml-cli generate
     docker compose build --no-cache && docker compose up ; optionally omit the no-cache flag
     uv run main.py
