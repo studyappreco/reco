@@ -104,7 +104,6 @@ def get_custom_swagger_js(root_path: str):
         requestInterceptor: (req) => {
             if (! req.loadSpec) {
                 // Add the header to "try it out" calls but not spec fetches
-                req.headers["x-signavio-id"] = readCookie("token") || "";
             }
             return req;
         },
