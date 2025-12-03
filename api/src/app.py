@@ -65,7 +65,7 @@ def get_lifespan(settings: Settings):
         # Do setup
         app.state.settings = settings
         app.state.engine = create_db_engine(settings)
-        create_ollama_model()
+        #create_ollama_model() for now we are using openAI models
         yield
         # Do teardown
         app.state.engine = None

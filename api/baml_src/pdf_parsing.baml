@@ -1,23 +1,25 @@
 
 
+enum DocumentType {
+  IS_TRANSCRIPT
+  IS_NOT_TRANSCRIPT
+}
 
-function Is_the_right_content(content : string) -> bool {
-  client CustomOllama
+
+function Is_the_right_content(content : string) -> DocumentType {
+  client OpenAiClient
   prompt #"
     {{ _.role("user")}}
 
-    You are a friendly helper. Can you determine if all the information listed below is present in the string given to you?
-    Answer only true or false as your final answer.
+    Can you determine if all the information listed below is present in the content given to you?
 
-    At TU Berlin transcript contains the following information:
+    Following elements should be contained in the 
       - university address: Straße des 17. Juni 135 10623 Berlin
       - an annotation section with description of grades
-      - and information how to verify this document
-    
-    are all these elements contained in the content? Answer only true or false as your final assessment.
+      - information how to verify this document
+      - optional: data on exams and grades finished or failed
 
     {{ ctx.output_format }}
-    {{ _.role("user")}}
     {{ content }}
   "#
 }
@@ -33,7 +35,7 @@ class TranscriptRow {
 }
 
 function Parse_transcript_contents(transcript : string) -> TranscriptRow[] {
-  client CustomOllama
+  client OpenAiClient
   prompt #"
     {{ _.role("user")}}
     Given to you is the content of a university transcript.
