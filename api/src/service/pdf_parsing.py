@@ -4,9 +4,16 @@ import pandas as pd
 import io
 from pdfplumber.utils import extract_text, get_bbox_overlap, obj_to_bbox
 from baml_client import b
+from baml_client.types import DocumentType
 from loguru import logger
 import base64
+from src.service.exceptions import ImageBasedPDFException, NotTranscriptException
 
+# to disable verbose logs: https://github.com/jsvine/pdfplumber/discussions/529
+import logging
+
+logging.getLogger("pdfminer").propagate = False
+logging.getLogger("pdfminer").disabled = True
 
 def get_text_content(file_content : bytes):
     with pdfplumber.open(io.BytesIO(file_content)) as pdf:
@@ -31,13 +38,34 @@ def get_text_content(file_content : bytes):
         return "\n".join(all_text)
 
 
+def is_text_based(file_content : bytes) -> bool:
+    with pdfplumber.open(io.BytesIO(file_content)) as pdf:
+        text_pages = 0
+        image_pages = 0
+
+        for page in pdf.pages:
+            text = page.extract_text()
+            if text and text.strip():
+                text_pages += 1
+            if len(page.images) > 0:
+                image_pages += 1
+
+    if text_pages > 0 and text_pages >= image_pages:
+        return True
+    else:
+        return False
+
 async def parse_uni_transcript(file_content : bytes):
+    #check if it is a textbased pdf
+    text_based = is_text_based(file_content=file_content)
+    if not text_based:
+        raise ImageBasedPDFException("Document uploaded is an image based PDF")
+    logger.info(f"PDF is text-based: {text_based}")
     text_content : str = get_text_content(file_content=file_content)
-    #is_transcript = await b.Is_the_right_content(text_content)
-    #logger.info(f"the result {is_transcript}")
-    #if(not is_transcript):
-    #    raise Exception("Document uploaded is not a university transcript")
-    rows = await b.Parse_transcript_contents(text_content)
-    return rows
+    is_transcript = await b.Is_the_right_content(text_content)
+    logger.info(f"is transcript: {is_transcript}")
+    if is_transcript == DocumentType.IS_NOT_TRANSCRIPT:
+        raise NotTranscriptException("Document uploaded is not a university transcript")
+    return await b.Parse_transcript_contents(text_content)
     
 
