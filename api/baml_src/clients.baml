@@ -10,6 +10,15 @@ client<llm> CustomOllama {
    }
 }
 
+client<llm> OpenAiClient {
+  provider "openai"
+  options {
+    api_key env.OPENAI_API_KEY
+    model "gpt-5-mini"
+  }
+}
+
+
 
 // https://docs.boundaryml.com/docs/snippets/clients/retry
 retry_policy Constant {
