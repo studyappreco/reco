@@ -1,0 +1,1274 @@
+[
+    {
+      "module_nr": "40022",
+      "name": { "de": "Algorithmen und Datenstrukturen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Grundlegende Algorithmen, Datenstrukturen, Laufzeitanalyse." },
+      "tags": ["Pflichtbereich Informatik", "Algorithmen", "Theorie"]
+    },
+    {
+      "module_nr": "20122",
+      "name": { "de": "Analysis I und Lineare Algebra für Ingenieurwissenschaften" },
+      "lp_value": 12,
+      "module_type": "Vorlesung",
+      "description": { "de": "Grundlagen der Analysis und linearen Algebra." },
+      "tags": ["Pflichtbereich Informatik", "Mathe", "Grundlagen"]
+    },
+    {
+      "module_nr": "40356",
+      "name": { "de": "Berechenbarkeit und Komplexität" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Turing-Maschinen, Komplexitätsklassen P und NP." },
+      "tags": ["Pflichtbereich Informatik", "Theoretische Informatik", "Theorie"]
+    },
+    {
+      "module_nr": "40024",
+      "name": { "de": "Diskrete Strukturen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Graphentheorie, Kombinatorik, algebraische Strukturen." },
+      "tags": ["Pflichtbereich Informatik", "Mathe", "Theorie"]
+    },
+    {
+      "module_nr": "40017",
+      "name": { "de": "Einführung in die Programmierung" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Grundlagen der Programmierung, vermutlich Java oder Python." },
+      "tags": ["Pflichtbereich Informatik", "Programmierung", "Java"]
+    },
+    {
+      "module_nr": "40018",
+      "name": { "de": "Formale Sprachen und Automaten" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Chomsky-Hierarchie, Automatenmodelle." },
+      "tags": ["Pflichtbereich Informatik", "Theoretische Informatik"]
+    },
+    {
+      "module_nr": "40779",
+      "name": { "de": "Informatik Propädeutikum" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "Einführung in das Studium und wissenschaftliches Arbeiten." },
+      "tags": ["Pflichtbereich Informatik", "Einführung"]
+    },
+    {
+      "module_nr": "40499",
+      "name": { "de": "Informatik und Gesellschaft" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Ethische und gesellschaftliche Aspekte der Informatik." },
+      "tags": ["Pflichtbereich Informatik", "Gesellschaft", "Ethik"]
+    },
+    {
+      "module_nr": "40002",
+      "name": { "de": "Informationssysteme und Datenanalyse" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Datenbanken, SQL, Datenmodellierung." },
+      "tags": ["Pflichtbereich Informatik", "Datenbanken", "Datenanalyse"]
+    },
+    {
+      "module_nr": "40023",
+      "name": { "de": "Logik" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Aussagenlogik, Prädikatenlogik." },
+      "tags": ["Pflichtbereich Informatik", "Theoretische Informatik", "Mathe"]
+    },
+    {
+      "module_nr": "40672",
+      "name": { "de": "Rechnernetze und Verteilte Systeme" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Netzwerkprotokolle, OSI-Modell, verteilte Algorithmen." },
+      "tags": ["Pflichtbereich Informatik", "Netzwerke", "Systeme"]
+    },
+    {
+      "module_nr": "40019",
+      "name": { "de": "Rechnerorganisation" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Hardware-Grundlagen, Prozessorarchitektur." },
+      "tags": ["Pflichtbereich Informatik", "Hardware", "Technische Informatik"]
+    },
+    {
+      "module_nr": "40029",
+      "name": { "de": "Softwaretechnik und Programmierparadigmen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Software Engineering, Design Patterns, OOP." },
+      "tags": ["Pflichtbereich Informatik", "Software Engineering", "Programmierung"]
+    },
+    {
+      "module_nr": "20217",
+      "name": { "de": "Stochastik für Informatik" },
+      "lp_value": 9,
+      "module_type": "Vorlesung",
+      "description": { "de": "Wahrscheinlichkeitstheorie und Statistik." },
+      "tags": ["Pflichtbereich Informatik", "Mathe", "Statistik"]
+    },
+    {
+      "module_nr": "40020",
+      "name": { "de": "Systemprogrammierung" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Pflichtbereich Informatik", "Betriebssysteme", "C"]
+    },
+    {
+      "module_nr": "40038",
+      "name": { "de": "Wissenschaftliches Rechnen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Pflichtbereich Informatik", "Numerik", "Mathe"]
+    },
+    {
+      "module_nr": "40930",
+      "name": { "de": "ISE Programmierpraktikum" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Praktische Anwendung von ISE Konzepten." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "ISE"]
+    },
+    {
+      "module_nr": "40045",
+      "name": { "de": "Praktikum: Intelligente Softwaresysteme" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Entwicklung intelligenter Systeme." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "KI", "Software"]
+    },
+    {
+      "module_nr": "41137",
+      "name": { "de": "Programmierpraktikum Algorithmen für Spiele und Puzzle" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Implementierung von Algorithmen in Spielekontexten." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Spiele", "Algorithmen"]
+    },
+    {
+      "module_nr": "40965",
+      "name": { "de": "Programmierpraktikum Algorithmen und Datenstrukturen" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Vertiefung von ADS in der Praxis." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Algorithmen"]
+    },
+    {
+      "module_nr": "40938",
+      "name": { "de": "Programmierpraktikum Batterien" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Hardware"]
+    },
+    {
+      "module_nr": "41191",
+      "name": { "de": "Programmierpraktikum FLOSS" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Free/Libre Open Source Software Entwicklung." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Open Source"]
+    },
+    {
+      "module_nr": "40148",
+      "name": { "de": "Programmierpraktikum Kommunikationstechnologien" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Netzwerke"]
+    },
+    {
+      "module_nr": "40956",
+      "name": { "de": "Programmierpraktikum Leistungselektronik" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Elektronik"]
+    },
+    {
+      "module_nr": "41219",
+      "name": { "de": "Programmierpraktikum Microservices" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Entwicklung und Deployment von Microservices." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Microservices", "Cloud"]
+    },
+    {
+      "module_nr": "41145",
+      "name": { "de": "Programmierpraktikum Neue Webtechnologien" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Moderne Web-Frameworks und Technologien." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Web"]
+    },
+    {
+      "module_nr": "41157",
+      "name": { "de": "Programmierpraktikum Scalable Software Systems" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Skalierbare Softwarearchitekturen." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Systeme"]
+    },
+    {
+      "module_nr": "41256",
+      "name": { "de": "Programmierpraktikum Smart Contracts" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Blockchain und Smart Contracts." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Blockchain"]
+    },
+    {
+      "module_nr": "41129",
+      "name": { "de": "Programmierpraktikum: Algorithm Engineering" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Algorithmen"]
+    },
+    {
+      "module_nr": "40277",
+      "name": { "de": "Programmierpraktikum: Cyber-Physical Systems" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "CPS"]
+    },
+    {
+      "module_nr": "41136",
+      "name": { "de": "Programmierpraktikum: Datensysteme" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Datenbanken"]
+    },
+    {
+      "module_nr": "41216",
+      "name": { "de": "Programmierpraktikum: Datensysteme - Datenintegrationinstanz" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Datenbanken"]
+    },
+    {
+      "module_nr": "41222",
+      "name": { "de": "Programmierpraktikum: Datensysteme - Machine Learning Pipelines" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "ML", "Data Science"]
+    },
+    {
+      "module_nr": "41163",
+      "name": { "de": "Programmierpraktikum: Entwurf und Implementierung von Programmiersprachen" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Compilerbau und Interpreter." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Compiler"]
+    },
+    {
+      "module_nr": "41230",
+      "name": { "de": "Programmierpraktikum: Mensch-Computer-Interaktion" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "HCI und UI/UX Entwicklung." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "HCI"]
+    },
+    {
+      "module_nr": "40934",
+      "name": { "de": "Programmierpraktikum: Modelle Dynamischer Systeme" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Modellierung"]
+    },
+    {
+      "module_nr": "40908",
+      "name": { "de": "Programmierpraktikum: Moderne verteilte Anwendungen" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Verteilte Systeme"]
+    },
+    {
+      "module_nr": "41092",
+      "name": { "de": "Programmierpraktikum: NLP for Social Good" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "Natural Language Processing." },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "NLP", "KI"]
+    },
+    {
+      "module_nr": "41138",
+      "name": { "de": "Programmierpraktikum: Quality Data Science" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Data Science"]
+    },
+    {
+      "module_nr": "40135",
+      "name": { "de": "Programmierpraktikum: Skalierbare Systeme" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Systeme"]
+    },
+    {
+      "module_nr": "40770",
+      "name": { "de": "Programmierpraktikum: Verteilte Systeme" },
+      "lp_value": 9,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Verteilte Systeme"]
+    },
+    {
+      "module_nr": "40966",
+      "name": { "de": "Programming Project in Python" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Python"]
+    },
+    {
+      "module_nr": "40997",
+      "name": { "de": "Programming Project: Data Science in Python and R" },
+      "lp_value": 6,
+      "module_type": "Programmierpraktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Programmierpraktikum", "Praktikum", "Data Science", "Python", "R"]
+    },
+    {
+      "module_nr": "40358",
+      "name": { "de": "Betriebssystempraktikum" },
+      "lp_value": 6,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Technische Informatik", "Betriebssysteme", "Systemnahe Programmierung"]
+    },
+    {
+      "module_nr": "40413",
+      "name": { "de": "Digitale Systeme" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Technische Informatik", "Hardware", "Digitaltechnik"]
+    },
+    {
+      "module_nr": "40061",
+      "name": { "de": "Kommunikationsnetze" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Technische Informatik", "Netzwerke"]
+    },
+    {
+      "module_nr": "40755",
+      "name": { "de": "Verteilte Systeme" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Wahlpflicht Technische Informatik", "Systeme", "Verteilte Anwendungen"]
+    },
+    {
+      "module_nr": "40464",
+      "name": { "de": "Algorithmentheorie" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Vertiefende Algorithmen und Komplexität." },
+      "tags": ["Wahlpflicht Theoretische Informatik", "Algorithmen", "Theorie"]
+    },
+    {
+      "module_nr": "40026",
+      "name": { "de": "Logische Methoden der Informatik" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Logik, Beweissysteme, formale Verifikation." },
+      "tags": ["Wahlpflicht Theoretische Informatik", "Logik", "Theorie"]
+    },
+    {
+      "module_nr": "40027",
+      "name": { "de": "Reaktive Systeme" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "Modellierung und Analyse reaktiver Systeme." },
+      "tags": ["Wahlpflicht Theoretische Informatik", "Systeme", "Theorie"]
+    },
+    {
+      "module_nr": "40800",
+      "name": { "de": "5G / 6G Software Networks" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "5G"]
+    },
+    {
+      "module_nr": "40803",
+      "name": { "de": "5G Evolution / 6G Project" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "Projekt"]
+    },
+    {
+      "module_nr": "41128",
+      "name": { "de": "Advanced Topics in Networked and Distributed Systems" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "Verteilte Systeme"]
+    },
+    {
+      "module_nr": "40315",
+      "name": { "de": "Agent Competition: RoboCup" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Robotik", "Projekt"]
+    },
+    {
+      "module_nr": "40317",
+      "name": { "de": "Agententechnologien: Grundlagen und Anwendungen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Agenten"]
+    },
+    {
+      "module_nr": "40813",
+      "name": { "de": "Aktuelle Forschung an Energiewandlern und Energiespeichern" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Energie"]
+    },
+    {
+      "module_nr": "41057",
+      "name": { "de": "Aktuelle Forschung in KI & Robotik" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Robotik"]
+    },
+    {
+      "module_nr": "40318",
+      "name": { "de": "Aktuelle Themen der Algorithmik" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Algorithmen", "Seminar"]
+    },
+    {
+      "module_nr": "41076",
+      "name": { "de": "Aktuelle Themen in visueller Wahrnehmungsforschung" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Computer Vision", "Wahrnehmung"]
+    },
+    {
+      "module_nr": "41008",
+      "name": { "de": "Aktuelle Themen zu Software and Embedded Systems Engineering" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Engineering", "Embedded"]
+    },
+    {
+      "module_nr": "40321",
+      "name": { "de": "Algorithmic Graph Structure Theory" },
+      "lp_value": 9,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Graphentheorie", "Algorithmen"]
+    },
+    {
+      "module_nr": "40822",
+      "name": { "de": "Algorithmische Graphentheorie" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Graphentheorie", "Algorithmen"]
+    },
+    {
+      "module_nr": "41127",
+      "name": { "de": "Algorithms for Distributed Systems" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Algorithmen", "Verteilte Systeme"]
+    },
+    {
+      "module_nr": "41126",
+      "name": { "de": "Algorithms for Networked Systems" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Algorithmen", "Netzwerke"]
+    },
+    {
+      "module_nr": "40324",
+      "name": { "de": "Ambient Assisted Living" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "AAL", "HCI"]
+    },
+    {
+      "module_nr": "41074",
+      "name": { "de": "Analyse von (Online) Social Data" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Social Media", "Data Science"]
+    },
+    {
+      "module_nr": "40074",
+      "name": { "de": "Angewandte Logiken" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Logik"]
+    },
+    {
+      "module_nr": "40652",
+      "name": { "de": "Angewandte Netzwerktechnologien" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke"]
+    },
+    {
+      "module_nr": "40282",
+      "name": { "de": "Applied Computer Vision" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Computer Vision"]
+    },
+    {
+      "module_nr": "40595",
+      "name": { "de": "Applied Networking Lab" },
+      "lp_value": 9,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "Praktikum"]
+    },
+    {
+      "module_nr": "41100",
+      "name": { "de": "Applied Security Lab" },
+      "lp_value": 6,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Praktikum"]
+    },
+    {
+      "module_nr": "41037",
+      "name": { "de": "Ausgewählte Themen zu Algorithmen und Datenstrukturen" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Algorithmen"]
+    },
+    {
+      "module_nr": "40349",
+      "name": { "de": "Bachelor Seminar: Operating Complex IT-Systems" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "IT-Systeme", "Seminar"]
+    },
+    {
+      "module_nr": "40361",
+      "name": { "de": "Biometric Identification" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Biometrie", "Security"]
+    },
+    {
+      "module_nr": "41150",
+      "name": { "de": "Blockchain Prototyping" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Blockchain", "Projekt"]
+    },
+    {
+      "module_nr": "40772",
+      "name": { "de": "Cloud Prototyping" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Cloud", "Projekt"]
+    },
+    {
+      "module_nr": "40526",
+      "name": { "de": "Communication acoustics" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Akustik"]
+    },
+    {
+      "module_nr": "41162",
+      "name": { "de": "Compiling Techniques" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Compiler"]
+    },
+    {
+      "module_nr": "40382",
+      "name": { "de": "Computer Graphics I (Fundamentals)" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Computergrafik"]
+    },
+    {
+      "module_nr": "40387",
+      "name": { "de": "Computer Security - Big Project" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Projekt"]
+    },
+    {
+      "module_nr": "40008",
+      "name": { "de": "Computer Security - Small Project" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Projekt"]
+    },
+    {
+      "module_nr": "40962",
+      "name": { "de": "Continuous Software Engineering" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Engineering", "DevOps"]
+    },
+    {
+      "module_nr": "41259",
+      "name": { "de": "Cryptography" },
+      "lp_value": 9,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Kryptographie", "Security"]
+    },
+    {
+      "module_nr": "41058",
+      "name": { "de": "Current Topics in Cryptocurrency and Blockchain Networks" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Blockchain", "Seminar"]
+    },
+    {
+      "module_nr": "40400",
+      "name": { "de": "DBPRA Database Practical Hands-on Training" },
+      "lp_value": 6,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Datenbanken", "Praktikum"]
+    },
+    {
+      "module_nr": "40402",
+      "name": { "de": "DBSEM - Seminar on Advanced Topics in Database and Information Systems" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Datenbanken", "Seminar"]
+    },
+    {
+      "module_nr": "40401",
+      "name": { "de": "DSPRO Datensystemeprojekt" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Datenbanken", "Projekt"]
+    },
+    {
+      "module_nr": "40399",
+      "name": { "de": "DW Data Warehousing and Business Intelligence" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Warehouse", "BI"]
+    },
+    {
+      "module_nr": "41112",
+      "name": { "de": "Data Integration and Large-scale Analysis" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science"]
+    },
+    {
+      "module_nr": "41168",
+      "name": { "de": "Data Science for Cognitive Neuroscience" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science", "Neuroscience"]
+    },
+    {
+      "module_nr": "41231",
+      "name": { "de": "Data Science for Computer Scientists" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science"]
+    },
+    {
+      "module_nr": "40440",
+      "name": { "de": "Dependable Embedded Systems" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Embedded"]
+    },
+    {
+      "module_nr": "40985",
+      "name": { "de": "Distributed Systems Prototyping" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Verteilte Systeme", "Projekt"]
+    },
+    {
+      "module_nr": "41034",
+      "name": { "de": "Einführung in die IT-Sicherheit" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security"]
+    },
+    {
+      "module_nr": "41048",
+      "name": { "de": "Einführung in die Künstliche Intelligenz" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI"]
+    },
+    {
+      "module_nr": "40441",
+      "name": { "de": "Embedded Systems Security Lab" },
+      "lp_value": 6,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Embedded", "Security", "Praktikum"]
+    },
+    {
+      "module_nr": "40448",
+      "name": { "de": "Entwurf eingebetteter Systeme" },
+      "lp_value": 9,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Embedded"]
+    },
+    {
+      "module_nr": "41218",
+      "name": { "de": "Forschungsseminar Data Integration and Data Preparation" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science", "Seminar"]
+    },
+    {
+      "module_nr": "41119",
+      "name": { "de": "Foundations of Data Literacy and Data Science" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science"]
+    },
+    {
+      "module_nr": "40471",
+      "name": { "de": "Grundlagen der Rechnersicherheit" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security"]
+    },
+    {
+      "module_nr": "40827",
+      "name": { "de": "Grundlagen des Softwaretestens" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Testing"]
+    },
+    {
+      "module_nr": "50836",
+      "name": { "de": "Hacking Innovation Bias" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Innovation"]
+    },
+    {
+      "module_nr": "41039",
+      "name": { "de": "History of Computer Systems" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Geschichte"]
+    },
+    {
+      "module_nr": "40914",
+      "name": { "de": "Hot Topics in Scalable Software Systems" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Systeme", "Seminar"]
+    },
+    {
+      "module_nr": "41194",
+      "name": { "de": "Human-Computer Interaction" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "HCI"]
+    },
+    {
+      "module_nr": "40520",
+      "name": { "de": "IT Security Lab: Vulnerability Assessment" },
+      "lp_value": 6,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Praktikum"]
+    },
+    {
+      "module_nr": "40040",
+      "name": { "de": "Implementierung digitaler Systeme zur Echtzeit-Signalverarbeitung" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Hardware", "Signalverarbeitung"]
+    },
+    {
+      "module_nr": "70455",
+      "name": { "de": "Information Systems Prototyping" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Information Systems", "Projekt"]
+    },
+    {
+      "module_nr": "40511",
+      "name": { "de": "Intelligente Software Systeme" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Software", "Seminar"]
+    },
+    {
+      "module_nr": "40933",
+      "name": { "de": "International Information Security Contest" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Projekt"]
+    },
+    {
+      "module_nr": "41059",
+      "name": { "de": "Internet and Network Security" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Netzwerke"]
+    },
+    {
+      "module_nr": "40416",
+      "name": { "de": "Introduction into Interactive Theorem Proving" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Logik"]
+    },
+    {
+      "module_nr": "41060",
+      "name": { "de": "Introduction to Camera Geometry" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Computer Vision"]
+    },
+    {
+      "module_nr": "41085",
+      "name": { "de": "Klassische Algorithmen der Computer-Graphik" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Computergrafik"]
+    },
+    {
+      "module_nr": "40525",
+      "name": { "de": "Kognitive Algorithmen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Algorithmen"]
+    },
+    {
+      "module_nr": "40531",
+      "name": { "de": "Künstliche Intelligenz: Grundlagen und Anwendungen" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI"]
+    },
+    {
+      "module_nr": "40530",
+      "name": { "de": "Künstliche Intelligenz: Grundlagen, Anwendungen und Seminar" },
+      "lp_value": 9,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Seminar"]
+    },
+    {
+      "module_nr": "40826",
+      "name": { "de": "Lambda-Kalkül und Typ-Systeme" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Theoretische Informatik"]
+    },
+    {
+      "module_nr": "41086",
+      "name": { "de": "Large-scale Data Engineering" },
+      "lp_value": 12,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Engineering", "Projekt"]
+    },
+    {
+      "module_nr": "40547",
+      "name": { "de": "Logik und Komplexität" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Logik", "Komplexität"]
+    },
+    {
+      "module_nr": "41110",
+      "name": { "de": "Machine Learning and Communications" },
+      "lp_value": 3,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "ML"]
+    },
+    {
+      "module_nr": "41103",
+      "name": { "de": "Machine Learning and Security - Bachelor Seminar" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "ML", "Security", "Seminar"]
+    },
+    {
+      "module_nr": "51103",
+      "name": { "de": "Mensch und Maschine: Wie künstliche Intelligenz unser Leben verändert" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Gesellschaft"]
+    },
+    {
+      "module_nr": "40796",
+      "name": { "de": "Modellgetriebene Software-Entwicklung" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Engineering"]
+    },
+    {
+      "module_nr": "40927",
+      "name": { "de": "Multimedia and Wireless Lab" },
+      "lp_value": 9,
+      "module_type": "Praktikum",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "Praktikum"]
+    },
+    {
+      "module_nr": "40586",
+      "name": { "de": "Multimodal Interaction" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "HCI"]
+    },
+    {
+      "module_nr": "41167",
+      "name": { "de": "Natural Language Processing in Humans and Machines" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "NLP", "Seminar"]
+    },
+    {
+      "module_nr": "40596",
+      "name": { "de": "Network Architectures - Seminar" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke", "Seminar"]
+    },
+    {
+      "module_nr": "40591",
+      "name": { "de": "Network Protocols and Architectures" },
+      "lp_value": 6,
+      "module_type": "Vorlesung",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Netzwerke"]
+    },
+    {
+      "module_nr": "40996",
+      "name": { "de": "Open Distributed Systems - Seminar" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Verteilte Systeme", "Seminar"]
+    },
+    {
+      "module_nr": "41183",
+      "name": { "de": "Project Large-scale Data Engineering (benotet)" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Engineering", "Projekt"]
+    },
+    {
+      "module_nr": "41272",
+      "name": { "de": "Project Research Data Infrastructures" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science", "Projekt"]
+    },
+    {
+      "module_nr": "40658",
+      "name": { "de": "Projekt: Symbolische Künstliche Intelligenz" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "KI", "Projekt"]
+    },
+    {
+      "module_nr": "41106",
+      "name": { "de": "Projektorientierte App- und Web-Entwicklung" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Web", "App", "Projekt"]
+    },
+    {
+      "module_nr": "40661",
+      "name": { "de": "Quality & Usability" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Usability", "Seminar"]
+    },
+    {
+      "module_nr": "41135",
+      "name": { "de": "ROC Foundations for Graduate Research in Data Management and Machine Learning Systems" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Science", "ML", "Projekt"]
+    },
+    {
+      "module_nr": "41147",
+      "name": { "de": "Radio Astronomy Project (SIERRA)" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Projekt"]
+    },
+    {
+      "module_nr": "41257",
+      "name": { "de": "Robotics: Fundamentals" },
+      "lp_value": 9,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Robotik"]
+    },
+    {
+      "module_nr": "40790",
+      "name": { "de": "Satellite Communication Project (SIERRA - aka. Projekt Amateurfunk)" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Projekt"]
+    },
+    {
+      "module_nr": "41241",
+      "name": { "de": "Scalability Engineering" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Systeme"]
+    },
+    {
+      "module_nr": "40196",
+      "name": { "de": "Seminar Aktuelle Forschung an Batterien" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Seminar"]
+    },
+    {
+      "module_nr": "40783",
+      "name": { "de": "Seminar Energiespeichertechnik" },
+      "lp_value": 6,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Energie", "Seminar"]
+    },
+    {
+      "module_nr": "41095",
+      "name": { "de": "Seminar Large-scale Data Engineering" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Data Engineering", "Seminar"]
+    },
+    {
+      "module_nr": "41164",
+      "name": { "de": "Seminar: Aktuelle Forschungsthemen in Programmiersprachen und Compilern" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Compiler", "Seminar"]
+    },
+    {
+      "module_nr": "40707",
+      "name": { "de": "Smart Communication Systems" },
+      "lp_value": 9,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Kommunikation"]
+    },
+    {
+      "module_nr": "40952",
+      "name": { "de": "Software Engineering cyber-physischer Systeme" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Engineering", "CPS"]
+    },
+    {
+      "module_nr": "40721",
+      "name": { "de": "Speech Signal Processing and Speech Technology" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Sprachverarbeitung"]
+    },
+    {
+      "module_nr": "40725",
+      "name": { "de": "Study Project Quality & Usability (6 CP)" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Usability", "Projekt"]
+    },
+    {
+      "module_nr": "40726",
+      "name": { "de": "Study Project Quality & Usability (9 CP)" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Usability", "Projekt"]
+    },
+    {
+      "module_nr": "41176",
+      "name": { "de": "The AMOS Project - Product Owner Role" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Agile", "Projekt"]
+    },
+    {
+      "module_nr": "41073",
+      "name": { "de": "The AMOS Project - Scrum Master Role" },
+      "lp_value": 6,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Agile", "Projekt"]
+    },
+    {
+      "module_nr": "40797",
+      "name": { "de": "The AMOS Project - Software Developer Role" },
+      "lp_value": 9,
+      "module_type": "Projekt",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Agile", "Software Engineering", "Projekt"]
+    },
+    {
+      "module_nr": "41166",
+      "name": { "de": "The Software Horror Picture Show" },
+      "lp_value": 3,
+      "module_type": "Seminar",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Software Engineering", "Seminar"]
+    },
+    {
+      "module_nr": "41202",
+      "name": { "de": "Types and Programming Languages" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Programmiersprachen"]
+    },
+    {
+      "module_nr": "40750",
+      "name": { "de": "Usability Engineering" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Usability"]
+    },
+    {
+      "module_nr": "41124",
+      "name": { "de": "Websecurity" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Security", "Web"]
+    },
+    {
+      "module_nr": "40000",
+      "name": { "de": "Webtechnologien" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Web"]
+    },
+    {
+      "module_nr": "40960",
+      "name": { "de": "Wissenschaftliches Arbeiten in der Elektrotechnik. Eine Einführung." },
+      "lp_value": 3,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Wissenschaftliches Arbeiten"]
+    },
+    {
+      "module_nr": "41087",
+      "name": { "de": "World of Proofcraft" },
+      "lp_value": 6,
+      "module_type": "Wahlpflicht",
+      "description": { "de": "" },
+      "tags": ["Katalog Informatik", "Logik", "Beweise"]
+    }
+  ]
