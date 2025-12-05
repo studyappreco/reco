@@ -34,20 +34,25 @@ class TranscriptRow {
   ects float? @description("Credits | LP")
 }
 
-function Parse_transcript_contents(transcript : string) -> TranscriptRow[] {
+class Transcript {
+  compulsary_electives TranscriptRow[] @description("Compulsory Elective Modules")
+  free_electives TranscriptRow[] @description("Elective Modules")
+}
+
+function Parse_transcript_contents(transcript : string) -> Transcript | null {
   client OpenAiClient
   prompt #"
     {{ _.role("user")}}
-    Given to you is the content of a university transcript.
-    Please extract information of already taken exams in form of a structured table.
-    German and English transcripts have the same structure but different column names.
 
-    Courses have minimum of 3 ECTS and maximum of 12. Disregard anything else.
-    Grades can range from 1.0 to 5.0 disregard aanything else.
-    Dates have the following scheme: dd.MM.yyyy
+      Please extract information of already taken exams in form of a structured table.
+      German and English transcripts have the same structure but different column names.
 
-    Entries like "core studies" , "elective modules" or something similar do not resemble courses but general Information
-    disregard these as they do not represent courdse information.
+      Courses have minimum of 3 ECTS and maximum of 12. Disregard anything else.
+      Grades can range from 0.0 to 5.0 disregard anything else.
+      Dates have the following scheme: dd.MM.yyyy
+
+      Entries like "core studies" , "elective modules" or something similar represent categories in the Transcript.
+      Please classify and aggregate the exams taken into seperate groups.
 
     {{ ctx.output_format }}
     {{ transcript }}
