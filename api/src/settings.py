@@ -20,6 +20,10 @@ class Settings:
         self.db_user = os.getenv("DB_USER", "postgres")
         self.db_password = os.getenv("DB_PASSWORD", "postgres")
         
+        self.embedding_provider = os.getenv("EMBEDDING_PROVIDER", "ollama")
+        self.embedding_model = os.getenv("EMBEDDING_MODEL", "mxbai-embed-large")
+        self.embedding_base_url = os.getenv("EMBEDDING_BASE_URL")
+        self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.llm_model = os.getenv("OLLAMA_MODEL", "llama:3.2:latest")
         self.reco_model = os.getenv("RECO_MODEL", "reco-llm-model")
         self.llm_port = int(os.getenv("LLM_PORT", "11434"))
