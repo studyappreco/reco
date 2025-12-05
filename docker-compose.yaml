@@ -1,7 +1,7 @@
 
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -13,12 +13,12 @@ services:
     networks:
       - reco-net
   
-  llm:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    networks:
-      - reco-net
+  # llm:
+  #   image: ollama/ollama:latest
+  #   ports:
+  #     - "11434:11434"
+  #   networks:
+  #     - reco-net
   
   baml:
     read_only: true
@@ -35,7 +35,6 @@ services:
     volumes:
       - baml-client:/app/baml_client
     depends_on:
-      - llm
       - postgres
     networks:
       - reco-net

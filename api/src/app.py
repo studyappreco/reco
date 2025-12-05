@@ -8,6 +8,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from sqlmodel import SQLModel
 from ollama import Client
+from sqlalchemy import text
 
 def create_app():
     import src.model as _models
@@ -65,6 +66,10 @@ def get_lifespan(settings: Settings):
         # Do setup
         app.state.settings = settings
         app.state.engine = create_db_engine(settings)
+        with app.state.engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            conn.commit()
+        logger.info("PGVector extension enabled!")
         #create_ollama_model() for now we are using openAI models
         yield
         # Do teardown
