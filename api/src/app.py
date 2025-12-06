@@ -3,16 +3,11 @@ from src.settings import Settings
 from contextlib import asynccontextmanager
 from sqlmodel import create_engine
 from loguru import logger
+from src.router.api import router as router_example
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from sqlmodel import SQLModel
 from ollama import Client
-from src.database import init_db
-
-from src.router.api import router as router_example
-from src.router.admin import router as router_admin
-from src.router.student import router as router_student
-
 
 def create_app():
     import src.model as _models
@@ -28,11 +23,7 @@ def create_app():
         return HTMLResponse(get_custom_swagger_js(settings.root_path))
     
     app.openapi = lambda: custom_openapi(app)
-    
     app.include_router(router_example)
-    app.include_router(router_admin)
-    app.include_router(router_student)
-
     return app
 
 def custom_openapi(app: FastAPI):
@@ -48,6 +39,14 @@ def custom_openapi(app: FastAPI):
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
+
+def create_db_engine(settings: Settings, echo=False):
+    logger.info(settings.database_url())
+    database_url = settings.database_url()
+    engine = create_engine(database_url, echo=echo, pool_size=15, max_overflow=15)
+    SQLModel.metadata.create_all(engine)
+    logger.info("tables created")
+    return engine
 
 def create_ollama_model():
     client = Client()
@@ -65,9 +64,7 @@ def get_lifespan(settings: Settings):
     async def lifespan(app: FastAPI):
         # Do setup
         app.state.settings = settings
-        app.state.engine = init_db()
-        
-        
+        app.state.engine = create_db_engine(settings)
         create_ollama_model()
         yield
         # Do teardown
