@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_tanstack_query/flutter_tanstack_query.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../ui/InterestSelection.dart';
 
-void main() {
+void main() async {
+
+  await dotenv.load(fileName: ".env");
+  await QueryCache.instance.initialize();
+  await NetworkPolicy.instance.initialize();
+  AppLifecycleManager.instance.initialize();
+
   runApp(const MyApp());
 }
 
@@ -30,7 +40,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Reco Demo Home Page'),
+      home: InterestSelection(),
     );
   }
 }

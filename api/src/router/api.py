@@ -32,6 +32,11 @@ async def upload_pdf(file: UploadFile):
         logger.exception(f"Unexpected error during PDF parsing: {str(e)}")
         raise HTTPException(status_code=500, detail="Error processing PDF")
 
+
+@router.get("/interests")
+async def get_interests():
+    return ["Machine Learning", "Blockchain"]
+
    
 
     
