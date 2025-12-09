@@ -14,4 +14,9 @@
     uv run main.py
 
     check localhost:8000/docs for openApi spec
+
+# Update the openAPI specification
+
+    cd api
+    uv run -m src.scripts.generate_openapi
     
