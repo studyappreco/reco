@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import List, Sequence
+from loguru import logger
 
 from ollama import Client as OllamaClient
 from openai import OpenAI
@@ -57,6 +58,31 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     def embed_many(self, texts: Sequence[str]) -> List[List[float]]:
         response = self.client.embeddings.create(model=self.model, input=list(texts))
         return [item.embedding for item in response.data]
+
+
+class FallbackEmbeddingProvider(EmbeddingProvider):
+    """
+    Tries the primary provider first; on error, falls back to a secondary.
+    Useful when a local provider (e.g., Ollama) might be offline.
+    """
+
+    def __init__(self, primary: EmbeddingProvider, fallback: EmbeddingProvider):
+        self.primary = primary
+        self.fallback = fallback
+
+    def embed_one(self, text: str) -> List[float]:
+        try:
+            return self.primary.embed_one(text)
+        except Exception as exc:  # broad on purpose to avoid blocking pipeline
+            logger.warning(f"Primary embedding provider failed ({exc}); falling back to secondary.")
+            return self.fallback.embed_one(text)
+
+    def embed_many(self, texts: Sequence[str]) -> List[List[float]]:
+        try:
+            return self.primary.embed_many(texts)
+        except Exception as exc:
+            logger.warning(f"Primary embedding provider failed in batch ({exc}); falling back to secondary.")
+            return self.fallback.embed_many(texts)
 
 
 def build_embedding_provider(

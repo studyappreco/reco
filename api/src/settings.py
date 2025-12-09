@@ -25,6 +25,11 @@ class Settings:
         self.llm_port = int(os.getenv("LLM_PORT", "11434"))
         self.llm_host = os.getenv("OLLAMA_BASE_PATH", "http://localhost:11434")
         self.llm_host_local = "http://localhost:11434"
+        # Embedding settings
+        self.embedding_provider = os.getenv("EMBEDDING_PROVIDER", "ollama")
+        self.embedding_model = os.getenv("EMBEDDING_MODEL", self.llm_model)
+        self.embedding_base_url: Optional[str] = os.getenv("EMBEDDING_BASE_URL")
+        self.openai_api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
 
     #for now, change when running on docker
     def llm_url(self) -> str:

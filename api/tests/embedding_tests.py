@@ -1,10 +1,10 @@
 from __future__ import annotations
 from sqlmodel import Session, select
 from src.app import create_db_engine
-from src.model.course_embedding import CourseEmbedding
+from src.model.courses import CourseEmbedding
 from src.service.course_embeddings import CourseEmbeddingService
 from src.settings import Settings
-from src.embedding_provider import EmbeddingProvider
+from src.service.embedding_provider import EmbeddingProvider
 
 
 class DummyEmbeddingProvider(EmbeddingProvider):

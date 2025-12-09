@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Dict, List, Sequence
 from loguru import logger
 from sqlmodel import Session, select
-from src.embedding_provider import EmbeddingProvider, build_embedding_provider
-from src.model.course_embedding import CourseEmbedding
+from src.service.embedding_provider import EmbeddingProvider, FallbackEmbeddingProvider, build_embedding_provider
+from src.model.courses import CourseEmbedding
 from src.app import create_db_engine
 from src.settings import Settings
 
@@ -117,13 +117,22 @@ def ingest_course_embeddings(
     ollama_host = settings.llm_host
     if settings.embedding_provider.lower() == "ollama" and ollama_host:
         ollama_host = ollama_host.removesuffix("/v1")
-    provider = build_embedding_provider(
+    primary_provider = build_embedding_provider(
         provider=settings.embedding_provider,
         model=settings.embedding_model,
         api_key=settings.openai_api_key,
         base_url=settings.embedding_base_url,
         host=ollama_host if settings.embedding_provider.lower() == "ollama" else None,
     )
+    provider: EmbeddingProvider = primary_provider
+    if settings.embedding_provider.lower() == "ollama" and settings.openai_api_key:
+        fallback_provider = build_embedding_provider(
+            provider="openai",
+            model=settings.embedding_model,
+            api_key=settings.openai_api_key,
+            base_url=settings.embedding_base_url,
+        )
+        provider = FallbackEmbeddingProvider(primary=primary_provider, fallback=fallback_provider)
     service = CourseEmbeddingService(engine=engine, provider=provider)
     courses = service.load_courses(data_path=data_path)
     return service.ingest(courses)
