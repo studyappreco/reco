@@ -1,0 +1,115 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:async';
+
+class InterestSelectionPage extends StatelessWidget {
+  const InterestSelectionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<InterestSelectionViewmodel>(
+      create: (_) => InterestSelectionViewmodel(),
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Please select your areas of Interest in your degree")),
+        body: Consumer<InterestSelectionViewmodel>(
+          builder: (context, vm, child) {
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: vm.allInterests.map((interest) {
+                final isSelected = vm.selectedInterests.contains(interest);
+                return _InterestChip(
+                  label: interest,
+                  isSelected: isSelected,
+                  onTap: () => vm.toggleInterest(interest),
+                );
+              }).toList(),
+            );
+          },
+        ),
+        bottomNavigationBar: Consumer<InterestSelectionViewmodel>(
+          builder: (context, vm, child) {
+            final enabled = vm.selectedInterests.length >= 3;
+            return Padding(
+              padding: const EdgeInsets.all(25),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purpleAccent,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey,
+                  disabledForegroundColor: Colors.white70,
+                ),
+                onPressed: enabled ? () {
+                  // Continue action
+                } : null,
+                child: const Text("Continue"),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _InterestChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _InterestChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? CupertinoColors.systemPurple
+              : CupertinoColors.systemGrey5,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? CupertinoColors.systemPurple
+                : CupertinoColors.systemGrey4,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected
+                ? CupertinoColors.white
+                : CupertinoColors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class InterestSelectionViewmodel extends ChangeNotifier {
+  final List<String> _allInterests = <String>["Machine Learning", "Blockchain", "5G/6G Networks", "Artificial Intelligence", "Probability"];
+  final List<String> _selectedInterests = <String>[];
+
+  List<String> get allInterests => _allInterests;
+  List<String> get selectedInterests => _selectedInterests;
+
+  void toggleInterest(String interest) {
+    if (selectedInterests.contains(interest)) {
+      selectedInterests.remove(interest);
+    } else {
+      selectedInterests.add(interest);
+    }
+    notifyListeners();
+  }
+}
+
