@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -112,8 +114,19 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (context) => InterestSelectionPage(),
                 ),
               );
-            }, tooltip: "NavigateToInterestSelection", heroTag: "Interests", child: const Text("Go to Interestselection page"))
+            }, tooltip: "NavigateToInterestSelection", heroTag: "Interests", child: const Text("Go to Interestselection page")),
+            
+            FloatingActionButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TestWidgetButton(),
+                ),
+              );
+            }, child: const Text("Show Adaptive Button"))
+            
           ],
+          
         ),
       ),
     );
