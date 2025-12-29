@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 
 
 void main() {
@@ -116,15 +117,27 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }, tooltip: "NavigateToInterestSelection", heroTag: "Interests", child: const Text("Go to Interestselection page")),
             
-            FloatingActionButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TestWidgetButton(),
-                ),
-              );
-            }, child: const Text("Show Adaptive Button"))
-            
+            // shows how to use the adaptive button in TestWidgetButton
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TestWidgetButton()),
+                );
+              },
+              child: const Text("example Adaptive Button"),
+            ),
+
+            // shows how to use the adaptive search field in SearchScreen
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchScreen()),
+                );
+              },
+              child: const Text("example Search Screen"),
+            ),
           ],
           
         ),
