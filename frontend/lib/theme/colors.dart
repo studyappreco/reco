@@ -11,5 +11,7 @@ class AppColors{
   static const Color textMain = Color(0xFF0A0A0A);
   static const Color textSecondary = Color(0xFF6A7282);
 
+  static const Color border = Color(0xFFE5E7EB);
+
   // TODO add more colors
 }

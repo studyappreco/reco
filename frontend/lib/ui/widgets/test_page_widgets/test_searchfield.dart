@@ -51,58 +51,28 @@ class _SearchScreenState extends State<SearchScreen>{
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        // Theme (will then be globally outsourced if we use the implementation in the PR #26)
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF155DFC),
-          brightness: Brightness.light,
-          primary: Color(0xFF155DFC),
-        ),
-
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Color(0xFFF9FAFB),
-          hintStyle: TextStyle(color: Color(0xFF6A7282)),
-          prefixIconColor: Color(0xFF6A7282),
-
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
-          ),
-
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(color: Color(0xFF155DFC), width: 1.5),
-          ),
-
-        ),
-      ),
-      
-      child: Scaffold(
-        appBar: AppBar(title: Text("Discover Modules")),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              AdaptiveSearchField(
-                onChanged: _runFilter,
+    return Scaffold(
+      appBar: AppBar(title: Text("Discover Modules")),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            AdaptiveSearchField(
+              onChanged: _runFilter,
+            ),
+            
+            Expanded(
+              child: ListView.builder(
+                itemCount: foundModules.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(foundModules[index]),
+                    onTap: () { print("Selected: ${foundModules[index]}");},
+                  );
+                },
               ),
-              
-              Expanded(
-                child: ListView.builder(
-                  itemCount: foundModules.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(foundModules[index]),
-                      onTap: () { print("Selected: ${foundModules[index]}");},
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
