@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:async';
+import 'package:frontend/theme/colors.dart';
 
 class InterestSelectionPage extends StatelessWidget {
   const InterestSelectionPage({super.key});
@@ -35,10 +35,10 @@ class InterestSelectionPage extends StatelessWidget {
               padding: const EdgeInsets.all(25),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purpleAccent,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey,
-                  disabledForegroundColor: Colors.white70,
+                  backgroundColor: AppColors.primaryBlue,
+                  foregroundColor: AppColors.buttonText,
+                  disabledBackgroundColor: AppColors.primaryBlueLight,
+                  disabledForegroundColor: AppColors.buttonText,
                 ),
                 onPressed: enabled ? () {
                   // Continue action
@@ -72,13 +72,13 @@ class _InterestChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? CupertinoColors.systemPurple
-              : CupertinoColors.systemGrey5,
+              ? AppColors.primaryBlue
+              : AppColors.primaryBlueLight,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? CupertinoColors.systemPurple
-                : CupertinoColors.systemGrey4,
+                ? AppColors.primaryBlue
+                : AppColors.primaryBlueLight,
           ),
         ),
         child: Text(
