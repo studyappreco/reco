@@ -57,7 +57,7 @@ class AppTheme {
       // Global styling for all FilledButtons
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          foregroundColor: AppColors.background,
+          foregroundColor: AppColors.buttonText,
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
           textStyle: _baseTextTheme.labelLarge,
