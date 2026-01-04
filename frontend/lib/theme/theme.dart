@@ -45,7 +45,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: _lightScheme,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: AppColors.standardWhitebackground,
 
       // We will customize specific components here later
       // Examples: AppBarTheme, ButtonThemeData, etc.
