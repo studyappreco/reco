@@ -4,7 +4,6 @@ import 'package:frontend/theme/theme.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
-import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 
 
 void main() {
@@ -127,18 +126,9 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("example Search Screen"),
             ),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TestCourseCardPage()),
-                );
-              },
-              child: const Text("example Course Card"),
-            ),
+            
+            
           ],
-          
         ),
       ),
     );
