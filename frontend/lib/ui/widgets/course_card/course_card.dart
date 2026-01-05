@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/theme/colors.dart'; 
 import 'course_card_styles.dart'; 
 
@@ -60,7 +61,7 @@ class CourseCard extends StatelessWidget {
                       // https://api.flutter.dev/flutter/widgets/RichText-class.html
                       child: RichText(
                         text: TextSpan(
-                          style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain),
+                          style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
                           children: [
                             TextSpan(text: title),
                             TextSpan(text: ' ($moduleNr)'),
@@ -99,10 +100,11 @@ class CourseCard extends StatelessWidget {
                             child: Container(
                               padding: EdgeInsets.all(8),
                               decoration: CourseCardStyles.getPlanDecoration(isActive: isPlanned),
-                              child: Icon(
-                                isPlanned ? Icons.book : Icons.book_outlined, // TODO change that with the Figma icon
-                                color: AppColors.grey,
-                                size: 20,
+                              child: SvgPicture.asset(  // https://www.geeksforgeeks.org/flutter/flutter-how-to-use-svg-image/ and https://stackoverflow.com/questions/67588713/flutter-changing-svg-icon-color
+                                isPlanned ? 'assets/icons/book-open-filled.svg' : 'assets/icons/book-open.svg', 
+                                width: 20,
+                                height: 20,
+                                colorFilter: ColorFilter.mode(AppColors.grey, BlendMode.srcIn),
                               ),
                             ),
                           ),
