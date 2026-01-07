@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 
 import 'package:frontend/ui/InterestSelectionPage.dart';
+import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -104,6 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               );
             }, tooltip: "NavigateToInterestSelection", heroTag: "Interests", child: const Text("Go to Interestselection page")),
+
+            FloatingActionButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateAccountForm(),
+                ),
+              );
+            }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account"))
             
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
