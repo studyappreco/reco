@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
   file_picker: ^10.3.8
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +59,14 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  fonts:
+    - family: Arimo
+      fonts:
+        - asset: assets/fonts/Arimo/Arimo-VariableFont_wght.ttf
+        - asset: assets/fonts/Arimo/Arimo-Italic-VariableFont_wght.ttf
+          style: italic
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
