@@ -112,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   builder: (context) => CreateAccountForm(),
                 ),
               );
-            }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account"))
+            }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account")),
             
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
