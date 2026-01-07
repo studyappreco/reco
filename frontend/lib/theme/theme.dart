@@ -46,7 +46,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: _lightScheme,
       scaffoldBackgroundColor: AppColors.standardWhitebackground,
-
+      fontFamily: 'Arimo',
       // We will customize specific components here later
       // Examples: AppBarTheme, ButtonThemeData, etc.
       
