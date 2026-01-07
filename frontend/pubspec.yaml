@@ -35,6 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +65,7 @@ flutter:
         - asset: assets/fonts/Arimo/Arimo-VariableFont_wght.ttf
         - asset: assets/fonts/Arimo/Arimo-Italic-VariableFont_wght.ttf
           style: italic
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:
