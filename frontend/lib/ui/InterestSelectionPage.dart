@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 
@@ -41,7 +42,12 @@ class InterestSelectionPage extends StatelessWidget {
                   disabledForegroundColor: AppColors.buttonText,
                 ),
                 onPressed: enabled ? () {
-                  // Continue action
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UploadTranscriptPage(),
+                    ),
+                  );
                 } : null,
                 child: const Text("Continue"),
               ),
