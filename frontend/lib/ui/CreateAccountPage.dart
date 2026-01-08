@@ -1,7 +1,11 @@
+
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
+import 'package:frontend/ui/utils/auth.dart';
 
 
 
@@ -38,6 +42,26 @@ class CreateAccountFormState extends State<CreateAccountForm> {
     passwordController.dispose();
     passwordControllerRepeat.dispose();
     super.dispose();
+  }
+
+  Future<void> registerNewUser () async {
+      Client? client = BackendClient.getBackendClient();
+      if (client == null) throw Exception("Backend client could not be initialized");
+      Account account = Account(client);
+
+      String userName = nameController.text;
+      String userPassword = passwordController.text;
+      String userEmail = emailController.text;
+      print(userName);
+      print(userPassword);
+      print(userEmail);
+
+      User user = await account.create(
+          userId: ID.unique(),
+          email: 'email@example.com',
+          password: userPassword,
+          name: userName,
+      );
   }
 
   String? nameValidator(String? value) {
@@ -131,8 +155,30 @@ class CreateAccountFormState extends State<CreateAccountForm> {
             disabledBackgroundColor: AppColors.primaryBlueLight,
             disabledForegroundColor: AppColors.buttonText,
           ),
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
+              try {
+                await registerNewUser();
+              } on Exception catch (e) {
+                print(e.toString());
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Alert'),
+                      content: Text('This is an alert message'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // closes the dialog
+                          },
+                          child: Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(
