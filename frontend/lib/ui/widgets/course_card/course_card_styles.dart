@@ -7,12 +7,12 @@ class CourseCardStyles {
   static final BoxDecoration _lightDecorationCard = BoxDecoration(
     color: AppColors.standardWhitebackground,
     borderRadius: BorderRadius.circular(20),
-    border: Border.all(color: Color.fromARGB(100, 0, 0, 0), width: 1),
+    border: Border.all(color: Color.fromARGB(50, 0, 0, 0), width: 0.5),
     boxShadow: [
       BoxShadow(
-        color: Color.fromARGB(100, 0, 0, 0),
-        blurRadius: 10,
-        offset: Offset(0, 5),
+        color: Color.fromARGB(50, 0, 0, 0),
+        blurRadius: 2,
+        offset: Offset(0, 2),
       ),
     ],
   );

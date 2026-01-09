@@ -6,6 +6,7 @@ class Course{
   final String title;
   final String moduleNr;
   final String credits;
+  final String? matchBasis;
   final List<String> tags;
   final double? rating;
   final int matchPercentage;
@@ -21,6 +22,7 @@ class Course{
     required this.matchPercentage,
     this.isFavorite = false,
     this.isPlanned = false,
+    this.matchBasis,
   });
 }
 
@@ -43,6 +45,7 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
       matchPercentage: 95,
       isFavorite: false,
       isPlanned: false,
+      matchBasis: null
     ),
     Course(
       title: "Deep Learning",
@@ -53,6 +56,7 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
       matchPercentage: 45,
       isFavorite: true,
       isPlanned: true,
+      matchBasis: "interests"
     ),
   ];
 
@@ -88,6 +92,7 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
               matchPercentage: course.matchPercentage,
               isFavorite: course.isFavorite,
               isPlanned: course.isPlanned, 
+              matchBasis: course.matchBasis,
               onCardTap: () => print("${course.moduleNr}"),
               onFavoriteTap: () => clickFavorite(index),
               onPlanTap: () => clickPlan(index), 

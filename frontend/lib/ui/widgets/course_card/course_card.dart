@@ -7,6 +7,7 @@ class CourseCard extends StatelessWidget {
   final String title;
   final String moduleNr;
   final String credits;
+  final String? matchBasis; 
   final List<String> tags;
   final double? rating;
   final int matchPercentage;
@@ -23,6 +24,7 @@ class CourseCard extends StatelessWidget {
     required this.title,
     required this.moduleNr,
     required this.credits,
+    this.matchBasis,
     required this.tags,
     this.rating,
     required this.matchPercentage,
@@ -170,14 +172,41 @@ class CourseCard extends StatelessWidget {
                         ],
                       ),
                       
-                      // Match Percentage
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: CourseCardStyles.getMatchDecoration(),
-                        child: Text(
-                          '$matchPercentage% match',
-                          style: textTheme.labelSmall?.copyWith(color: AppColors.green),
-                        ),
+                      // Match Percentage Area
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+
+                          if(matchBasis != null)
+                            Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Based on your $matchBasis ',
+                                    style: textTheme.labelSmall?.copyWith(
+                                      color: AppColors.green,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.check_box, 
+                                    color: AppColors.green,
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: CourseCardStyles.getMatchDecoration(),
+                            child: Text(
+                              '$matchPercentage% match',
+                              style: textTheme.labelSmall?.copyWith(color: AppColors.green),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
