@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../adaptive_searchfield.dart';
+import '../AdaptiveSearchfield.dart';
 
 // This is an example of how to use AdaptiveSearchField, based on our Search page in Figma
 

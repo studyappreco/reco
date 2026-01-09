@@ -3,12 +3,18 @@ import 'package:frontend/theme/theme.dart';
 
 import 'package:frontend/ui/InterestSelectionPage.dart';
 
-
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 
-void main() {
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/ui/SignInPage.dart';
+import 'package:frontend/ui/CreateAccountPage.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -102,11 +108,20 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => InterestSelectionPage(),
+                  builder: (context) => SingInPageForm(),
                 ),
               );
-            }, tooltip: "NavigateToInterestSelection", heroTag: "Interests", child: const Text("Go to Interestselection page")),
-            
+            }, tooltip: "NavigateToSignIn", heroTag: "SignIn", child: const Text("Sign in Page")),
+
+            FloatingActionButton(onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateAccountForm(),
+                ),
+              );
+            }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account")),
+
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
               onPressed: () {
