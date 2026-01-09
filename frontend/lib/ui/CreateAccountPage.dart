@@ -6,7 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/utils/auth.dart';
-
+import 'package:frontend/ui/widgets/AdaptiveButton.dart';
+import 'package:frontend/ui/widgets/PasswordField.dart';
+import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 
 
 class CreateAccountForm extends StatefulWidget {
@@ -52,13 +54,10 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       String userName = nameController.text;
       String userPassword = passwordController.text;
       String userEmail = emailController.text;
-      print(userName);
-      print(userPassword);
-      print(userEmail);
 
       User user = await account.create(
           userId: ID.unique(),
-          email: 'email@example.com',
+          email: userEmail,
           password: userPassword,
           name: userName,
       );
@@ -72,27 +71,6 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       return "Name must exceed 5 characters";
     }
 
-    return null;
-  }
-
-  String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Please enter an email address";
-    }
-    if (!value.endsWith("gmail.com")) {
-      return "Email address is not valid";
-    }
-    return null;
-  }
-
-  String? passwordValidator(String? value) {
-    print("validating");
-    if (value == null || value.isEmpty) {
-      return "Password cannot be empty";
-    }
-    if (value.length < 5) {
-      return "Password must at least have 8 characters";
-    }
     return null;
   }
 
@@ -148,166 +126,40 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(25),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryBlue,
-            foregroundColor: AppColors.buttonText,
-            disabledBackgroundColor: AppColors.primaryBlueLight,
-            disabledForegroundColor: AppColors.buttonText,
-          ),
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              try {
-                await registerNewUser();
-              } on Exception catch (e) {
-                print(e.toString());
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Alert'),
-                      content: Text('This is an alert message'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // closes the dialog
-                          },
-                          child: Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
+        child: AdaptiveButton(child: Text("Continue"), onPressed: () => () async {
+          if (_formKey.currentState!.validate()) {
+            try {
+              await registerNewUser();
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => SpecifyDegreePage(),
                 ),
               );
+            } on Exception catch (e) {
+              print(e.toString());
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Alert'),
+                    content: Text('Creating'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // closes the dialog
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
             }
-          },
-          child: const Text("Continue"),
+          }
+        }),
         ),
-      ),
-    );
-  }
-}
-
-class PasswordField extends StatefulWidget {
-  final TextEditingController controller;
-  final Validator? validator;
-  final String label;
-  final String hint;
-
-  const PasswordField({
-    super.key,
-    required this.controller,
-    this.validator,
-    required this.label,
-    required this.hint
-  });
-
-  @override
-  State<PasswordField> createState() => _PasswordFieldState();
-}
-
-class _PasswordFieldState extends State<PasswordField> {
-  bool _obscureText = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      obscureText: _obscureText,
-      keyboardType: TextInputType.visiblePassword,
-      autofillHints: const [AutofillHints.password],
-      decoration: InputDecoration(
-        labelText: widget.label,
-        hintText: widget.hint,
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscureText ? Icons.visibility_off : Icons.visibility,
-          ),
-          onPressed: () {
-            setState(() {
-              _obscureText = !_obscureText;
-            });
-          },
-        ),
-      ),
-    );
-  }
-}
-
-
-class DropdownMenuDegree extends StatefulWidget {
-  const DropdownMenuDegree({
-    super.key,
-    required this.selectives,
-    required this.menuLabel,
-    required this.initialSelection,
-  });
-
-  final String initialSelection;
-  final String menuLabel;
-  final List<DropdownMenuEntry<String>> selectives;
-
-  @override
-  State<DropdownMenuDegree> createState() => _DropdownMenuDegreeState();
-}
-
-class _DropdownMenuDegreeState extends State<DropdownMenuDegree> {
-    String? selected;
-
-    @override
-  Widget build(BuildContext context) {
-      final initialSelection = widget.initialSelection;
-      final entries = widget.selectives;
-      final label = widget.menuLabel;
-
-    return DropdownMenu<String>(
-      width: 350,
-      initialSelection: initialSelection,
-      requestFocusOnTap: true,
-      label: Text(label),
-      onSelected: (String? degreeType) {
-        setState(() {
-          selected = degreeType;
-        });
-      },
-      dropdownMenuEntries: entries ,
-    );
-  }
-}
-
-typedef Validator = String? Function(String? value);
-
-class ValidatedTextField extends StatelessWidget {
-  final FocusNode? focusNode;
-  final bool autofocus;
-  final Validator? validator;
-  final String? labelText;
-  final TextEditingController controller;
-
-  const ValidatedTextField({
-    Key? key,
-    this.focusNode,
-    this.autofocus = false,
-    this.validator,
-    this.labelText,
-    required this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      focusNode: focusNode,
-      autofocus: autofocus,
-      validator: validator,
-      decoration: InputDecoration(labelText: labelText),
-      controller: controller,
-    );
+      );
   }
 }
 

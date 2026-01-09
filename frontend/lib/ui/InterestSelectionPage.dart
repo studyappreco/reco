@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
+import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 
@@ -34,24 +35,15 @@ class InterestSelectionPage extends StatelessWidget {
             final enabled = vm.selectedInterests.length >= 3;
             return Padding(
               padding: const EdgeInsets.all(25),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryBlue,
-                  foregroundColor: AppColors.buttonText,
-                  disabledBackgroundColor: AppColors.primaryBlueLight,
-                  disabledForegroundColor: AppColors.buttonText,
-                ),
-                onPressed: enabled ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UploadTranscriptPage(),
-                    ),
-                  );
-                } : null,
-                child: const Text("Continue"),
-              ),
-            );
+              child: AdaptiveButton(child: Text("Continue"), onPressed: () => enabled ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UploadTranscriptPage(),
+                  ),
+                );
+              } : null,)
+              );
           },
         ),
       ),
