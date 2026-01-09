@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../course_card/course_card.dart'; 
+import '../CourseCard/CourseCard.dart'; 
 
 // shows how the course card can be used as an example
 class Course{
