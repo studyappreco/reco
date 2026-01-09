@@ -191,7 +191,7 @@ class CourseCard extends StatelessWidget {
                                   ),
                                   Icon(
                                     Icons.check_box, 
-                                    color: AppColors.green,
+                                    color: AppColors.matchGreen,
                                     size: 18,
                                   ),
                                 ],
