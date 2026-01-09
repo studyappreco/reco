@@ -38,6 +38,7 @@ dependencies:
   appwrite: ^20.3.2
   file_picker: ^10.3.8
   flutter_dotenv: ^6.0.0
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -57,14 +58,13 @@ dev_dependencies:
 flutter:
   assets:
     - .env
+    - assets/icons/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-  assets:
-    - assets/icons/
+    
 
   fonts:
     - family: Arimo
