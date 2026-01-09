@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
-
-import 'package:frontend/ui/InterestSelectionPage.dart';
-
-import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
-import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
-import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
