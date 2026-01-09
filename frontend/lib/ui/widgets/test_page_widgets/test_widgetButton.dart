@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../adaptive_button.dart';
+import '../AdaptiveButton.dart';
 
 // Shows how to use AdaptiveButton with two variants that we will definitely use in the future
 class TestWidgetButton extends StatelessWidget {
