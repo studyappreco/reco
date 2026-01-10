@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
@@ -116,6 +117,15 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account")),
 
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+              },
+              child: const Text("Home Page"),
+            ),
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
               onPressed: () {
