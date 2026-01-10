@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/theme/colors.dart'; 
-import 'CourseCard_styles.dart'; 
+import 'package:frontend/ui/widgets/Chip.dart';
+import 'CourseCard_styles.dart';
 
 class CourseCard extends StatelessWidget {
   final String title;

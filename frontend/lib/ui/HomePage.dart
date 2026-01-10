@@ -4,6 +4,7 @@ import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
+import 'package:frontend/ui/widgets/Chip.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
