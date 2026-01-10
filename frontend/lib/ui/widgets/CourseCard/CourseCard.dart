@@ -61,27 +61,27 @@ class CourseCard extends StatelessWidget {
                   children: [
 
                     // top
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          // https://api.flutter.dev/flutter/widgets/RichText-class.html
-                          child: RichText(
-                            text: TextSpan(
-                              style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
-                              children: [
-                                TextSpan(text: title),
-                                TextSpan(text: ' ($moduleNr)'),
-                                TextSpan(text: ' • $credits ECTS', style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                                ),
-                              ],
+                    Padding(
+                      padding: EdgeInsets.only(right: 90),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            // https://api.flutter.dev/flutter/widgets/RichText-class.html
+                            child: RichText(
+                              text: TextSpan(
+                                style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
+                                children: [
+                                  TextSpan(text: title),
+                                  TextSpan(text: ' ($moduleNr)'),
+                                  TextSpan(text: ' • $credits ECTS', style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-
-                        // Buttons Favorite + Plan
-
-                      ],
+                        ],
+                      ),
                     ),
                     Text(
                         category,
