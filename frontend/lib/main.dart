@@ -158,6 +158,16 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("example Course Card"),
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UploadTranscriptPage()),
+                );
+              },
+              child: const Text("Upload Transcript"),
+            ),
             
           ],
         ),

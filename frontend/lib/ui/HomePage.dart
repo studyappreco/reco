@@ -233,25 +233,6 @@ class HomePage extends StatelessWidget {
             );
           },
         ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 0, 24, 20),
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UploadTranscriptPage(),
-                    ),
-                  );
-                },
-                child: const Text('Upload Transcript'),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
