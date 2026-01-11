@@ -5,6 +5,7 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/ui/UploadTranscriptPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -232,6 +233,25 @@ class HomePage extends StatelessWidget {
             );
           },
         ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, 0, 24, 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UploadTranscriptPage(),
+                    ),
+                  );
+                },
+                child: const Text('Upload Transcript'),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -306,4 +326,3 @@ class PercentageBar extends StatelessWidget {
 class HomePageViewmodel extends ChangeNotifier {
 
 }
-
