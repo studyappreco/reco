@@ -68,6 +68,7 @@ class StatusMessage {
     bool? isError,
     required BuildContext context,
     required SnackAlignment alignment,
+    Duration duration = const Duration(seconds: 4),
   }){
     if(_overlayEntry != null){
       _overlayEntry!.remove();
@@ -75,7 +76,7 @@ class StatusMessage {
     }
 
     _overlayEntry = _createOverlayEntry(title, message, isError, alignment);
-    _insertOverlay(context);
+    _insertOverlay(context, duration);
   }
 
   static void hide(){
@@ -86,10 +87,10 @@ class StatusMessage {
     _timer?.cancel();
   }
 
-  static void _insertOverlay(BuildContext context) async {
+  static void _insertOverlay(BuildContext context, Duration duration){
     Navigator.of(context).overlay!.insert(_overlayEntry!);
 
-    _timer = Timer(const Duration(seconds: 4), (){
+    _timer = Timer(duration, () {
       if(_overlayEntry != null){
         _overlayEntry?.remove();
         _overlayEntry = null;

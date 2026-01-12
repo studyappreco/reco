@@ -28,7 +28,9 @@ class TestStatusMessage extends StatelessWidget {
                         alignment: SnackAlignment.TOP,
                         title: "Success!",
                         message: "Your transcript has been recorded.",
-                        isError: false);
+                        isError: false,
+                        duration: Duration(seconds: 8), // New: You can now specify how long the message should be displayed, If nothing is specified, 4 seconds is always displayed
+                    );
                   },
                   child: Text("Top Success")),
               
