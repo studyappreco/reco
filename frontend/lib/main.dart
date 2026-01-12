@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
@@ -117,6 +118,16 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account")),
 
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NavigationWrapper()),
+                );
+              },
+              child: const Text("Navigation Bar"),
+            ),
+            
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
