@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
+import 'package:frontend/ui/CourseDetailsPage.dart';
 import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
@@ -136,6 +137,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text("Home Page"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CourseDetailsPage()),
+                );
+              },
+              child: const Text("Course Details Page"),
             ),
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
