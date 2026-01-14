@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/theme/colors.dart';
 
 class UploadTranscriptPage extends StatefulWidget {
   const UploadTranscriptPage({super.key});
@@ -24,7 +25,7 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: const ['pdf', 'csv'],
+        allowedExtensions: const ['pdf'],
         withData: false,
       );
 
@@ -37,12 +38,12 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
 
       final pickedFile = result.files.first;
       final ext = pickedFile.extension?.toLowerCase();
-      final isSupported = ext == 'pdf' || ext == 'csv';
+      final isSupported = ext == 'pdf';
 
       if (!isSupported) {
         setState(() {
           _selectedFileName = null;
-          _errorMessage = 'Unsupported file type. Please upload a PDF or CSV.';
+          _errorMessage = 'Unsupported file type. Please upload a PDF.';
         });
         return;
       }
@@ -68,11 +69,6 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     setState(() {
       _uploadConfirmed = true;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$_selectedFileName ready to upload'),
-      ),
-    );
   }
 
   @override
@@ -80,27 +76,64 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close, color: AppColors.textMain),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
-        title: const Text('Upload Transcript'),
+        title: Text(
+          'Upload Transcript',
+          style: theme.textTheme.titleLarge?.copyWith(color: AppColors.textMain),
+        ),
         centerTitle: true,
-        elevation: 0.5,
+        elevation: 0,
+        scrolledUnderElevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               'Upload your transcript to automatically import completed courses',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[700],
+                color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            if (_uploadConfirmed && _errorMessage == null) ...[
+              _StatusBanner(
+                background: AppColors.greenLight,
+                border: AppColors.greenLight,
+                icon: Icons.check_circle,
+                iconColor: AppColors.green,
+                title: 'Success!',
+                message: 'Your transcript has been recorded.',
+                onClose: () {
+                  setState(() {
+                    _uploadConfirmed = false;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (_errorMessage != null) ...[
+              _StatusBanner(
+                background: const Color(0xFFFFF1F2),
+                border: const Color(0xFFFFE4E6),
+                icon: Icons.error_outline,
+                iconColor: Colors.red,
+                title: 'Upload failed',
+                message: _errorMessage!,
+                onClose: () {
+                  setState(() {
+                    _errorMessage = null;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
             GestureDetector(
               onTap: _isPicking ? null : _pickTranscript,
               child: Container(
@@ -111,98 +144,131 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
                   border: Border.all(
                     color: _errorMessage != null
                         ? Colors.redAccent
-                        : Colors.grey.shade300,
+                        : AppColors.border,
                   ),
-                  color: Colors.grey.shade50,
+                  color: Colors.white,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                      padding: const EdgeInsets.all(14),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryBlueLight,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.upload_rounded,
+                      child: const Icon(
+                        Icons.cloud_upload_outlined,
                         size: 28,
-                        color: Colors.blue.shade700,
+                        color: AppColors.primaryBlue,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text(
                       _selectedFileName ?? 'Browse to upload files',
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: AppColors.textMain,
                         fontWeight: FontWeight.w600,
-                        color: _selectedFileName != null
-                            ? Colors.black
-                            : Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Text(
-                      'Supported formats: PDF, CSV',
+                      'Supported formats: PDF',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     if (_isPicking) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       const CircularProgressIndicator(strokeWidth: 2),
-                    ],
-                    if (_uploadConfirmed && _errorMessage == null) ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.check_circle, color: Colors.green, size: 18),
-                          SizedBox(width: 6),
-                          Text(
-                            'File ready to upload',
-                            style: TextStyle(color: Colors.green),
-                          ),
-                        ],
-                      ),
                     ],
                   ],
                 ),
               ),
             ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ],
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: ElevatedButton(
-            onPressed: (_selectedFileName != null && _errorMessage == null && !_isPicking)
-                ? _confirmUpload
-                : null,
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.grey.shade400,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: (_selectedFileName != null && _errorMessage == null && !_isPicking)
+                  ? _confirmUpload
+                  : null,
+              child: const Text('Confirm Upload'),
             ),
-            child: const Text('Confirm Upload'),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _StatusBanner extends StatelessWidget {
+  final Color background;
+  final Color border;
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String message;
+  final VoidCallback onClose;
+
+  const _StatusBanner({
+    required this.background,
+    required this.border,
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.message,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: iconColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.titleSmall?.copyWith(
+                    color: AppColors.textMain,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  message,
+                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onClose,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: const Icon(Icons.close, size: 18, color: AppColors.textSecondary),
+          )
+        ],
       ),
     );
   }
