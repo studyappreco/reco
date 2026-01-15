@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/colors.dart';
 
 class SpecifyDegreePage extends StatefulWidget {
@@ -55,12 +56,7 @@ class _SpecifyDegreePageState extends State<SpecifyDegreePage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(25),
         child: AdaptiveButton(child: Text("Continue"), onPressed: () =>
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => InterestSelectionPage(),
-              ),
-            )
+            context.go('/register/specify-degree/interests')
         )
         ),
       );

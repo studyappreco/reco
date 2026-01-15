@@ -9,6 +9,7 @@ import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
+import 'package:go_router/go_router.dart';
 
 
 class CreateAccountForm extends StatefulWidget {
@@ -126,16 +127,11 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(25),
-        child: AdaptiveButton(child: Text("Continue"), onPressed: () => () async {
+        child: AdaptiveButton(child: Text("Continue"), onPressed: () async {
           if (_formKey.currentState!.validate()) {
             try {
               await registerNewUser();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SpecifyDegreePage(),
-                ),
-              );
+              context.go('/register/specify-degree');
             } on Exception catch (e) {
               print(e.toString());
               showDialog(

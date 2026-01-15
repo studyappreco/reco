@@ -1,6 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final PROJECT_ID = dotenv.env['PROJECT_ID'];
@@ -30,9 +30,9 @@ String? emailValidator(String? value) {
   if (value == null || value.isEmpty) {
     return "Please enter an email address";
   }
-  if (!value.endsWith("gmail.com")) {
+  /*if (!value.endsWith("gmail.com")) {
     return "Email address is not valid";
-  }
+  }*/
   return null;
 }
 
@@ -46,22 +46,36 @@ String? passwordValidator(String? value) {
   return null;
 }
 
-class ClientSession {
-    static Session? userSession = null;
+class ClientSession extends ChangeNotifier {
+  Session? _session;
 
-    static void setUserSession(Session session) {
-        userSession = session;
+  ClientSession() {
+    _initUserSession();
+  }
+
+  Future<void> _initUserSession() async {
+    try {
+      Client? client = BackendClient.getBackendClient();
+      if (client == null) throw Exception("Backend client could not be initialized");
+      Account account = Account(client);
+      _session = await account.getSession(sessionId: 'current');
+    } catch (e) {
+      _session = null;
     }
+    notifyListeners();
+  }
 
-    static Session? getClientSession() {
-      if (userSession == null) {
-        // navigate to login page since session is not set
-      }
+  Session? get session => _session;
 
-      if (!userSession!.current) {
-        //navigate to login since session is outdated
-      }
+  bool get isLoggedIn => _session?.current == true;
 
-      return userSession;
+  void setUserSession(Session session) {
+    _session = session;
+    notifyListeners();
+  }
+
+  void clearUserSession() {
+    _session = null;
+    notifyListeners();
   }
 }

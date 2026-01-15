@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
@@ -169,7 +170,7 @@ class HomePage extends StatelessWidget {
                       isFavorite: false,
                       isPlanned: false,
                       matchBasis: "interests",
-                      onCardTap: () {},
+                      onCardTap: () => context.go('/home/course-details'),
                       onFavoriteTap: () {},
                       onPlanTap: () {},
                     ),
@@ -187,7 +188,7 @@ class HomePage extends StatelessWidget {
                       isFavorite: false,
                       isPlanned: false,
                       matchBasis: "interests",
-                      onCardTap: () {},
+                      onCardTap: () => context.go('/home/course-details'),
                       onFavoriteTap: () {},
                       onPlanTap: () {},
                     ),
@@ -205,7 +206,7 @@ class HomePage extends StatelessWidget {
                       isFavorite: false,
                       isPlanned: false,
                       matchBasis: "interests",
-                      onCardTap: () {},
+                      onCardTap: () => context.go('/home/course-details'),
                       onFavoriteTap: () {},
                       onPlanTap: () {},
                     ),
@@ -223,7 +224,7 @@ class HomePage extends StatelessWidget {
                       isFavorite: false,
                       isPlanned: false,
                       matchBasis: "interests",
-                      onCardTap: () {},
+                      onCardTap: () => context.go('/home/course-details'),
                       onFavoriteTap: () {},
                       onPlanTap: () {},
                     ),

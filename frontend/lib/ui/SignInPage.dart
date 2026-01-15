@@ -11,8 +11,8 @@ import 'package:provider/provider.dart';
 import '../theme/colors.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 
-class SingInPageForm extends StatefulWidget {
-  const SingInPageForm({super.key});
+class SignInPageForm extends StatefulWidget {
+  const SignInPageForm({super.key});
 
   @override
   SignInPageState createState() {
@@ -20,7 +20,7 @@ class SingInPageForm extends StatefulWidget {
   }
 }
 
-class SignInPageState extends State<SingInPageForm> {
+class SignInPageState extends State<SignInPageForm> {
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();

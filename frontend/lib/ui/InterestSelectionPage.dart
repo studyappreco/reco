@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 
@@ -36,12 +37,7 @@ class InterestSelectionPage extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.all(25),
               child: AdaptiveButton(child: Text("Continue"), onPressed: () => enabled ? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UploadTranscriptPage(),
-                  ),
-                );
+                context.go('/register/specify-degree/interests/upload-transcript');
               } : null,)
               );
           },
