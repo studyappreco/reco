@@ -25,6 +25,9 @@ class AppColors{
   static const Color greenLight = Color(0xFFDCFCE7);
   static const Color matchGreen = Color(0xFF00C853);  
   static const Color star = Color(0xFFFDC700);
+  static const Color red = Color(0xFFFF616D);
+  static const Color redLight = Color(0xFFFFE2E5);
+
 
   // TODO add more colors
 }

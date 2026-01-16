@@ -9,6 +9,7 @@ import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 
 void main() async {
@@ -189,6 +190,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text("Upload Transcript"),
+            ),
+            
+            // shows how to use course card
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TestStatusMessage()),
+                );
+              },
+              child: const Text("example StatusMessage"),
             ),
             
           ],
