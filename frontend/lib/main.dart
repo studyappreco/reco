@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/ui/NavigationWrapper.dart';
+import 'package:frontend/ui/CourseDetailsPage.dart';
 import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
@@ -8,6 +10,7 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
+import 'package:frontend/ui/UploadTranscriptPage.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -122,10 +125,29 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
+                  MaterialPageRoute(builder: (context) => NavigationWrapper()),
+                );
+              },
+              child: const Text("Navigation Bar"),
+            ),
+            
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
                   MaterialPageRoute(builder: (context) => HomePage()),
                 );
               },
               child: const Text("Home Page"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CourseDetailsPage()),
+                );
+              },
+              child: const Text("Course Details Page"),
             ),
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
@@ -158,6 +180,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text("example Course Card"),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const UploadTranscriptPage()),
+                );
+              },
+              child: const Text("Upload Transcript"),
             ),
             
             // shows how to use course card

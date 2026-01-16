@@ -82,7 +82,19 @@ class AppTheme {
         ),
       ),
 
+      // Global styling for our navigationbar menu
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        elevation: 0,
 
+        labelTextStyle: WidgetStateProperty.resolveWith((states){
+          if(states.contains(WidgetState.selected)){
+            return _baseTextTheme.labelMedium?.copyWith(color: AppColors.primaryBlue);
+          }
+          return _baseTextTheme.labelMedium?.copyWith(color: AppColors.textSecondary);
+        }),
+      ),
 
     );
   }

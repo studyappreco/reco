@@ -5,6 +5,7 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/ui/UploadTranscriptPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -306,4 +307,3 @@ class PercentageBar extends StatelessWidget {
 class HomePageViewmodel extends ChangeNotifier {
 
 }
-
