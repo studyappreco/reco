@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from typing import Optional, Dict
 from pandas import pd
 
-url = "https://moseskonto.tu-berlin.de/moses/modultransfersystem/bolognamodule/beschreibung/anzeigen.html?number={}&version=1"
+url = "https://moseskonto.tu-berlin.de/moses/modultransfersystem/bolognamodule/beschreibung/anzeigen.html?number={}&version={}"
 
 def __load_course_data( path : str) -> None:
     data = pd.read_csv(path)

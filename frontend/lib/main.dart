@@ -6,6 +6,7 @@ import 'package:frontend/ui/CourseDetailsPage.dart';
 import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
@@ -201,6 +202,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text("example StatusMessage"),
+            ),
+            // shows how to use course card
+            ElevatedButton(
+              onPressed: () async {
+                var db = await DbCLient.getMongoDBClient();
+                if(db == null) print("What the fuck");
+                var courseCol = db!.collection("courses");
+                var result = courseCol.find();
+                print(result);
+              },
+              child: const Text("Check Db cluster connection"),
             ),
             
           ],
