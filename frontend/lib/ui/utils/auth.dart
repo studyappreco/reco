@@ -28,6 +28,8 @@ class BackendClient {
   }
 }
 
+// should be singleton instance. Each client should have its own connection pool as described in this mongoDB documentation
+// https://www.mongodb.com/docs/manual/administration/connection-pool-overview/#use-an-instance-of-your-driver-s-mongoclient-object
 class DbCLient {
 
   static Db? mongoDB = null;

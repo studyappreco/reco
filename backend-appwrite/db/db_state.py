@@ -7,34 +7,47 @@ import json
 load_dotenv()
 
 MOCK_TRANSCRIPTS = [
-    {"user": "695f8904bcac7f16a725",
-     "transcript": {
-        "compulsary_electives": [
-            {
-                "exam_number": 70348,
-                "exam_name": "Data Science Toolbox",
-                "term": "Winter 2022",
-                "exam_date": "15.02.2023",
-                "grade": 1.7,
-                "ects": 6.0
-            },
-            {
-                "exam_number": 70414,
-                "exam_name": "Digitale Märkte",
-                "term": "Summer 2023",
-                "exam_date": "20.07.2023",
-                "grade": 2.0,
-                "ects": 6.0
-            },
-            {
-                "exam_number": 41112,
-                "exam_name": "Data Integration and Large-scale Analysis",
-                "term": "Winter 2023",
-                "exam_date": "10.02.2024",
-                "grade": 1.3,
-                "ects": 9.0
-            }
-        ],
+    {
+    "user": "695f8904bcac7f16a725",
+    "transcript": {
+        "compulsary_electives": {
+            "Information Systems": [
+                {
+                    "exam_number": 70348,
+                    "exam_name": "Data Science Toolbox",
+                    "term": "Winter 2022",
+                    "exam_date": "15.02.2023",
+                    "grade": 1.7,
+                    "ects": 6.0
+                },
+                {
+                    "exam_number": 70414,
+                    "exam_name": "Digitale Märkte",
+                    "term": "Summer 2023",
+                    "exam_date": "20.07.2023",
+                    "grade": 2.0,
+                    "ects": 6.0
+                },
+                {
+                    "exam_number": 41112,
+                    "exam_name": "Data Integration and Large-scale Analysis",
+                    "term": "Winter 2023",
+                    "exam_date": "10.02.2024",
+                    "grade": 1.3,
+                    "ects": 9.0
+                }
+            ],
+            "Computer Science": [
+                {
+                    "exam_number": 70893,
+                    "exam_name": "Blockchain Technology",
+                    "term": "Summer 24",
+                    "exam_date": "15.02.2024",
+                    "grade": 1.7,
+                    "ects": 6.0
+                }
+            ]
+        },
         "free_electives": [
             {
                 "exam_number": 70373,
@@ -53,11 +66,12 @@ MOCK_TRANSCRIPTS = [
                 "ects": 6.0
             }
         ]
-        }
-     },
+    }
+},
      {"user": "6967699402af64b787c3",
       "transcript": {
-        "compulsary_electives": [
+        "compulsary_electives": {
+            "Information Systems": [
             {
                 "exam_number": 70210,
                 "exam_name": "Fundamentals of Project Management",
@@ -74,7 +88,9 @@ MOCK_TRANSCRIPTS = [
                 "grade": 1.5,
                 "ects": 6.0
             }
-        ],
+            ],
+            "Computer Science": []
+        },
         "free_electives": [
             {
                 "exam_number": 70167,
