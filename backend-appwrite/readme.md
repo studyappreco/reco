@@ -3,7 +3,8 @@
 # Requirements
 
     1. Download the appwrite cli
-    2. login and create a session
+    2. 
+    2. login and create a session using the cli
     3. develope your functions
     4. appwrite push to synchronize to the server
 
