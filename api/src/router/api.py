@@ -4,6 +4,8 @@ from baml_client import b
 from src.service.pdf_parsing import parse_uni_transcript
 from src.service.exceptions import ImageBasedPDFException, NotTranscriptException
 from loguru import logger
+from src.model import User
+from src.service.auth import get_current_user
 
 
 router = APIRouter()
@@ -15,12 +17,13 @@ async def hello_reco():
 
 
 @router.post("/upload-pdf")
-async def upload_pdf(file: UploadFile):
+async def upload_pdf(file: UploadFile, current_user: User = Depends(get_current_user)):
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Invalid file type")
     
     try:
         contents = await file.read()
+        logger.info(f"User {current_user.email} uploaded a transcript")
         return await parse_uni_transcript(contents)
     except ImageBasedPDFException as e:
         logger.warning(f"Image-based PDF uploaded: {str(e)}")

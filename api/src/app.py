@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from sqlmodel import create_engine
 from loguru import logger
 from src.router.api import router as router_example
+from src.router.auth import router as router_auth
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from sqlmodel import SQLModel
@@ -25,6 +26,7 @@ def create_app():
     
     app.openapi = lambda: custom_openapi(app)
     app.include_router(router_example)
+    app.include_router(router_auth)
     return app
 
 def custom_openapi(app: FastAPI):

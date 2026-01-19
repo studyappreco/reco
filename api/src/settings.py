@@ -31,6 +31,10 @@ class Settings:
         self.embedding_base_url: Optional[str] = os.getenv("EMBEDDING_BASE_URL")
         self.openai_api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
 
+        self.jwt_secret = os.getenv("JWT_SECRET", "change-me")
+        self.jwt_algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+        self.jwt_expire_minutes = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
+
     #for now, change when running on docker
     def llm_url(self) -> str:
         return f"http://{self.llm_host_local}:{self.llm_port}"
