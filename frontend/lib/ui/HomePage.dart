@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
+import 'package:frontend/ui/widgets/CourseOverview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
-import 'package:frontend/ui/UploadTranscriptPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: AdaptiveButton(
-                        onPressed: () {},
+                        onPressed: () => context.go("/home/review-courses"),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -76,61 +76,7 @@ class HomePage extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                        decoration: BoxDecoration(
-                          border: BoxBorder.all(color: colorScheme.surfaceContainer, width: 1),
-                          borderRadius: BorderRadius.circular(13),
-                          color: Colors.white,
-                        ),
-                        child: Column(
-                          spacing: 15,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: .spaceBetween,
-                              crossAxisAlignment: .center,
-                              children: [
-                                Text(
-                                  "Course Overview",
-                                    style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
-                                ),
-                                TextButton(
-                                  onPressed: () {},
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap
-                                  ),
-                                  child: Text(
-                                    "See Details",
-                                    style: textTheme.titleSmall?.copyWith(color: AppColors.textSecondary)
-                                  )
-                                )
-                              ],
-                            ),
-                            PercentageBar(
-                              label: "Information Systems",
-                              percentage: 75,
-                              color: colorScheme.primary
-                            ),
-                            PercentageBar(
-                              label: "Computer Science",
-                              percentage: 60,
-                              color: Colors.purple
-                            ),
-                            PercentageBar(
-                              label: "Business/Economics",
-                              percentage: 45,
-                              color: Colors.green
-                            ),
-                            PercentageBar(
-                              label: "Free Choice",
-                              percentage: 30,
-                              color: Colors.deepOrangeAccent
-                            ),
-                          ],
-                        ),
-                      )
+                      child: CourseOverview(detailsButtonDestination: "/home/review-courses")
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
@@ -235,72 +181,6 @@ class HomePage extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class PercentageBar extends StatelessWidget {
-  final String label;
-  final int percentage;
-  final Color color;
-
-  const PercentageBar({
-    super.key,
-    required this.label,
-    required this.percentage,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: .spaceBetween,
-          crossAxisAlignment: .center,
-          children: [
-            Text(
-              label,
-              style: textTheme.bodyMedium
-            ),
-            Text(
-              "$percentage%",
-              style: textTheme.bodyMedium
-            )
-  
-          ],
-        ),
-        Stack(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 10,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-              ),
-            ),
-            FractionallySizedBox(
-              widthFactor: percentage / 100,
-              child: SizedBox(
-                width: double.infinity,
-                height: 10,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                ),
-              ),
-            )
-          ],
-        )
-      ]
     );
   }
 }

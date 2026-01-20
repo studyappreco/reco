@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
+import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
@@ -108,6 +109,10 @@ final router = GoRouter(
           path: '/home',
           builder: (context, state) => HomePage(),
           routes: [
+            GoRoute(
+              path: 'review-courses',
+              builder: (context, state) => ReviewCoursesPage(),
+            ),
             GoRoute(
               path: 'course-details',
               builder: (context, state) => CourseDetailsPage(),
