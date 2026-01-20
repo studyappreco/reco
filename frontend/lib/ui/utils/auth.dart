@@ -72,6 +72,8 @@ String? passwordValidator(String? value) {
 
 class ClientSession extends ChangeNotifier {
   Session? _session;
+  User? _newUser;
+  String? _newUserPassword;
 
   ClientSession() {
     _initUserSession();
@@ -101,5 +103,18 @@ class ClientSession extends ChangeNotifier {
   void clearUserSession() {
     _session = null;
     notifyListeners();
+  }
+
+  User? get newUser => _newUser;
+  String? get newUserPassword => _newUserPassword;
+
+  void setNewUser(User user, String password) {
+    _newUser = user;
+    _newUserPassword = password;
+  }
+
+  void resetNewUser() {
+    _newUser = null;
+    _newUserPassword = null;
   }
 }

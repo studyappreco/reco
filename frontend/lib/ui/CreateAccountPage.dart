@@ -63,6 +63,8 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           password: userPassword,
           name: userName,
       );
+
+      context.read<ClientSession>().setNewUser(user, userPassword);
   }
 
   String? nameValidator(String? value) {
