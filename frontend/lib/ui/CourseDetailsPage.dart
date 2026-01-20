@@ -60,7 +60,9 @@ class CourseDetailsPage extends StatelessWidget {
                                 child: Row(
                                   mainAxisAlignment: .spaceBetween,
                                   children: [
-                                    ChipWidget(label: "Recommended for you - 88% match", color: Colors.green),
+                                    Flexible(
+                                      child: ChipWidget(label: "Recommended for you - 88% match", color: Colors.green),
+                                    ),
                                     InkWell(
                                       onTap: () {},
                                       borderRadius: BorderRadius.circular(20),
@@ -148,20 +150,22 @@ class CourseDetailsPage extends StatelessWidget {
                                         )
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 12),
-                                      child: Column(
-                                        crossAxisAlignment: .start,
-                                        children: [
-                                          Text(
-                                            "View all feedback",
-                                            style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
-                                          ),
-                                          Text(
-                                            "See what other students are saying",
-                                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                                          ),
-                                        ],
+                                    Expanded( 
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 12),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "View all feedback",
+                                              style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
+                                            ),
+                                            Text(
+                                              "See what other students are saying",
+                                              style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     )
                                   ],
@@ -169,13 +173,16 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                             ]
                           ),
-                          Row(
-                            spacing: 21,
-                            children: [
-                              DetailCard(value: "85%", item: "Pass Rate"),
-                              DetailCard(value: "120", item: "Students"),
-                              DetailCard(value: "12", item: "Weeks"),
-                            ],
+                          IntrinsicHeight(
+                            child: Row(
+                              spacing: 21,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                DetailCard(value: "85%", item: "Pass Rate"),
+                                DetailCard(value: "120", item: "Students"),
+                                DetailCard(value: "12", item: "Weeks"),
+                              ],
+                            ),
                           ),
                         ]
                       )
@@ -185,28 +192,37 @@ class CourseDetailsPage extends StatelessWidget {
                     padding: EdgeInsets.only(top: 24),
                     child: Column(
                       children: [
-                        Row(
-                          spacing: 12,
-                          children: [
-                            Expanded(
-                              child: AdaptiveButton(
-                                onPressed: () {},
-                                child: Text(
-                                  "+ Add to Plan",
-                                  style: textTheme.bodyMedium?.copyWith(color: Colors.white),
+                        IntrinsicHeight( 
+                          child: Row(
+                            spacing: 12,
+                            crossAxisAlignment: CrossAxisAlignment.stretch, 
+                            children: [
+                              Expanded(
+                                child: AdaptiveButton(
+                                  onPressed: () {},
+                                  child: Center( 
+                                    child: Text(
+                                      "+ Add to Plan",
+                                      style: textTheme.bodyMedium?.copyWith(color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
                                 ),
-                              )
-                            ),
-                            Expanded(
-                              child: AdaptiveButton(
-                                onPressed: () {},
-                                child: Text(
-                                  "+ Give Feedback",
-                                  style: textTheme.bodyMedium?.copyWith(color: Colors.white),
+                              ),
+                              Expanded(
+                                child: AdaptiveButton(
+                                  onPressed: () {},
+                                  child: Center(
+                                    child: Text(
+                                      "+ Give Feedback",
+                                      style: textTheme.bodyMedium?.copyWith(color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
                                 ),
-                              )
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -291,7 +307,7 @@ class DetailCard extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 4.0),
               child: Text(value, style: textTheme.headlineSmall),
             ),
-            Text(item, style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
+            Text(item, style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary)),
           ],
         )
       ),

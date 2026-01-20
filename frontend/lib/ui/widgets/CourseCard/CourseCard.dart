@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:frontend/theme/colors.dart'; 
+import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
 import 'CourseCard_styles.dart';
 
@@ -54,157 +54,155 @@ class CourseCard extends StatelessWidget {
           onTap: onCardTap,
           child: Padding(
             padding: EdgeInsets.all(16),
-            child: Stack(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(  // I divide the stuff into top, middle, and bottom
+
+                // Top
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    // top
-                    Padding(
-                      padding: EdgeInsets.only(right: 90),
-                      child: Row(
+                    // Title and category
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            // https://api.flutter.dev/flutter/widgets/RichText-class.html
-                            child: RichText(
-                              text: TextSpan(
-                                style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
-                                children: [
-                                  TextSpan(text: title),
-                                  TextSpan(text: ' ($moduleNr)'),
-                                  TextSpan(text: ' • $credits ECTS', style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                                  ),
-                                ],
+                          RichText(
+                            text: TextSpan(
+                              style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
+                              children: [
+                                TextSpan(text: title),
+                                TextSpan(text: ' ($moduleNr)'),
+                                TextSpan(text: ' • $credits ECTS', style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(category, style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                        ],
+                      ),
+                    ),
+
+                    // Buttons (heart & Planner)
+                    Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Herz Button
+                          InkWell(
+                            onTap: onFavoriteTap,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: CourseCardStyles.getFavoriteDecoration(isActive: isFavorite),
+                              child: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: AppColors.pink,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          
+                          SizedBox(width: 8),
+
+                          // Plan Button
+                          InkWell(
+                            onTap: onPlanTap,
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: CourseCardStyles.getPlanDecoration(isActive: isPlanned),
+                              child: SvgPicture.asset(
+                                isPlanned ? 'assets/icons/book-open-filled.svg' : 'assets/icons/book-open.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(AppColors.grey, BlendMode.srcIn),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                        category,
-                        style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)
+                  ],
+                ),
+
+                // middle (Tags)
+                if (tags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        for (var tag in tags.take(3))
+                          ChipWidget(label: tag.label, color: tag.color),
+                        if (tags.length > 3)
+                          ChipWidget(label: "+${tags.length - 3}", color: Colors.blueGrey)
+                      ],
                     ),
-                    // middle
-                    if(tags.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: 12.0),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: [
-                            // I have implemented it so that the first 3 tags are shown and the rest are not, so that not too much is displayed. Feel free to suggest other options if you have any
-                            for(var tag in tags.take(3))
-                              ChipWidget(label: tag.label, color: tag.color),
+                  ),
 
-                            // I made it so that if there are more than 3 tags, the total number of tags is displayed at the end instead of listing them all
-                            if(tags.length > 3)
-                              ChipWidget(label: "+${tags.length - 3}", color: Colors.blueGrey)
-                          ],
-                        ),
-                      ),
-
-                    // bottom
-                    Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // bottom (Rating & Match)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Rating
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Rating
-                          Row(
-                            children: [
-                              Icon(
-                                hasRating ? Icons.star : Icons.star_border,
-                                color: AppColors.star,
-                                size: 25
+                          const Icon(Icons.star, color: AppColors.star, size: 25),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Text(
+                              hasRating ? rating.toString() : '-',
+                              style: textTheme.titleMedium?.copyWith(
+                                color: isDarkMode ? Colors.white : AppColors.textMain,
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 4.0),
-                                child: Text(
-                                  hasRating ? rating.toString() : '-',
-                                  style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Match Percentage Area
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-
-                              if(matchBasis != null)
-                                Padding(
-                                  padding: EdgeInsets.only(right: 8.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Based on your $matchBasis ',
-                                        style: textTheme.labelSmall?.copyWith(
-                                          color: AppColors.green,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.check_box,
-                                        color: AppColors.matchGreen,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                              ChipWidget(label: "$matchPercentage% match", color: Colors.green)
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: .end,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: InkWell(
-                        onTap: onFavoriteTap,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: CourseCardStyles.getFavoriteDecoration(isActive: isFavorite),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: AppColors.pink,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
 
-                    Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: InkWell(
-                        onTap: onPlanTap,
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: CourseCardStyles.getPlanDecoration(isActive: isPlanned),
-                          child: SvgPicture.asset(  // https://www.geeksforgeeks.org/flutter/flutter-how-to-use-svg-image/ and https://stackoverflow.com/questions/67588713/flutter-changing-svg-icon-color
-                            isPlanned ? 'assets/icons/book-open-filled.svg' : 'assets/icons/book-open.svg',
-                            width: 20,
-                            height: 20,
-                            colorFilter: ColorFilter.mode(AppColors.grey, BlendMode.srcIn),
-                          ),
+                      // Match Rechts
+                      Flexible(
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: [
+                            if (matchBasis != null)
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Based on your $matchBasis ',
+                                      style: textTheme.labelSmall?.copyWith(color: AppColors.green),
+                                    ),
+                                    const WidgetSpan(
+                                      alignment: PlaceholderAlignment.middle,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 2.0),
+                                        child: Icon(Icons.check_box, color: AppColors.matchGreen, size: 18),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.right,
+                              ),
+                            ChipWidget(label: "$matchPercentage% match", color: Colors.green),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                )
-              ]
-            )
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

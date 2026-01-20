@@ -23,12 +23,6 @@ class AdaptiveButton extends StatelessWidget {
     }
     else{
       return FilledButton(
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primaryBlue,
-          foregroundColor: AppColors.buttonText,
-          disabledBackgroundColor: AppColors.primaryBlueLight,
-          disabledForegroundColor: AppColors.buttonText,
-        ),
         onPressed: onPressed,
         child: child,
       );
