@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../theme/colors.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
@@ -57,55 +56,31 @@ class SignInPageState extends State<SignInPageForm> {
     return Scaffold(
       backgroundColor: AppColors.standardWhitebackground,
       appBar: AppBar(title: const Text("Welcome, Sign in tp Reco")),
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 350,
-                    child: ValidatedTextField(focusNode: null,
-                        validator: emailValidator,
-                        labelText: "example@gmail.com", controller: emailController),
-                  ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                      width: 350,
-                      child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-                ],
+      body: Form(
+        key: _formKey,
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 350,
+                child: ValidatedTextField(focusNode: null,
+                    validator: emailValidator,
+                    labelText: "example@gmail.com", controller: emailController),
               ),
-            )
+              const SizedBox(height: 25),
+              SizedBox(
+                  width: 350,
+                  child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+            ],
           ),
-          SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: .end,
-                crossAxisAlignment: .center,
-                children: [
-                  AdaptiveButton(
-                    onPressed: loginUser, 
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Center(
-                        child: Text("Sign In"),
-                      )
-                    )
-                  ),
-                  TextButton(
-                    onPressed: () => context.go('/register'),
-                    child: Text("Create Account")
-                  )
-                ],
-              )
-            )
-          )
-        ],
+        )
+      ),
+      bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(25),
+          child: AdaptiveButton(onPressed: loginUser, child: Text("Sign In")
+        )
       ),
     );
   }

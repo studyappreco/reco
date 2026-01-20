@@ -57,10 +57,10 @@ final router = GoRouter(
 
   redirect: (context, state) {
     final loggedIn = clientSession.isLoggedIn;
-    final loggingIn = state.uri.path.startsWith('/login') || state.uri.path.startsWith('/register');
+    final loggingIn = state.uri.path.startsWith('/sign-in') || state.uri.path.startsWith('/register');
 
     if (!loggedIn && !loggingIn) {
-      return '/login';
+      return '/register';
     }
 
     if (loggedIn && loggingIn) {
@@ -72,13 +72,13 @@ final router = GoRouter(
 
   routes: [
     GoRoute(
-      path: '/login',
-      builder: (context, state) => SignInPageForm(),
-    ),
-    GoRoute(
       path: '/register',
       builder: (context, state) => CreateAccountForm(),
       routes: [
+        GoRoute(
+          path: '/sign-in',
+          builder: (context, state) => SignInPageForm(),
+        ),
         GoRoute(
           path: 'specify-degree',
           builder: (context, state) => SpecifyDegreePage(),

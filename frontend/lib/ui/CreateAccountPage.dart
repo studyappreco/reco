@@ -1,6 +1,6 @@
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
+import 'package:appwrite/models.dart' show User;
 import 'package:frontend/theme/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 
 class CreateAccountForm extends StatefulWidget {
@@ -85,6 +86,33 @@ class CreateAccountFormState extends State<CreateAccountForm> {
     return null;
   }
 
+  Future<void> onContinueClick () async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await registerNewUser();
+        context.go('/register/specify-degree');
+      } on Exception catch (e) {
+        print(e.toString());
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Alert'),
+              content: Text('Creating'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // closes the dialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,67 +123,70 @@ class CreateAccountFormState extends State<CreateAccountForm> {
 
       Form(
         key: _formKey,
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 350,
-                child: ValidatedTextField(focusNode: null,
-                    validator: nameValidator,
-                    labelText: "User Name", controller: nameController),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 350,
+                    child: ValidatedTextField(focusNode: null,
+                        validator: nameValidator,
+                        labelText: "User Name", controller: nameController),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 350,
+                    child: ValidatedTextField(focusNode: null,
+                        validator: emailValidator,
+                        labelText: "example@gmail.com", controller: emailController),
+                  ),
+                  const SizedBox(height: 25),
+                  SizedBox(
+                    width: 350,
+                    child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 350,
+                    child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
+                ],
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: 350,
-                child: ValidatedTextField(focusNode: null,
-                    validator: emailValidator,
-                    labelText: "example@gmail.com", controller: emailController),
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                width: 350,
-                child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: 350,
-                child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
-            ],
-          ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: .end,
+                  crossAxisAlignment: .center,
+                  children: [
+                    AdaptiveButton(
+                      onPressed: onContinueClick,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Center(child: Text("Continue"))
+                      )
+                    ),
+                    Row(
+                      mainAxisAlignment: .center,
+                      children: [
+                        Text("Already have an account?"),
+                        TextButton(
+                          onPressed: () => context.go('/register/sign-in'),
+                          child: Text("Sign in")
+                        )
+                      ],
+                    )
+                  ],
+                )
+              )
+            )
+          ]
         )
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(25),
-        child: AdaptiveButton(child: Text("Continue"), onPressed: () async {
-          if (_formKey.currentState!.validate()) {
-            try {
-              await registerNewUser();
-              context.go('/register/specify-degree');
-            } on Exception catch (e) {
-              print(e.toString());
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Alert'),
-                    content: Text('Creating'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // closes the dialog
-                        },
-                        child: Text('OK'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          }
-        }),
-        ),
-      );
+    );
   }
 }
 
