@@ -1,6 +1,10 @@
+import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' show Session;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/colors.dart';
+import 'package:frontend/ui/utils/auth.dart';
+import 'package:provider/provider.dart';
 
 class UploadTranscriptPage extends StatefulWidget {
   const UploadTranscriptPage({super.key});
@@ -64,11 +68,24 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     }
   }
 
-  void _confirmUpload() {
+  Future<void> _confirmUpload() async {
     if (_selectedFileName == null) return;
     setState(() {
       _uploadConfirmed = true;
     });
+
+    final email = context.read<ClientSession>().newUser?.email;
+    final password = context.read<ClientSession>().newUserPassword;
+    if (email == null || password == null) return;
+
+    Client? client = BackendClient.getBackendClient();
+    if (client == null) throw Exception("Backend client could not be initialized");
+    Account account = Account(client);
+
+    Session session = await account.createEmailPasswordSession(email: email, password: password);
+    print(session.toString());
+    context.read<ClientSession>().setUserSession(session);
+    context.read<ClientSession>().resetNewUser();
   }
 
   @override
@@ -199,7 +216,7 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
               onPressed: (_selectedFileName != null && _errorMessage == null && !_isPicking)
                   ? _confirmUpload
                   : null,
-              child: const Text('Confirm Upload'),
+              child: const Text('Finish'),
             ),
           ),
         ),

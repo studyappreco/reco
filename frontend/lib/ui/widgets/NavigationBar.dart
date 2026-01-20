@@ -76,6 +76,12 @@ class NavBar extends StatelessWidget {
             ),
           label: 'Feedback',
         ),
+        NavigationDestination(
+          icon: Icon(Icons.construction, color: AppColors.textSecondary),
+
+          selectedIcon: Icon(Icons.construction, color: AppColors.primaryBlue),
+          label: 'Demo',
+        ),
       ],
     );
   }

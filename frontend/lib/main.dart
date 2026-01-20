@@ -1,6 +1,12 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/ui/InterestSelectionPage.dart';
+import 'package:frontend/ui/SpecifyDegreePage.dart';
+import 'package:frontend/ui/UploadTranscriptPage.dart';
+import 'package:frontend/ui/utils/auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
 import 'package:frontend/ui/HomePage.dart';
@@ -12,10 +18,20 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
+import 'package:provider/provider.dart';
+
+
+// Use this instance of clientSession globally
+final clientSession = ClientSession();
 
 void main() async {
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider.value(
+      value: clientSession,
+      child: MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,16 +40,105 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Reco Demo',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       // themeMode: ThemeMode.system, // = Switches automatically depending on cell phone settings
       themeMode: ThemeMode.light, //  = Always forces light mode
-      home: const MyHomePage(title: 'Reco Demo Home Page'),
+      routerConfig: router,
     );
   }
 }
+
+final router = GoRouter(
+  initialLocation: '/home',
+  refreshListenable: clientSession,
+
+  redirect: (context, state) {
+    final loggedIn = clientSession.isLoggedIn;
+    final loggingIn = state.uri.path.startsWith('/sign-in') || state.uri.path.startsWith('/register');
+
+    if (!loggedIn && !loggingIn) {
+      return '/register';
+    }
+
+    if (loggedIn && loggingIn) {
+      return '/home';
+    }
+
+    return null;
+  },
+
+  routes: [
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => CreateAccountForm(),
+      routes: [
+        GoRoute(
+          path: '/sign-in',
+          builder: (context, state) => SignInPageForm(),
+        ),
+        GoRoute(
+          path: 'specify-degree',
+          builder: (context, state) => SpecifyDegreePage(),
+          routes: [
+            GoRoute(
+              path: 'interests',
+              builder: (context, state) => InterestSelectionPage(),
+              routes: [
+
+                GoRoute(
+                  path: '/upload-transcript',
+                  builder: (context, state) => UploadTranscriptPage(),
+                ),
+              ]
+            ),
+          ]
+        ),
+      ]
+    ),
+
+    ShellRoute(
+      builder: (context, state, child) {
+        return NavigationWrapper(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => HomePage(),
+          routes: [
+            GoRoute(
+              path: 'course-details',
+              builder: (context, state) => CourseDetailsPage(),
+            ),
+          ]
+        ),
+        GoRoute(
+          path: '/search',
+          builder: (context, state) => Center(child: Text("The SearchPage will be added here later")),
+        ),
+        GoRoute(
+          path: '/planner',
+          builder: (context, state) => Center(child: Text("The PlannerPage will be added here later")),
+        ),
+        GoRoute(
+          path: '/favourites',
+          builder: (context, state) => Center(child: Text("The FavouritesPage will be added here later")),
+        ),
+        GoRoute(
+          path: '/feedback',
+          builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+        ),
+        GoRoute(
+          path: '/demo',
+          builder: (context, state) => MyHomePage(title: "Demo Home Page"),
+        ),
+      ],
+    ),
+  ],
+);
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -104,34 +209,24 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            FloatingActionButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SingInPageForm(),
-                ),
-              );
-            }, tooltip: "NavigateToSignIn", heroTag: "SignIn", child: const Text("Sign in Page")),
-
-            FloatingActionButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateAccountForm(),
-                ),
-              );
-            }, tooltip: "NavigateToCreateAccount", heroTag: "CreateAccount", child: const Text("Go to Create Account")),
-
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NavigationWrapper()),
+                  MaterialPageRoute(builder: (context) => SignInPageForm()),
                 );
               },
-              child: const Text("Navigation Bar"),
+              child: const Text("Sign in Page"),
             ),
-            
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CreateAccountForm()),
+                );
+              },
+              child: const Text("Create Account"),
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -149,6 +244,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text("Course Details Page"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => UploadTranscriptPage()),
+                );
+              },
+              child: const Text("Upload transcript"),
             ),
             // shows how to use the adaptive button in TestWidgetButton
             ElevatedButton(
@@ -184,13 +288,17 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UploadTranscriptPage()),
-                );
+              onPressed: () async {
+                Client? client = BackendClient.getBackendClient();
+                if (client == null) {
+                  clientSession.clearUserSession();
+                  return;
+                }
+                Account account = Account(client);
+                await account.deleteSession(sessionId: 'current');
+                clientSession.clearUserSession();
               },
-              child: const Text("Upload Transcript"),
+              child: const Text("Logout"),
             ),
             
             // shows how to use course card

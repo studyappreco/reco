@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 import 'package:frontend/ui/utils/auth.dart';
+import 'package:provider/provider.dart';
 import '../theme/colors.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 
-class SingInPageForm extends StatefulWidget {
-  const SingInPageForm({super.key});
+class SignInPageForm extends StatefulWidget {
+  const SignInPageForm({super.key});
 
   @override
   SignInPageState createState() {
@@ -18,7 +19,7 @@ class SingInPageForm extends StatefulWidget {
   }
 }
 
-class SignInPageState extends State<SingInPageForm> {
+class SignInPageState extends State<SignInPageForm> {
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
@@ -46,39 +47,41 @@ class SignInPageState extends State<SingInPageForm> {
 
     Session session = await account.createEmailPasswordSession(email: userEmail, password: userPassword);
     print(session.toString());
-    ClientSession.setUserSession(session);
+    context.read<ClientSession>().setUserSession(session);
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.standardWhitebackground,
-        appBar: AppBar(title: const Text("Welcome, Sign in tp Reco")),
-        body: Form(
-            key: _formKey,
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 350,
-                    child: ValidatedTextField(focusNode: null,
-                        validator: emailValidator,
-                        labelText: "example@gmail.com", controller: emailController),
-                  ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                      width: 350,
-                      child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-                ],
+      backgroundColor: AppColors.standardWhitebackground,
+      appBar: AppBar(title: const Text("Welcome, Sign in tp Reco")),
+      body: Form(
+        key: _formKey,
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 350,
+                child: ValidatedTextField(focusNode: null,
+                    validator: emailValidator,
+                    labelText: "example@gmail.com", controller: emailController),
               ),
-            )
-        ),
-        bottomNavigationBar: Padding(
+              const SizedBox(height: 25),
+              SizedBox(
+                  width: 350,
+                  child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+            ],
+          ),
+        )
+      ),
+      bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(25),
-        child: AdaptiveButton(child: Text("Sign In"), onPressed: loginUser))
+          child: AdaptiveButton(onPressed: loginUser, child: Text("Sign In")
+        )
+      ),
     );
   }
 }
