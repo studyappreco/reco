@@ -1,21 +1,48 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/theme/colors.dart';
 
 class AdaptiveSearchField extends StatelessWidget{
   final Function(String) onChanged;
+  final bool showFilter;
+  final VoidCallback? onFilterTap;
 
   const AdaptiveSearchField({
     super.key,
-    required this.onChanged
+    required this.onChanged,
+    this.showFilter = false,
+    this.onFilterTap,
   });
 
   @override
   Widget build(BuildContext context){
+    final filterIcon = SvgPicture.asset(
+      'assets/icons/filter.svg',
+      colorFilter: ColorFilter.mode(AppColors.textSecondary, BlendMode.srcIn),
+      width: 24,
+      height: 24,
+    );
+
     if(Platform.isIOS){
-      return CupertinoSearchTextField(
-        onChanged: onChanged,
-        placeholder: 'Search modules',
+      return Row(
+        children: [
+          Expanded(
+            child: CupertinoSearchTextField(
+              onChanged: onChanged,
+              placeholder: 'Search modules',
+            ),
+          ),
+          if(showFilter)
+            Padding(
+              padding: EdgeInsets.only(left: 12, right: 4),
+              child: GestureDetector(
+                onTap: onFilterTap,
+                child: filterIcon,
+              ),
+            ),
+        ],
       );
     }
     else{
@@ -24,6 +51,12 @@ class AdaptiveSearchField extends StatelessWidget{
         decoration: InputDecoration(
           hintText: 'Search modules',
           prefixIcon: Icon(Icons.search), 
+          suffixIcon: showFilter
+              ? IconButton(
+                  icon: filterIcon,
+                  onPressed: onFilterTap,
+                )
+              : null,
         ),
       );
     }

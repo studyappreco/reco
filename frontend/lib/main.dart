@@ -12,6 +12,7 @@ import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
 import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
+import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
@@ -121,7 +122,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/search',
-          builder: (context, state) => Center(child: Text("The SearchPage will be added here later")),
+          builder: (context, state) => SearchPage(),
         ),
         GoRoute(
           path: '/planner',
