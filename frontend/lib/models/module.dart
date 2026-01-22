@@ -3,7 +3,6 @@ import 'package:frontend/ui/widgets/Chip.dart';
 
 // Model representing a university module
 // It combines official data (from Moses), recommendation metrics and user-specific states
-// Note: Fields not yet available in the database use static placeholders for now
 class Module {
   final String id;
   final String title;
@@ -47,7 +46,7 @@ class Module {
       credits: map['ects']?.toString() ?? "0",
       learnContent: map['learn_content'],
       learnResult: map['learn_result'],
-      examType: "Not specified",  // Static placeholder
+      examType: "Not specified",  // Static placeholder, TODO should be extracted from Moses with Webscraper
       tags: [], // Static placeholder
       
       // Data from the recommendation system
