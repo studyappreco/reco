@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
@@ -317,16 +321,23 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("example StatusMessage"),
             ),
-            // shows how to use course card
+            // Test OpenAI transcript parsing
             ElevatedButton(
               onPressed: () async {
-                var db = await DbCLient.getMongoDBClient();
-                if(db == null) print("What the fuck");
-                var courseCol = db!.collection("courses");
-                var result = courseCol.find();
-                print(result);
+                print("starting");
+                final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
+                var repo = TranscriptRepository();
+                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM");
+                switch (res) {
+                  case TranscriptSuccess(:final data):
+                    print(data.toString());
+                  case TranscriptError(:final message, :final error):
+                    debugPrint('Error: $message');
+                    if (error != null) debugPrint('Details: $error');
+                }
+
               },
-              child: const Text("Check Db cluster connection"),
+              child: const Text("Parse transcript"),
             ),
             
           ],
