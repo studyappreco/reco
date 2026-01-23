@@ -42,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
   // Load data (also for refresh)
   Future<void> _loadData() async {
     try {
-      List<Module> modules = await MongoService().getAllModules();
+      List<Module> modules = await _repository.fetchModules(forceRefresh: true);
       
       if(mounted){
         setState(() {
