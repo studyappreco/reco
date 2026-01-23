@@ -40,7 +40,7 @@ class Module {
     return Module(
       id: (map['_id'] as ObjectId).oid,
 
-      // Official Data (e.g. retrieved from Moses)
+      // Official Data from Moses
       title: map['title'] ?? "No Title",
       moduleNr: map['number']?.toString() ?? "N/A",
       credits: map['ects']?.toString() ?? "0",

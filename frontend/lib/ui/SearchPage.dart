@@ -4,8 +4,8 @@ import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
-import 'package:frontend/models/module.dart';
-import 'package:frontend/api/ModuleApi.dart';
+import 'package:frontend/models/Module.dart';
+import 'package:frontend/service/MongoService.dart';
 
 
 // Enum for the possible sorting options
@@ -41,7 +41,7 @@ class _SearchPageState extends State<SearchPage> {
   // Load data (also for refresh)
   Future<void> _loadData() async {
     try {
-      var modules = await ModuleApi.fetchAllModules();
+      List<Module> modules = await MongoService().getAllModules();
       
       if(mounted){
         setState(() {
