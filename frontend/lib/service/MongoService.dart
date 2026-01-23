@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
+import 'package:frontend/models/Module.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
@@ -14,6 +15,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 */
 class MongoService {
   static const String _transcriptsCollection = 'transcripts';
+  static const String _coursesCollection = 'courses';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -59,5 +61,22 @@ class MongoService {
 
     final count = await collection.count(where.eq('userID', userID));
     return count > 0;
+  }
+
+  Future<List<Module>> getAllModules() async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_coursesCollection);
+
+      final List<Map<String, dynamic>> jsonList = await collection.find().toList();
+
+      print("Loaded ${jsonList.length} courses from DB");
+
+      return jsonList.map((json) => Module.fromMap(json)).toList();
+
+    } catch (e) {
+      print("Error loading modules: $e");
+      rethrow; 
+    }
   }
 }
