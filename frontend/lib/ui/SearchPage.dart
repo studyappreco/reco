@@ -5,7 +5,6 @@ import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/models/Module.dart';
-import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 
 
@@ -36,13 +35,13 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState(){
     super.initState();
-    _loadData();
+    _loadData(false);
   }
 
   // Load data (also for refresh)
-  Future<void> _loadData() async {
+  Future<void> _loadData(bool force) async {
     try {
-      List<Module> modules = await _repository.fetchModules(forceRefresh: true);
+      List<Module> modules = await _repository.fetchModules(forceRefresh: force);
       
       if(mounted){
         setState(() {
@@ -337,7 +336,7 @@ class _SearchPageState extends State<SearchPage> {
               child: _isLoading 
                 ? Center(child: CircularProgressIndicator())
                 : RefreshIndicator( 
-                    onRefresh: _loadData, 
+                    onRefresh: () => _loadData(true), 
                     color: AppColors.primaryBlue,
                     
                     child: _filteredModules.isEmpty
