@@ -6,6 +6,7 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/service/MongoService.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
 
 
 // Enum for the possible sorting options
@@ -19,7 +20,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  
+  final CourseSearchRepo _repository = CourseSearchRepo();
   List<Module> _allModules = [];      
   List<Module> _filteredModules = []; 
   bool _isLoading = true;
@@ -72,49 +73,15 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  // our filter logic (https://www.geeksforgeeks.org/flutter/flutter-filter-a-list-using-some-condition/)
   void _applyFilters(){
     setState(() {
-      var filteredList = _allModules.where((m){
-        // text search
-        final matchesText = _searchQuery.isEmpty || 
-                            m.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                            m.moduleNr.toLowerCase().contains(_searchQuery.toLowerCase());
-
-        // Exam Type
-        final matchesExamType = _selectedExamTypes.isEmpty || _selectedExamTypes.contains(m.examType);
-        
-        // ECTS
-        int moduleCredits = int.tryParse(m.credits) ?? 0;
-        final matchesEcts = moduleCredits >= _ectsRange.start && moduleCredits <= _ectsRange.end;
-        
-        // Rating
-        double moduleRating = m.rating ?? 0.0;
-        final matchesRating = moduleRating >= _ratingRange.start && moduleRating <= _ratingRange.end;
-
-        return matchesText && matchesExamType && matchesEcts && matchesRating;
-      }).toList();
-
-      // sorting (https://stackoverflow.com/questions/53547997/sort-a-list-of-objects-in-flutter-dart-by-property-value)
-      switch (_selectedSort) {
-        case SortOption.bestMatch:
-          filteredList.sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage)); 
-          break;
-        case SortOption.ratingHigh:
-          filteredList.sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0));
-          break;
-        case SortOption.ratingCount:
-          filteredList.sort((a, b) => b.ratingCount.compareTo(a.ratingCount));
-          break;
-        case SortOption.ectsHigh:
-          filteredList.sort((a, b) => int.parse(b.credits).compareTo(int.parse(a.credits)));
-          break;
-        case SortOption.ectsLow:
-          filteredList.sort((a, b) => int.parse(a.credits).compareTo(int.parse(b.credits)));
-          break;
-      }
-       
-       _filteredModules = filteredList;
+      _filteredModules = _repository.filterModules(
+        query: _searchQuery,
+        selectedExamTypes: _selectedExamTypes,
+        ectsRange: _ectsRange,
+        ratingRange: _ratingRange,
+        sortOption: _selectedSort,
+      );
     });
   }
 
