@@ -10,4 +10,5 @@ dependencies = [
     "pandas>=2.3.3",
     "pymongo[srv]>=4.16.0",
     "requests>=2.32.5",
+    "selenium>=4.40.0",
 ]
