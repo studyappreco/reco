@@ -15,6 +15,9 @@ enum SnackAlignment {
 class StatusMessage {
   static OverlayEntry? _overlayEntry;
   static Timer? _timer;
+  static Timer? _animTimer; 
+  static bool _isVisible = false; 
+
   static OverlayEntry _createOverlayEntry(
       String? title, String? message, bool? isError, SnackAlignment alignment) {
     
@@ -46,11 +49,16 @@ class StatusMessage {
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width * 0.9),
-                    child: StatusMessageCard(
-                      isError: isError ?? false,
-                      title: title ?? "Info",
-                      message: message ?? "",
-                      onClose: hide,
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 400),
+                      child: _isVisible
+                        ? StatusMessageCard(
+                            isError: isError ?? false,
+                            title: title ?? "Info",
+                            message: message ?? "",
+                            onClose: hide,
+                          )
+                        : null,
                     ),
                   ),
                 ),
@@ -73,6 +81,7 @@ class StatusMessage {
     if(_overlayEntry != null){
       _overlayEntry!.remove();
       _timer?.cancel();
+      _animTimer?.cancel();
     }
 
     _overlayEntry = _createOverlayEntry(title, message, isError, alignment);
@@ -80,22 +89,32 @@ class StatusMessage {
   }
 
   static void hide(){
-    if(_overlayEntry != null){
-      _overlayEntry?.remove();
-      _overlayEntry = null;
-    }
     _timer?.cancel();
-  }
+    
+    _isVisible = false;
+    _overlayEntry?.markNeedsBuild();
 
-  static void _insertOverlay(BuildContext context, Duration duration){
-    Navigator.of(context).overlay!.insert(_overlayEntry!);
-
-    _timer = Timer(duration, () {
+    // Waiting for animation and then delete
+    _animTimer = Timer( Duration(milliseconds: 500), (){
       if(_overlayEntry != null){
         _overlayEntry?.remove();
         _overlayEntry = null;
-        _timer?.cancel();
       }
+    });
+  }
+
+  static void _insertOverlay(BuildContext context, Duration duration){
+    _isVisible = false;
+    Navigator.of(context).overlay!.insert(_overlayEntry!);
+
+    // https://api.flutter.dev/flutter/dart-async/Future/Future.delayed.html && https://medium.com/@fozarar5/markneedsbuild-method-flutter-93de6a4a8030
+    Future.delayed(Duration(milliseconds: 50), () {
+      _isVisible = true;
+      _overlayEntry?.markNeedsBuild(); 
+    });
+
+    _timer = Timer(duration, () {
+      hide();
     });
   }
 }
