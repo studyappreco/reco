@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
 
 class UploadTranscriptPage extends StatefulWidget {
   const UploadTranscriptPage({super.key});
@@ -120,11 +121,8 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
             ),
             const SizedBox(height: 20),
             if (_uploadConfirmed && _errorMessage == null) ...[
-              _StatusBanner(
-                background: AppColors.greenLight,
-                border: AppColors.greenLight,
-                icon: Icons.check_circle,
-                iconColor: AppColors.green,
+              StatusMessageCard(
+                isError: false,
                 title: 'Success!',
                 message: 'Your transcript has been recorded.',
                 onClose: () {
@@ -136,11 +134,8 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
               const SizedBox(height: 16),
             ],
             if (_errorMessage != null) ...[
-              _StatusBanner(
-                background: const Color(0xFFFFF1F2),
-                border: const Color(0xFFFFE4E6),
-                icon: Icons.error_outline,
-                iconColor: Colors.red,
+              StatusMessageCard(
+                isError: true,
                 title: 'Upload failed',
                 message: _errorMessage!,
                 onClose: () {
@@ -220,72 +215,6 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StatusBanner extends StatelessWidget {
-  final Color background;
-  final Color border;
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String message;
-  final VoidCallback onClose;
-
-  const _StatusBanner({
-    required this.background,
-    required this.border,
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.message,
-    required this.onClose,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: iconColor, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(
-                  title,
-                  style: textTheme.titleSmall?.copyWith(
-                    color: AppColors.textMain,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  message,
-                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: onClose,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            icon: const Icon(Icons.close, size: 18, color: AppColors.textSecondary),
-          )
-        ],
       ),
     );
   }
