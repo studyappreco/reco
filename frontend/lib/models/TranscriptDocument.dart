@@ -1,61 +1,66 @@
-import 'package:mongo_dart/mongo_dart.dart';
 
 /*
-* This class resembles the generic transcript data structure
+* This is the data structured used t represent a transcript.
+* It is a n-ary tree with the maximum of 4 levels deep. We have the root class (TranscriptDocument) and a generic Node class (TranscriptNode)
+* This is a flexible data model, not every transcript needs 4 level. This way we can be as abstract as possible.
+*
+* Root: represents the Entire Transcript
+* 1. level: "categories". High-level components like "free electives", "Compulsary electices", ... (might hold course data already)
+* 2. level:  "domains". Split the category in e.g. "information systems" , "computer science"
+* 3. level. "subdomains". Splits the categories again in e.g. "Distributed Systems and networks", "Data and software engineering"
+*
+* Note : each node (except root) can hold course data.
 * */
+
+
 class TranscriptDocument {
+  final List<TranscriptNode> children;
 
-  final List<TranscriptCategory> categories;
-
-  TranscriptDocument({
-    required this.categories,
-  });
+  TranscriptDocument({required this.children});
 
   factory TranscriptDocument.fromJson(Map<String, dynamic> json) {
     return TranscriptDocument(
-      categories: (json['categories'] as List<dynamic>)
-          .map((e) => TranscriptCategory.fromJson(e as Map<String, dynamic>))
+      children: (json['children'] as List<dynamic>)
+          .map((e) => TranscriptNode.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'categories': categories.map((e) => e.toJson()).toList(),
+      'children': children.map((e) => e.toJson()).toList(),
     };
   }
 
   @override
   String toString() {
     final buffer = StringBuffer('TranscriptDocument\n');
-    for (final category in categories) {
-      buffer.write(category._toStringWithIndent('  '));
+    for (final child in children) {
+      buffer.write(child._toStringWithIndent('  '));
     }
     return buffer.toString();
   }
 }
 
-// such as "Compulsary electives", "Free electives" , "Compulsaries"
-class TranscriptCategory {
+class TranscriptNode {
   final String name;
-  final List<CategoryDomain>? domains; // optional, for free electives
-  final List<TranscriptCourse>? courses; // optional, for free electives or other categories that can hold course data directly
+  final List<TranscriptCourse>? courses;
+  final List<TranscriptNode>? children;
 
-  TranscriptCategory({
+  TranscriptNode({
     required this.name,
-    required this.domains,
     this.courses,
-  });
+    this.children,
+  }) ;
 
-  factory TranscriptCategory.fromJson(Map<String, dynamic> json) {
-    return TranscriptCategory(
+  factory TranscriptNode.fromJson(Map<String, dynamic> json) {
+    return TranscriptNode(
       name: json['name'] as String,
-      domains: (json['domains'] as List<dynamic>?)
-              ?.map((e) => CategoryDomain.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
       courses: (json['courses'] as List<dynamic>?)
           ?.map((e) => TranscriptCourse.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      children: (json['children'] as List<dynamic>?)
+          ?.map((e) => TranscriptNode.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -63,106 +68,25 @@ class TranscriptCategory {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      if (domains != null) 'domains': domains!.map((e) => e.toJson()).toList(),
       if (courses != null) 'courses': courses!.map((e) => e.toJson()).toList(),
+      if (children != null) 'children': children!.map((e) => e.toJson()).toList(),
     };
   }
 
   String _toStringWithIndent(String indent) {
-    final buffer = StringBuffer('${indent}📁 $name\n');
-    if (domains != null) {
-      for (final domain in domains!) {
-        buffer.write(domain._toStringWithIndent('$indent  '));
-      }
-    }
+    final buffer = StringBuffer('$indent📁 $name');
     if (courses != null) {
       for (final course in courses!) {
         buffer.write(course._toStringWithIndent('$indent  '));
       }
     }
-    return buffer.toString();
-  }
-
-  @override
-  String toString() => _toStringWithIndent('');
-}
-
-// "Computer science" , "Communication Systems"
-class CategoryDomain {
-  final String name;
-  final List<CategorySubdomain> subdomains;
-
-  CategoryDomain({
-    required this.name,
-    required this.subdomains,
-  });
-
-  factory CategoryDomain.fromJson(Map<String, dynamic> json) {
-    return CategoryDomain(
-      name: json['name'] as String,
-      subdomains: (json['subdomains'] as List<dynamic>?)
-              ?.map((e) => CategorySubdomain.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'subdomains': subdomains.map((e) => e.toJson()).toList(),
-    };
-  }
-
-  String _toStringWithIndent(String indent) {
-    final buffer = StringBuffer('$indent📂 $name\n');
-    for (final subdomain in subdomains) {
-      buffer.write(subdomain._toStringWithIndent('$indent  '));
+    if (children != null) {
+      for (final child in children!) {
+        buffer.write(child._toStringWithIndent('$indent  '));
+      }
     }
     return buffer.toString();
   }
-
-  @override
-  String toString() => _toStringWithIndent('');
-}
-
-// "Distributed systems and networks", "Data and software engineering"
-class CategorySubdomain {
-  final String name;
-  final List<TranscriptCourse> courses;
-
-  CategorySubdomain({
-    required this.name,
-    required this.courses,
-  });
-
-  factory CategorySubdomain.fromJson(Map<String, dynamic> json) {
-    return CategorySubdomain(
-      name: json['name'] as String,
-      courses: (json['courses'] as List<dynamic>?)
-              ?.map((e) => TranscriptCourse.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'courses': courses.map((e) => e.toJson()).toList(),
-    };
-  }
-
-  String _toStringWithIndent(String indent) {
-    final buffer = StringBuffer('$indent📄 $name\n');
-    for (final course in courses) {
-      buffer.write(course._toStringWithIndent('$indent  '));
-    }
-    return buffer.toString();
-  }
-
-  @override
-  String toString() => _toStringWithIndent('');
 }
 
 // The actual exams recorded
@@ -170,24 +94,28 @@ class TranscriptCourse {
   final String courseName;
   final int ects;
   final double grade;
+  final String id;
 
   TranscriptCourse({
     required this.courseName,
     required this.ects,
     required this.grade,
+    required this.id
   });
 
   factory TranscriptCourse.fromJson(Map<String, dynamic> json) {
     return TranscriptCourse(
-      courseName: json['courseName'] as String,
-      ects: json['ects'] as int,
+      id : json['id'] as String,
+      courseName: json['name'] as String,
+      ects: (json['ects'] as num).toInt(),
       grade: (json['grade'] as num).toDouble(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'courseName': courseName,
+      'id' : id,
+      'name': courseName,
       'ects': ects,
       'grade': grade,
     };
