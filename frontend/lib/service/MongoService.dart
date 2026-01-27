@@ -14,6 +14,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 */
 class MongoService {
   static const String _transcriptsCollection = 'transcripts';
+  static const String _coursesCollection = 'courses';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -59,5 +60,97 @@ class MongoService {
 
     final count = await collection.count(where.eq('userID', userID));
     return count > 0;
+  }
+
+  Future<List<Map<String, dynamic>>> recommendCourses({
+    required String interestQuery,
+    required String freeText,
+    int limit = 5,
+  }) async {
+    final trimmedInterests = interestQuery.trim();
+    final trimmedFreeText = '';
+    if (trimmedInterests.isEmpty && trimmedFreeText.isEmpty) {
+      return [];
+    }
+
+    final db = await _getDb();
+    final collection = db.collection(_coursesCollection);
+    /*
+    final pipeline = [
+      {
+        r'$search': {
+          'index': 'course_recommendation',
+          'compound': {
+            'should': [
+              {
+        'text': {
+          'query': trimmedInterests,
+          'path': ['title', 'learn_content', 'learn_result'],
+          'score': {
+            'boost': {'value': 3}
+          }
+        }
+      },
+      {
+        'text': {
+          'query': trimmedFreeText,
+          'path': ['learn_content', 'learn_result'],
+          'score': {
+            'boost': {'value': 1}
+          }
+        }
+      }
+
+            ],
+            'minimumShouldMatch': 1,
+          },
+        },
+      },
+      {
+        r'$project': {
+          'number': 1,
+          'title': 1,
+          'ects': 1,
+          'score': {r'$meta': 'searchScore'},
+        },
+      },
+      {r'$limit': limit},
+    ];
+  */
+  final pipeline = [
+      {
+        r'$search': {
+          'index': 'course_recommendation',
+          'compound': {
+            'should': [
+              {
+        'text': {
+          'query': trimmedInterests + trimmedFreeText,
+          'path': ['title', 'learn_content', 'learn_result'],
+          'score': {
+            'boost': {'value': 3}
+          }
+        }
+      },
+        ],
+            'minimumShouldMatch': 1,
+          },
+        },
+      },
+      {
+        r'$project': {
+          'number': 1,
+          'title': 1,
+          'ects': 1,
+          'score': {r'$meta': 'searchScore'},
+        },
+      },
+      {r'$limit': limit},
+    ];
+
+    final results = await collection
+        .aggregateToStream(pipeline.cast<Map<String, Object>>())
+        .toList();
+    return results.cast<Map<String, dynamic>>();
   }
 }
