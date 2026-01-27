@@ -2,9 +2,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' show User;
 import 'package:frontend/theme/colors.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
@@ -121,73 +119,75 @@ class CreateAccountFormState extends State<CreateAccountForm> {
     return Scaffold(
       backgroundColor: AppColors.standardWhitebackground,
       appBar: AppBar(title: const Text("Create your account")),
-      body:
-
-      Form(
-        key: _formKey,
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 350,
-                    child: ValidatedTextField(focusNode: null,
-                        validator: nameValidator,
-                        labelText: "User Name", controller: nameController),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 350,
-                    child: ValidatedTextField(focusNode: null,
-                        validator: emailValidator,
-                        labelText: "example@gmail.com", controller: emailController),
-                  ),
-                  const SizedBox(height: 25),
-                  SizedBox(
-                    width: 350,
-                    child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 350,
-                    child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
-                ],
+      body: Column(
+        mainAxisAlignment: .spaceBetween,
+        children: [
+          Expanded(
+            child:
+              Form(
+                key: _formKey,
+                child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 350,
+                      child: ValidatedTextField(focusNode: null,
+                          validator: nameValidator,
+                          labelText: "User Name", controller: nameController),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 350,
+                      child: ValidatedTextField(focusNode: null,
+                          validator: emailValidator,
+                          labelText: "example@gmail.com", controller: emailController),
+                    ),
+                    const SizedBox(height: 25),
+                    SizedBox(
+                      width: 350,
+                      child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 350,
+                      child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
+                  ],
+                ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: .end,
-                  crossAxisAlignment: .center,
-                  children: [
-                    AdaptiveButton(
-                      onPressed: onContinueClick,
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Center(child: Text("Continue"))
-                      )
-                    ),
-                    Row(
-                      mainAxisAlignment: .center,
-                      children: [
-                        Text("Already have an account?"),
-                        TextButton(
-                          onPressed: () => context.go('/register/sign-in'),
-                          child: Text("Sign in")
-                        )
-                      ],
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: .end,
+                crossAxisAlignment: .center,
+                children: [
+                  AdaptiveButton(
+                    onPressed: onContinueClick,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Center(child: Text("Continue"))
                     )
-                  ],
-                )
+                  ),
+                  Row(
+                    mainAxisAlignment: .center,
+                    children: [
+                      Text("Already have an account?"),
+                      TextButton(
+                        onPressed: () => context.go('/register/sign-in'),
+                        child: Text("Sign in")
+                      )
+                    ],
+                  )
+                ],
               )
             )
-          ]
-        )
-      ),
+          )
+        ]
+      )
     );
   }
 }
