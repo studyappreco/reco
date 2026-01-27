@@ -39,73 +39,64 @@ class OpenAIService {
 
     //resembles the transcript type in JSON schema
     // TODO: augement the course (leaf) data
-    final jsonSchema = {
+    final jsonSchema =  {
+      "\$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "TranscriptDocument",
       "type": "object",
+      "required": ["children"],
+      "additionalProperties": false,
       "properties": {
-        "categories": {
+        "children": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "name": {"type": "string"},
-              "domains": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "name": {"type": "string"},
-                    "subdomains": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {"type": "string"},
-                          "courses": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "courseName": {"type": "string"},
-                                "ects": {"type": "integer"},
-                                "grade": {"type": "number"}
-                              },
-                              "required": ["courseName", "ects", "grade"],
-                              "additionalProperties": false
-                            }
-                          }
-                        },
-                        "required": ["name", "courses"],
-                        "additionalProperties": false
-                      }
-                    }
-                  },
-                  "required": ["name", "subdomains"],
-                  "additionalProperties": false
-                }
-              },
-              "courses": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "courseName": {"type": "string"},
-                    "ects": {"type": "integer"},
-                    "grade": {"type": "number"}
-                  },
-                  "required": ["courseName", "ects", "grade"],
-                  "additionalProperties": false
-                }
-              }
-            },
-            "required": ["name", "domains", "courses"],
-            "additionalProperties": false
+            "\$ref": "#/\$defs/TranscriptNode"
           }
         }
       },
-      "required": ["categories"],
-      "additionalProperties": false
+      "\$defs": {
+        "TranscriptNode": {
+          "type": "object",
+          "required": ["name", "courses", "children"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "courses": {
+              "type": ["array", "null"],
+              "items": {
+                "\$ref": "#/\$defs/TranscriptCourse"
+              }
+            },
+            "children": {
+              "type": ["array", "null"],
+              "items": {
+                "\$ref": "#/\$defs/TranscriptNode"
+              }
+            }
+          }
+        },
+        "TranscriptCourse": {
+          "type": "object",
+          "required": ["id", "name", "ects", "grade"],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "ects": {
+              "type": "number"
+            },
+            "grade": {
+              "type": "number"
+            }
+          }
+        }
+      }
     };
-
     final response = await http.post(
       Uri.parse('https://api.openai.com/v1/responses'),
       headers: {
