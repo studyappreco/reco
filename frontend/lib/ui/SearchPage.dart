@@ -6,6 +6,7 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:go_router/go_router.dart';
 
 
 // Enum for the possible sorting options
@@ -30,7 +31,17 @@ class _SearchPageState extends State<SearchPage> {
   RangeValues _ectsRange = RangeValues(0, 15); 
   RangeValues _ratingRange = RangeValues(0, 5);
 
-  final List<String> _allExamTypes = ["Written Exam", "Oral Exam", "Portfolio Exam", "Term Paper", "Presentation", "Internship", "No Exam"];
+  Set<String> _selectedTags = {}; 
+  String _tagSearchQuery = "";    
+  List<String> _allTags = []; // TODO change when we have the tags for the interest selection page, We currently create the list based on the tags received from the DB with the modul information
+
+  Set<String> _selectedTerms = {};
+  final List<String> _availableTerms = ["Winter Term", "Summer Term"];
+
+  Set<String> _selectedLanguages = {};
+  final List<String> _availableLanguages = ["German", "English"];
+
+  final List<String> _allExamTypes = ["Written Exam", "Oral Exam", "Portfolio Exam", "Homework", "Presentation", "Internship", "No Exam"];
 
   @override
   void initState(){
@@ -43,9 +54,22 @@ class _SearchPageState extends State<SearchPage> {
     try {
       List<Module> modules = await _repository.fetchModules(forceRefresh: force);
       
+      // Extract tags from the data
+      Set<String> extractedTags = {};
+      for(var module in modules){
+        for(var tagObj in module.tags){
+          if(tagObj.label.isNotEmpty){
+            extractedTags.add(tagObj.label);
+          }
+        }
+      }
+      // sort the tags
+      List<String> sortedTags = extractedTags.toList()..sort();
+
       if(mounted){
         setState(() {
           _allModules = modules;
+          _allTags = sortedTags; 
           _filteredModules = modules; 
           _isLoading = false;
           _applyFilters(); 
@@ -80,12 +104,17 @@ class _SearchPageState extends State<SearchPage> {
         ectsRange: _ectsRange,
         ratingRange: _ratingRange,
         sortOption: _selectedSort,
+        selectedTags: _selectedTags, 
+        selectedTerms: _selectedTerms, 
+        selectedLanguages: _selectedLanguages,
       );
     });
   }
 
   // Filter UI design
   void _openFilterSheet() {
+    _tagSearchQuery = "";
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -96,6 +125,14 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, scrollController){
           return StatefulBuilder( 
             builder: (context, setModalState){
+              
+              // creates the list of tags to be displayed
+              final visibleTags = _allTags.where((tag) {
+                final matchesSearch = tag.toLowerCase().contains(_tagSearchQuery.toLowerCase()); // display the unselected ones
+                final isSelected = _selectedTags.contains(tag); // display the selected
+                return matchesSearch || isSelected;
+              }).toList();
+
               return Padding(
                 padding: EdgeInsets.all(20.0),
                 child: Column(
@@ -116,6 +153,10 @@ class _SearchPageState extends State<SearchPage> {
                               setModalState(() {
                                 _selectedSort = SortOption.bestMatch;
                                 _selectedExamTypes.clear();
+                                _selectedTags.clear(); 
+                                _selectedTerms.clear();
+                                _selectedLanguages.clear();
+                                _tagSearchQuery = "";
                                 _ectsRange = RangeValues(0, 15); 
                                 _ratingRange = RangeValues(0, 5); 
                               });
@@ -147,10 +188,13 @@ class _SearchPageState extends State<SearchPage> {
                             padding: EdgeInsets.only(bottom: 24.0),
                             child: Wrap(
                               spacing: 8,
+                              runSpacing: 8, 
                               children: [
                                 ChoiceChip(
                                   label: Text("Best Match"),
                                   selected: _selectedSort == SortOption.bestMatch,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (bool selected) {
                                     if(selected) { setModalState(() => _selectedSort = SortOption.bestMatch); _applyFilters(); }
                                   },
@@ -158,6 +202,8 @@ class _SearchPageState extends State<SearchPage> {
                                 ChoiceChip(
                                   label: Text("Highest Rated"),
                                   selected: _selectedSort == SortOption.ratingHigh,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (bool selected) {
                                     if(selected) { setModalState(() => _selectedSort = SortOption.ratingHigh); _applyFilters(); }
                                   },
@@ -165,6 +211,8 @@ class _SearchPageState extends State<SearchPage> {
                                 ChoiceChip(
                                   label: Text("Most Rated"),
                                   selected: _selectedSort == SortOption.ratingCount,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (bool selected) {
                                     if(selected) { setModalState(() => _selectedSort = SortOption.ratingCount); _applyFilters(); }
                                   },
@@ -172,6 +220,8 @@ class _SearchPageState extends State<SearchPage> {
                                 ChoiceChip(
                                   label: Text("ECTS (High to Low)"),
                                   selected: _selectedSort == SortOption.ectsHigh,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (bool selected) {
                                     if(selected) { setModalState(() => _selectedSort = SortOption.ectsHigh); _applyFilters(); }
                                   },
@@ -179,6 +229,8 @@ class _SearchPageState extends State<SearchPage> {
                                 ChoiceChip(
                                   label: Text("ECTS (Low to High)"),
                                   selected: _selectedSort == SortOption.ectsLow,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (bool selected) {
                                     if(selected) { setModalState(() => _selectedSort = SortOption.ectsLow); _applyFilters(); }
                                   },
@@ -187,13 +239,118 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
 
-                          // Show the possible exam type selection
+                          // Term Filter
                           Padding(
                             padding: EdgeInsets.only(bottom: 8.0),
-                            child: Text(
-                              "Examination Type", 
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)
+                            child: Text("Term", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 24.0),
+                            child: Wrap(
+                              spacing: 8,
+                              children: _availableTerms.map((term) {
+                                final isSelected = _selectedTerms.contains(term);
+                                return FilterChip(
+                                  label: Text(term),
+                                  selected: isSelected,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
+                                  onSelected: (selected) {
+                                    setModalState(() {
+                                      selected ? _selectedTerms.add(term) : _selectedTerms.remove(term);
+                                    });
+                                    _applyFilters();
+                                  },
+                                );
+                              }).toList(),
                             ),
+                          ),
+
+                          // Languages Filter
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.0),
+                            child: Text("Language", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 24.0),
+                            child: Wrap(
+                              spacing: 8,
+                              children: _availableLanguages.map((lang) {
+                                final isSelected = _selectedLanguages.contains(lang);
+                                return FilterChip(
+                                  label: Text(lang),
+                                  selected: isSelected,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
+                                  onSelected: (selected) {
+                                    setModalState(() {
+                                      selected ? _selectedLanguages.add(lang) : _selectedLanguages.remove(lang);
+                                    });
+                                    _applyFilters();
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+
+                          // Tags Section
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.0),
+                            child: Text("Tags", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          ),
+                          
+                          // Suchfeld für Tags
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 12.0), 
+                            child: AdaptiveSearchField(
+                              hintText: "Search tags...", 
+                              showFilter: false, 
+                              onChanged: (val) {
+                                setModalState(() {
+                                  _tagSearchQuery = val;
+                                });
+                              },
+                            ),
+                          ),
+                          
+                          // Tags Liste
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 24.0),
+                            child: SizedBox(
+                              height: 45, 
+                              child: visibleTags.isEmpty 
+                                ? Center(child: Text("No tags found", style: TextStyle(color: Colors.grey)))
+                                : ListView.separated(
+                                    scrollDirection: Axis.horizontal, 
+                                    itemCount: visibleTags.length,
+                                    separatorBuilder: (context, index) => SizedBox(width: 8),
+                                    itemBuilder: (context, index) {
+                                      final tag = visibleTags[index];
+                                      final isSelected = _selectedTags.contains(tag);
+                                      return FilterChip(
+                                        label: Text(tag),
+                                        selected: isSelected,
+                                        selectedColor: AppColors.primaryBlueLight,
+                                        checkmarkColor: AppColors.primaryBlue,
+                                        onSelected: (selected) {
+                                          setModalState(() {
+                                            if (selected) {
+                                              _selectedTags.add(tag);
+                                            } else {
+                                              _selectedTags.remove(tag);
+                                            }
+                                          });
+                                        },
+                                      );
+                                    },
+                                  ),
+                            ),
+                          ),
+
+                          // Exam Type
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 8.0),
+                            child: Text("Examination Type", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                           ),
                           Padding(
                             padding: EdgeInsets.only(bottom: 24.0),
@@ -204,6 +361,8 @@ class _SearchPageState extends State<SearchPage> {
                                 return FilterChip(
                                   label: Text(type),
                                   selected: isSelected,
+                                  selectedColor: AppColors.primaryBlueLight,
+                                  checkmarkColor: AppColors.primaryBlue,
                                   onSelected: (selected) {
                                     setModalState(() {
                                       if (selected) {
@@ -287,7 +446,10 @@ class _SearchPageState extends State<SearchPage> {
                       child: SizedBox(
                         width: double.infinity,
                         child: AdaptiveButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            _applyFilters();
+                            Navigator.pop(context);
+                          },
                           child: Text("Show Results"),
                         ),
                       ),
@@ -314,6 +476,7 @@ class _SearchPageState extends State<SearchPage> {
             Padding(
               padding: EdgeInsets.only(bottom: 16.0),
               child: AdaptiveSearchField(
+                hintText: "Search modules", 
                 onChanged: (text) {
                   _searchQuery = text;
                   _applyFilters();
@@ -323,6 +486,41 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
             
+            // If tags have been selected, they will be displayed
+            if (_selectedTags.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4.0, left: 4.0),
+                child: Text(
+                  "Selected Tags:",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                ),
+              ),
+              
+              Container(
+                height: 40,
+                margin: EdgeInsets.only(bottom: 12),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _selectedTags.length,
+                  separatorBuilder: (_,_) => SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final tag = _selectedTags.elementAt(index);
+                    return Chip(
+                      label: Text(tag, style: Theme.of(context).textTheme.labelMedium),
+                      backgroundColor: AppColors.primaryBlueLight,
+                      deleteIcon: Icon(Icons.close, size: 16),
+                      onDeleted: () {
+                        setState(() {
+                          _selectedTags.remove(tag);
+                          _applyFilters();
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+
             if (!_isLoading && _selectedSort == SortOption.bestMatch && _filteredModules.isNotEmpty)
               Padding(
                 padding: EdgeInsets.only(bottom: 12.0),
@@ -364,7 +562,7 @@ class _SearchPageState extends State<SearchPage> {
                                 title: module.title,
                                 moduleNr: module.moduleNr,
                                 credits: module.credits,
-                                category: module.examType, 
+                                category: "Still Missing", 
                                 matchBasis: module.matchBasis,
                                 matchPercentage: module.matchPercentage,
                                 rating: module.rating,
