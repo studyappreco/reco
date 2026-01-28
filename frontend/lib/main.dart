@@ -328,14 +328,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
                 var repo = TranscriptRepository();
                 var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM");
-                switch (res) {
-                  case TranscriptSuccess(:final data):
-                    print(data.toString());
-                  case TranscriptError(:final message, :final error):
-                    debugPrint('Error: $message');
-                    if (error != null) debugPrint('Details: $error');
+                if (res != null) {
+                  print(res.toString());
+                } else {
+                  debugPrint('Error: Failed to parse transcript');
                 }
-
               },
               child: const Text("Parse transcript"),
             ),

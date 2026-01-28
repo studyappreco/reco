@@ -15,27 +15,27 @@ final UserTranscript transcriptWithCourses = UserTranscript(
           TranscriptNode(
             name: 'information_systems',
             courses: [
-              TranscriptCourse(id: 'is-1', courseName: 'Database Systems', ects: 6, grade: 1.3),
-              TranscriptCourse(id: 'is-2', courseName: 'Business Process Management', ects: 6, grade: 2.0),
+              TranscriptCourse(id: 'is-1', courseName: 'Database Systems', ects: 6, grade: 1.3, examDate: '15.02.2024'),
+              TranscriptCourse(id: 'is-2', courseName: 'Business Process Management', ects: 6, grade: 2.0, examDate: '20.02.2024'),
             ],
           ),
           TranscriptNode(
             name: 'computer_science',
             courses: [
-              TranscriptCourse(id: 'cs-1', courseName: 'Algorithms', ects: 6, grade: 1.0),
-              TranscriptCourse(id: 'cs-2', courseName: 'Data Structures', ects: 6, grade: 1.3),
+              TranscriptCourse(id: 'cs-1', courseName: 'Algorithms', ects: 6, grade: 1.0, examDate: '10.01.2024'),
+              TranscriptCourse(id: 'cs-2', courseName: 'Data Structures', ects: 6, grade: 1.3, examDate: '12.01.2024'),
             ],
           ),
           TranscriptNode(
             name: 'business_and_economics',
             courses: [
-              TranscriptCourse(id: 'be-1', courseName: 'Microeconomics', ects: 6, grade: 2.3),
-              TranscriptCourse(id: 'be-2', courseName: 'Corporate Strategy', ects: 6, grade: 1.7),
+              TranscriptCourse(id: 'be-1', courseName: 'Microeconomics', ects: 6, grade: 2.3, examDate: '05.03.2024'),
+              TranscriptCourse(id: 'be-2', courseName: 'Corporate Strategy', ects: 6, grade: 1.7, examDate: '08.03.2024'),
             ],
           ),
         ],
       ),
-      TranscriptNode(name: 'free_electives', courses: [TranscriptCourse(courseName: "Math modeling", ects: 6, grade: 1.7, id: "37838")], children: []),
+      TranscriptNode(name: 'free_electives', courses: [TranscriptCourse(courseName: "Math modeling", ects: 6, grade: 1.7, id: "37838", examDate: '22.04.2024')], children: []),
     ],
   ),
 );
