@@ -95,12 +95,14 @@ class TranscriptCourse {
   final int ects;
   final double grade;
   final String id;
+  final String examDate;
 
   TranscriptCourse({
     required this.courseName,
     required this.ects,
     required this.grade,
-    required this.id
+    required this.id,
+    required this.examDate
   });
 
   factory TranscriptCourse.fromJson(Map<String, dynamic> json) {
@@ -109,6 +111,7 @@ class TranscriptCourse {
       courseName: json['name'] as String,
       ects: (json['ects'] as num).toInt(),
       grade: (json['grade'] as num).toDouble(),
+        examDate : json['examDate'] as String
     );
   }
 
@@ -118,6 +121,7 @@ class TranscriptCourse {
       'name': courseName,
       'ects': ects,
       'grade': grade,
+      'examDate' : examDate
     };
   }
 

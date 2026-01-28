@@ -4,7 +4,7 @@ import 'package:frontend/models/TranscriptDocument.dart';
 
 class ISMTranscript {
 
-  static int total_ects = 120;
+  static int program_ects = 120;
 
   // important: have to match with the prompt
   static Map<String, int> ects_for_categories = {
@@ -15,9 +15,9 @@ class ISMTranscript {
   };
   // important: have to match with the prompt
   static Map<String, String> categories_for_dashboard = {
-    "information_systems" : "Information systems",
+    "information_systems" : "Information Systems",
     "computer_science" : "Computer Science",
-    "business_and_economics" : "Business and economics",
+    "business_and_economics" : "Business and Economics",
     "free_electives" : "Free Electives"
   };
 
@@ -90,6 +90,56 @@ class ISMTranscript {
     });
     return dashBoardcategories;
   }
+
+  static int calculateTotalEarnedECTS(UserTranscript ismTranscript) {
+    int totalEcts = 0;
+
+    void traverseNode(TranscriptNode node) {
+      if (node.courses != null) {
+        for (final course in node.courses!) {
+          totalEcts += course.ects;
+        }
+      }
+      if (node.children != null) {
+        for (final child in node.children!) {
+          traverseNode(child);
+        }
+      }
+    }
+
+    for (final node in ismTranscript.transcript.children) {
+      traverseNode(node);
+    }
+
+    return totalEcts;
+  }
+
+  static DashboardDTO createDashboardDTO(UserTranscript ismTranscript) {
+    final gpa = calculateGPA(ismTranscript);
+    final categories = getOverviewCategories(ismTranscript);
+    final earnedECTS = calculateTotalEarnedECTS(ismTranscript);
+
+    return DashboardDTO(
+      programECTS: program_ects,
+      earnedECTS: earnedECTS,
+      gpa: gpa,
+      categories: categories,
+    );
+  }
+}
+
+class DashboardDTO {
+  final int programECTS;
+  final int earnedECTS;
+  final double? gpa;
+  final List<OverviewCategory> categories;
+
+  DashboardDTO({
+    required this.programECTS,
+    required this.earnedECTS,
+    this.gpa,
+    required this.categories,
+  });
 }
 
 
