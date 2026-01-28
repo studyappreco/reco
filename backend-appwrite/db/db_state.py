@@ -190,7 +190,7 @@ user_transcript_1 = {
 }
 
 user_transcript_2 = {
-    "userID": "<<not yet provided>>",
+    "userID": "696fc7786cc80f940621",
     "programLiteral": "CS_M",
     "transcript": {
         "children": [
@@ -377,7 +377,7 @@ user_transcript_3 = {
 }
 
 # Transcripts to insert
-MOCK_TRANSCRIPTS = [user_transcript_1, user_transcript_3]
+MOCK_TRANSCRIPTS = [user_transcript_1, user_transcript_2,  user_transcript_3]
 
 
 CONNECTION_STRING = os.getenv("MONGODB_URI")
