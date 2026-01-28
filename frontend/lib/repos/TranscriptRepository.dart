@@ -40,7 +40,7 @@ class TranscriptRepository {
       final transcript = await _openAIService.parseTranscriptPdf(pdfFile, programLiteral);
 
       // Store in MongoDB
-      await _mongoService.uploadTranscript(userID, transcript);
+      await _mongoService.uploadTranscript(userID, transcript, programLiteral);
 
       return TranscriptSuccess(transcript);
     } on ArgumentError catch (e) {

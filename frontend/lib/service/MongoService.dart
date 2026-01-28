@@ -35,11 +35,12 @@ class MongoService {
     return UserTranscript.fromJson(doc);
   }
 
-  Future<void> uploadTranscript(String userID, TranscriptDocument transcript) async {
+  Future<void> uploadTranscript(String userID, TranscriptDocument transcript, String programLiteral) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
 
     final userTranscript = UserTranscript(
+      programLiteral: programLiteral,
       userID: userID,
       transcript: transcript,
     );
