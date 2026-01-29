@@ -50,7 +50,7 @@ Rules:
 - Dates: Format is dd.MM.yyyy
 
 Overall structure of the Computer Science (CS) Bachelors Degree with English | German names is hierarchical:
-  - two main categories: "Compulsory Modules" | "Pflichtbereich" and "Compulsory Electives" | "Wahlpflichtbereich"
+  - three main categories: "Compulsory Modules" | "Pflichtbereich" and "Compulsory Electives" | "Wahlpflichtbereich"
   - "Compulsory Modules" can be further subdivided into:
       - "Foundations of Scientific Work in Computer Science" | "Grundlagen des wissenschaftlichen Arbeitens in der Informatik"
       - "Technical Foundations of Computer Science" | "Technische Grundlagen der Informatik"
@@ -63,6 +63,8 @@ Overall structure of the Computer Science (CS) Bachelors Degree with English | G
       - "Programming Practical" | "Programmierpraktikum"
       - "Theoretical Computer Science" | "Theoretische Informatik"
       - "Computer Science Catalog" | "Katalog Informatik"
+  - "Compulsory Electives"
+    -  can have courses directly and are not further subdivided
 
 For the output on how to call the TranscriptNodes per category:
   - "Compulsory Modules" => "compulsory_modules"
@@ -77,6 +79,8 @@ For the output on how to call the TranscriptNodes per category:
   - "Programming Practical" => "programming_practical"
   - "Theoretical Computer Science" => "theoretical_computer_science"
   - "Computer Science Catalog" => "computer_science_catalog"
+
+If the course is prefixed with "Modulprüfung: "
 
 Even if certain categories that are named above do not appear in the transcript directly include it as a TranscriptNode with an empty array of courses.
 
