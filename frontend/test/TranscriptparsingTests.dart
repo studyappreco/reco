@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
-import 'package:frontend/repos/ISMTranscript.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 
 String getTranscriptPath(String filename) {
   return '${Directory.current.path}/lib/transcripts/$filename';
@@ -27,7 +27,7 @@ void main() async {
       print(res!.toJson());
 
       final userTranscript = UserTranscript(userID: "test-user", programLiteral: "ISM", transcript: res!);
-      final totalEcts = ISMTranscript.calculateTotalEarnedECTS(userTranscript);
+      final totalEcts = calculateTotalEarnedECTS(userTranscript);
       print('Total ECTS: $totalEcts');
       expect(totalEcts, 51);
     });
@@ -45,7 +45,7 @@ void main() async {
       print(res!.toJson());
 
       final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_M", transcript: res!);
-      final totalEcts = ISMTranscript.calculateTotalEarnedECTS(userTranscript);
+      final totalEcts = calculateTotalEarnedECTS(userTranscript);
       print('Total ECTS: $totalEcts');
       expect(totalEcts, 24);
     });
@@ -63,7 +63,7 @@ void main() async {
       print(res!.toJson());
 
       final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_B", transcript: res!);
-      final totalEcts = ISMTranscript.calculateTotalEarnedECTS(userTranscript);
+      final totalEcts = calculateTotalEarnedECTS(userTranscript);
       print('Total ECTS: $totalEcts');
       expect(totalEcts, 123);
     });

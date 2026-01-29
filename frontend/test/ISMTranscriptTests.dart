@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/repos/ISMTranscript.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 
 final UserTranscript transcriptWithCourses = UserTranscript(
   userID: 'test-user-1',
@@ -54,13 +55,13 @@ final UserTranscript emptyTranscript = UserTranscript(
 void main() {
   group('ISMTranscript.calculateGPA', () {
     test('returns weighted average for transcript with courses', () {
-      final gpa = ISMTranscript.calculateGPA(transcriptWithCourses);
+      final gpa = calculateGPA(transcriptWithCourses);
       expect(gpa, isNotNull);
       expect(gpa, closeTo(1.61, 0.06));
     });
 
     test('returns null for empty transcript', () {
-      final gpa = ISMTranscript.calculateGPA(emptyTranscript);
+      final gpa = calculateGPA(emptyTranscript);
       expect(gpa, isNull);
     });
   });
