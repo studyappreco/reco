@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
 import os
 import json
+from pathlib import Path
 from tqdm import tqdm
 from openai import OpenAI
 
-load_dotenv(r"C:\Users\zohre\develop\reco\backend-appwrite\.env")
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
 
 if not os.getenv("OPENAI_API_KEY"):
     raise RuntimeError("OPENAI_API_KEY not found. Check your .env file.")
