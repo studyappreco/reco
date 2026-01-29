@@ -23,6 +23,7 @@ class UserTranscript {
   Map<String, dynamic> toJson() {
     return {
       'userID': userID,
+      'programLiteral': programLiteral,
       'transcript': transcript.toJson(),
     };
   }

@@ -6,188 +6,189 @@ import json
 # Load environment variables from .env file
 load_dotenv()
 
-user_transcript_1 = {
+user_transcript_1 = user_transcript_1 = {
     "userID": "6967699402af64b787c3",
     "programLiteral": "CS_B",
     "transcript": {
         "children": [
             {
                 "name": "compulsory_modules",
-                "courses": None,
+                "courses": [],
                 "children": [
                     {
                         "name": "foundations_of_scientific_work",
                         "courses": [
                             {
                                 "id": "6435",
-                                "name": "Modulprüfung: Informatik Propädeutikum",
+                                "name": "Informatik Propädeutikum",
                                 "ects": 3,
                                 "grade": 2.7,
                                 "examDate": "31.01.2024"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "technical_foundations",
                         "courses": [
                             {
                                 "id": "3305",
-                                "name": "Modulprüfung: Systemprogrammierung",
+                                "name": "Systemprogrammierung",
                                 "ects": 6,
                                 "grade": 2,
                                 "examDate": "31.07.2024"
                             },
                             {
                                 "id": "14610",
-                                "name": "Modulprüfung: Rechnerorganisation",
+                                "name": "Rechnerorganisation",
                                 "ects": 6,
                                 "grade": 3,
                                 "examDate": "01.03.2024"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "methodical_practical_foundations",
                         "courses": [
                             {
                                 "id": "6135",
-                                "name": "Modulprüfung: Einführung in die Programmierung",
+                                "name": "Einführung in die Programmierung",
                                 "ects": 6,
                                 "grade": 2.3,
                                 "examDate": "04.03.2024"
                             },
                             {
                                 "id": "6145",
-                                "name": "Modulprüfung: Algorithmen und Datenstrukturen",
+                                "name": "Algorithmen und Datenstrukturen",
                                 "ects": 6,
                                 "grade": 1.7,
                                 "examDate": "26.07.2024"
                             },
                             {
                                 "id": "6445",
-                                "name": "Modulprüfung: Informationssysteme und Datenanalyse",
+                                "name": "Informationssysteme und Datenanalyse",
                                 "ects": 6,
                                 "grade": 1.7,
                                 "examDate": "02.08.2024"
                             },
                             {
                                 "id": "6455",
-                                "name": "Modulprüfung: Wissenschaftliches Rechnen",
+                                "name": "Wissenschaftliches Rechnen",
                                 "ects": 6,
                                 "grade": 3,
                                 "examDate": "28.02.2025"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "theoretical_foundations",
                         "courses": [
                             {
                                 "id": "3335",
-                                "name": "Modulprüfung: Berechenbarkeit und Komplexität",
+                                "name": "Berechenbarkeit und Komplexität",
                                 "ects": 6,
                                 "grade": 1,
                                 "examDate": "18.02.2025"
                             },
                             {
                                 "id": "6465",
-                                "name": "Modulprüfung: Formale Sprachen und Automaten",
+                                "name": "Formale Sprachen und Automaten",
                                 "ects": 6,
                                 "grade": 2.7,
                                 "examDate": "22.07.2024"
                             },
                             {
                                 "id": "6475",
-                                "name": "Modulprüfung: Logik",
+                                "name": "Logik",
                                 "ects": 6,
                                 "grade": 3,
                                 "examDate": "28.03.2025"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "foundations_of_mathematics",
                         "courses": [
                             {
                                 "id": "6485",
-                                "name": "Modulprüfung: Diskrete Strukturen",
+                                "name": "Diskrete Strukturen",
                                 "ects": 6,
                                 "grade": 2.7,
                                 "examDate": "29.07.2024"
                             },
                             {
                                 "id": "6565",
-                                "name": "Modulprüfung: Stochastik für Informatik",
+                                "name": "Stochastik für Informatik",
                                 "ects": 9,
                                 "grade": 2.3,
                                 "examDate": "28.07.2025"
                             },
                             {
                                 "id": "71117",
-                                "name": "Modulprüfung: Analysis I und Lineare Algebra für Ingenieurwissenschaften (ab WS 2017/18)",
+                                "name": "Analysis I und Lineare Algebra für Ingenieurwissenschaften",
                                 "ects": 12,
                                 "grade": 3,
                                 "examDate": "21.02.2024"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "societal_relevance",
                         "courses": [],
-                        "children": None
+                        "children": []
                     }
                 ]
             },
             {
                 "name": "compulsory_electives",
-                "courses": None,
+                "courses": [],
                 "children": [
                     {
                         "name": "technical_computer_science",
                         "courses": [
                             {
                                 "id": "60165",
-                                "name": "Modulprüfung: Verteilte Systeme",
+                                "name": "Verteilte Systeme",
                                 "ects": 6,
                                 "grade": 2,
                                 "examDate": "06.08.2025"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "programming_practical",
                         "courses": [],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "theoretical_computer_science",
                         "courses": [
                             {
                                 "id": "2348908",
-                                "name": "ehemals Grundlagen der Algorithmik",
+                                "name": "Algorithmentheorie (ehemals Grundlagen der Algorithmik)",
                                 "ects": 6,
                                 "grade": 3,
                                 "examDate": "29.07.2025"
                             }
                         ],
-                        "children": None
+                        "children": []
                     },
                     {
                         "name": "computer_science_catalog",
                         "courses": [],
-                        "children": None
+                        "children": []
                     }
                 ]
             }
         ]
     }
 }
+
 
 user_transcript_2 = {
     "userID": "696fc7786cc80f940621",
