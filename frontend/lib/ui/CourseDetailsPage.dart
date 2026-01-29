@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/models/Module.dart';
+import 'package:frontend/service/MongoService.dart'; 
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
 
 class CourseDetailsPage extends StatelessWidget {
-  const CourseDetailsPage({super.key});
+  final String moduleNr; 
+
+  const CourseDetailsPage({super.key, required this.moduleNr});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +20,7 @@ class CourseDetailsPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ChangeNotifierProvider<CourseDetailsPageViewmodel>(
-      create: (_) => CourseDetailsPageViewmodel(),
+      create: (_) => CourseDetailsPageViewmodel(moduleNr),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -24,6 +29,32 @@ class CourseDetailsPage extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         body: Consumer<CourseDetailsPageViewmodel>(
           builder: (context, vm, child) {
+            // Loading status
+            if(vm.isLoading){
+              return Center(child: CircularProgressIndicator());
+            }
+            // error
+            if(vm.module == null){
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      StatusMessageCard(
+                        isError: true,
+                        title: "Error during loading",
+                        message: vm.errorMessage ?? "The module could not be found",
+                        onClose: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            // Display data
             return Padding(
               padding: EdgeInsets.all(24),
               child: Column(
@@ -43,15 +74,20 @@ class CourseDetailsPage extends StatelessWidget {
                                 child: Row(
                                   mainAxisAlignment: .spaceBetween,
                                   children: [
-                                    Text("Algorithm", style: textTheme.headlineSmall),
-                                    Text("6", style: textTheme.headlineSmall)
+                                    Flexible(
+                                      child: Text(vm.module!.title, style: textTheme.headlineSmall)
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 8.0),
+                                      child: Text(vm.module!.credits, style: textTheme.headlineSmall),
+                                    )
                                   ],
                                 ),
                               ),
                               Row(
                                 mainAxisAlignment: .spaceBetween,
                                 children: [
-                                  Text("CS201", style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
+                                  Text(vm.module!.moduleNr, style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
                                   Text("ECTS", style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary))
                                 ],
                               ),
@@ -61,16 +97,16 @@ class CourseDetailsPage extends StatelessWidget {
                                   mainAxisAlignment: .spaceBetween,
                                   children: [
                                     Flexible(
-                                      child: ChipWidget(label: "Recommended for you - 88% match", color: Colors.green),
+                                      child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
                                     ),
                                     InkWell(
                                       onTap: () {},
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
                                         padding: EdgeInsets.all(8),
-                                        decoration: CourseCardStyles.getFavoriteDecoration(isActive: false),
+                                        decoration: CourseCardStyles.getFavoriteDecoration(isActive: vm.module!.isFavorite),
                                         child: Icon(
-                                          false ? Icons.favorite : Icons.favorite_border,
+                                          vm.module!.isFavorite ? Icons.favorite : Icons.favorite_border,
                                           color: AppColors.pink,
                                           size: 20,
                                         ),
@@ -81,29 +117,45 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Section(
-                            title: "Description",
-                            children: [
-                              Text(
-                                "This comprehensive course covers advanced concepts and practical applications in algorithm. Students will gain hands-on experience through projects and assignments, developing both theoretical understanding and practical skills essential for modern software development.",
-                                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                                textAlign: .justify,
-                              )
-                            ],
-                          ),
-                          Section(
+                          if(vm.module!.courseSummary != null && vm.module!.courseSummary!.isNotEmpty)
+                            Section(
+                              title: "Description",
+                              children: [
+                                Text(
+                                  vm.module!.courseSummary!,
+                                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                                  textAlign: .justify,
+                                )
+                              ],
+                            ),
+
+                            // TODO missing in DB
+                            Section(
                             title: "Prerequisites",
-                            children: [
-                              Text(
-                                "\u2022 Introduction to Programming",
+                              children: [
+                                Text(
+                                "Missing",
                                 style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                               ),
                               Text(
-                                "\u2022 Data Structures",
-                                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                              ),
-                            ],
-                          ),
+                                ".....",
+                                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+
+                          if(vm.module!.learnResult != null && vm.module!.learnResult!.isNotEmpty)
+                            Section(
+                              title: "Learning Outcomes",
+                              children: [
+                                Text(
+                                  vm.module!.learnResult!,
+                                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                                  textAlign: .justify,
+                                )
+                              ],
+                            ),
+
                           Section(
                             title: "Student feedback",
                             rightContent: Row(
@@ -113,7 +165,7 @@ class CourseDetailsPage extends StatelessWidget {
                                   color: Colors.amberAccent,
                                 ),
                                 Text(
-                                  "4.5",
+                                  vm.module!.rating != null ? vm.module!.rating.toString() : "-",
                                   style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
                                 ),
                               ],
@@ -178,9 +230,9 @@ class CourseDetailsPage extends StatelessWidget {
                               spacing: 21,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                DetailCard(value: "85%", item: "Pass Rate"),
-                                DetailCard(value: "120", item: "Students"),
-                                DetailCard(value: "12", item: "Weeks"),
+                                DetailCard(value: vm.module!.passRate, item: "Pass Rate"),
+                                DetailCard(value: "${vm.module!.students}", item: "Students"),
+                                DetailCard(value: vm.module!.duration, item: "Weeks"),
                               ],
                             ),
                           ),
@@ -199,10 +251,10 @@ class CourseDetailsPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () {},
+                                  onPressed: () => vm.togglePlanned(),
                                   child: Center( 
                                     child: Text(
-                                      "+ Add to Plan",
+                                      vm.module!.isPlanned ? "- Remove from Plan" : "+ Add to Plan",
                                       style: textTheme.bodyMedium?.copyWith(color: Colors.white),
                                       textAlign: TextAlign.center,
                                     ),
@@ -316,6 +368,43 @@ class DetailCard extends StatelessWidget {
 }
 
 class CourseDetailsPageViewmodel extends ChangeNotifier {
+  final String moduleNr;
+  Module? module;
+  bool isLoading = true;
+  String? errorMessage;
 
+  CourseDetailsPageViewmodel(this.moduleNr){
+    _loadModule();
+  }
+  
+  Future<void> _loadModule() async{
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try{
+      module = await MongoService().getModuleByNumber(moduleNr);
+
+      if(module == null){
+        errorMessage = "Module with ID $moduleNr not found.";
+      }
+
+    } catch (e){
+      print("Error loading module: $e");
+      errorMessage = "Error loading module: $e";
+      module = null;
+    } finally{
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void togglePlanned(){
+    if(module != null){
+      module!.isPlanned = !module!.isPlanned;
+      // TODO Adjust DB data
+
+      notifyListeners(); 
+    }
+  }
 }
-

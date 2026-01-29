@@ -25,6 +25,7 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/models/Module.dart';
 
 
 // Use this instance of clientSession globally
@@ -120,14 +121,27 @@ final router = GoRouter(
             ),
             GoRoute(
               path: 'course-details',
-              builder: (context, state) => CourseDetailsPage(),
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
             ),
           ]
         ),
         GoRoute(
           path: '/search',
           builder: (context, state) => SearchPage(),
+          routes: [
+            GoRoute(
+              path: 'course-details',
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
+            ),
+          ],
         ),
+
         GoRoute(
           path: '/planner',
           builder: (context, state) => Center(child: Text("The PlannerPage will be added here later")),
@@ -250,7 +264,11 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CourseDetailsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailsPage(
+                      moduleNr: "400", 
+                    ),
+                  ),
                 );
               },
               child: const Text("Course Details Page"),

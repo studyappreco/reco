@@ -569,7 +569,7 @@ class _SearchPageState extends State<SearchPage> {
                                 tags: module.tags,
                                 isFavorite: module.isFavorite,
                                 isPlanned: module.isPlanned,
-                                onCardTap: () {},
+                                onCardTap: () => context.go('/search/course-details', extra: module.moduleNr),
                                 onFavoriteTap: () => setState(() => module.isFavorite = !module.isFavorite),
                                 onPlanTap: () => setState(() => module.isPlanned = !module.isPlanned),
                               ),
