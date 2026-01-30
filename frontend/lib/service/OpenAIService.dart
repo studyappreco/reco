@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/models/TranscriptDocument.dart';
 
-const _ismPrompt = '''
-Extract all completed exams from this transcript into a structured format.
+
+const _csMasterPrompt = """
+Extract all completed and failed exams from this transcript into a structured format.
 
 Rules:
 - German and English transcripts share the same structure (different column names)
@@ -13,17 +14,111 @@ Rules:
 - Grades: Only include grades between 0.0 and 5.0
 - Dates: Format is dd.MM.yyyy
 
-Structure:
-- Group courses by their categories (e.g., "Core Studies", "Elective Modules", "Compulsary Electives")
-- Preserve the hierarchy: Category > Domain > Subdomain > Course
+Overall structure of the Computer Science (CS) Masters Degree with English | German names is hierarchical:
+    - two main categories: "Compulsory Electives" | "Wahlpflicht" and "Free Electives" | "Wahlbereich"
+    - "Compulsory Electives" can be further subdivided into:
+        - "Data and Software Engineering" | "Data and Software Engineering"
+        - "Embedded Systems and Computer Architectures" | "Eingebettete Systeme und Rechnerarchitekturen"
+        - "Foundations of Computing" | "Grundlagen der Informatik"
+        - "Cognitive Systems" | "Kognitive Systeme"
+        - "Digital Media and Human-Computer Interaction" | "Medientechnik und Mensch-Maschine-Interaktion"
+        - "Distributed Systems and Networks" | "Verteilte Systeme und Netze"
 
-In the ISM Master you have compulsary electives and free electives as main categories. compulsary electives can be further subdivided into 
-"Information systems", "computer science", "business and economics". "computer science" can be further subdivided into "Distributed systems and networks" and "Data and software engineering"
+For the output on how to call the TranscriptNodes per category:
+  - "Data and Software Engineering" => "data_and_software_engineering"
+  - "Embedded Systems and Computer Architectures" => "embedded_systems_and_computer_architectures"
+  - "Foundations of Computing" => "foundations_of_computing"
+  - "Cognitive Systems" => "cognitive_systems"
+  - "Digital Media and Human-Computer Interaction" => "digital_media_and_human_computer_interaction"
+  - "Distributed Systems and Networks" => "distributed_systems_and_networks"
+  - "Compulsory Electives" => "compulsory_electives"
+  - "Free Electives" => "free_electives"
+
+Even if certain categories that are named above do not appear in the transcript directly include it as a TranscriptNode with an empty array of courses.
+
+If the provided content does not match the CS master transcript rules and structure return null.
+""";
+
+
+const _csBachelorPrompt = """
+Extract all completed and failed exams from this transcript into a structured format.
+
+Rules:
+- German and English transcripts share the same structure (different column names)
+- ECTS: Only include courses with 3-12 ECTS
+- Grades: Only include grades between 0.0 and 5.0
+- Dates: Format is dd.MM.yyyy
+
+Overall structure of the Computer Science (CS) Bachelors Degree with English | German names is hierarchical:
+  - three main categories: "Compulsory Modules" | "Pflichtbereich" and "Compulsory Electives" | "Wahlpflichtbereich"
+  - "Compulsory Modules" can be further subdivided into:
+      - "Foundations of Scientific Work in Computer Science" | "Grundlagen des wissenschaftlichen Arbeitens in der Informatik"
+      - "Technical Foundations of Computer Science" | "Technische Grundlagen der Informatik"
+      - "Methodical-Practical Foundations of Computer Science" | "Methodisch-Praktische Grundlagen der Informatik"
+      - "Theoretical Foundations of Computer Science" | "Theoretische Grundlagen der Informatik"
+      - "Foundations of Mathematics" | "Grundlagen der Mathematik"
+      - "Computer Science in its Societal Relevance" | "Informatik in ihrer gesellschaftlichen Relevanz"
+  - "Compulsory Electives" can be further subdivided into:
+      - "Technical Computer Science" | "Technische Informatik"
+      - "Programming Practical" | "Programmierpraktikum"
+      - "Theoretical Computer Science" | "Theoretische Informatik"
+      - "Computer Science Catalog" | "Katalog Informatik"
+  - "Compulsory Electives"
+    -  can have courses directly and are not further subdivided
+
+For the output on how to call the TranscriptNodes per category:
+  - "Compulsory Modules" => "compulsory_modules"
+  - "Compulsory Electives" => "compulsory_electives"
+  - "Foundations of Scientific Work in Computer Science" => "foundations_of_scientific_work"
+  - "Technical Foundations of Computer Science" => "technical_foundations"
+  - "Methodical-Practical Foundations of Computer Science" => "methodical_practical_foundations"
+  - "Theoretical Foundations of Computer Science" => "theoretical_foundations"
+  - "Foundations of Mathematics" => "foundations_of_mathematics"
+  - "Computer Science in its Societal Relevance" => "societal_relevance"
+  - "Technical Computer Science" => "technical_computer_science"
+  - "Programming Practical" => "programming_practical"
+  - "Theoretical Computer Science" => "theoretical_computer_science"
+  - "Computer Science Catalog" => "computer_science_catalog"
+
+If the course is prefixed with "Modulprüfung: "
+
+Even if certain categories that are named above do not appear in the transcript directly include it as a TranscriptNode with an empty array of courses.
+
+If the provided content does not match the CS bachelor transcript rules and structure return null.
+""";
+
+const _ismPrompt = '''
+Extract all completed and failed exams from this transcript into a structured format.
+
+Rules:
+- German and English transcripts share the same structure (different column names)
+- ECTS: Only include courses with 3-12 ECTS
+- Grades: Only include grades between 0.0 and 5.0
+- Dates: Format is dd.MM.yyyy
+
+Overall structure of the Information Systems Management (ISM) Masters Degree with English | German names is hierarchical:
+    - two main categories: "Compulsory Electives" | "Wahlpflicht" and "Free Electives" | "Wahlbereich"
+    - "Compulsory Electives" can be further subdivided into "Information Systems" | "Informationssysteme"  , "Computer Science" | "Informatik" and "Business and Economics" 
+    - "Computer Science" can be further subdivided into "Distributed Systems and Networks" and "Data and Software Engineering"
+
+For the output on how to call the TranscriptNodes per category:
+  - "Information Systems" => "information_systems"
+  - "Computer Science" => "computer_science"
+  - "Business and Economics" => "business_and_economics"
+  - "Compulsory Electives" => "compulsory_electives"
+  -  "Free Electives" => "free_electives"
+  
+  Even if certain categories that are named above do not appear in the transcript directly include it as a TranscriptNode with an empty array of courses.
+
+  
+ If the provided content does not match the ISM transcript rules and structure return null.
 ''';
 
 String getProgramPrompt(String programLiteral) {
   return switch (programLiteral) {
     'ISM' => _ismPrompt,
+    'CS_M' => _csMasterPrompt,
+    'CS_B' => _csBachelorPrompt,
     _ => throw ArgumentError('Unknown program: $programLiteral'),
   };
 }
@@ -33,7 +128,8 @@ class OpenAIService {
 
   OpenAIService(this.apiKey);
 
-  Future<TranscriptDocument> parseTranscriptPdf(File pdfFile, String programLiteral) async {
+  /// Returns null if the model refused, returned null (invalid input), or an error occurred
+  Future<TranscriptDocument?> parseTranscriptPdf(File pdfFile, String programLiteral) async {
     final bytes = await pdfFile.readAsBytes();
     final base64Pdf = base64Encode(bytes);
 
@@ -78,7 +174,7 @@ class OpenAIService {
         },
         "TranscriptCourse": {
           "type": "object",
-          "required": ["id", "name", "ects", "grade"],
+          "required": ["id", "name", "ects", "grade", "examDate"],
           "additionalProperties": false,
           "properties": {
             "id": {
@@ -92,6 +188,9 @@ class OpenAIService {
             },
             "grade": {
               "type": "number"
+            },
+            "examDate" : {
+              "type" : "string"
             }
           }
         }
@@ -106,6 +205,10 @@ class OpenAIService {
       body: jsonEncode({
         "model": "gpt-5",
         "input": [
+          {
+            "role": "system",
+            "content": "You are an expert at converting university transcripts into structured tree based JSON formats."
+          },
           {
             "role": "user",
             "content": [
@@ -133,34 +236,56 @@ class OpenAIService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('OpenAI API error: ${response.body}');
+      debugPrint('OpenAI API error: ${response.body}');
+      return null;
     }
 
     final data = jsonDecode(response.body);
     debugPrint('OpenAI response: ${response.body}');
-    final output = data['output'] as List?;
-    if (output == null || output.isEmpty) {
-      throw Exception('No output in response: ${response.body}');
+
+    // Check if the request was refused
+    final status = data['status'] as String?;
+    if (status == 'incomplete') {
+      final reason = data['incomplete_details']?['reason'] as String?;
+      debugPrint('Request incomplete: $reason');
+      return null;
     }
-    final messageItem = output.firstWhere(
+
+    // Extract the message from output
+    final output = data['output'] as List?;
+    final messageItem = output?.firstWhere(
       (item) => item['type'] == 'message',
       orElse: () => null,
     );
-    if (messageItem == null) {
-      throw Exception('No message in output: ${response.body}');
+
+    // Extract content
+    final content = messageItem?['content'] as List?;
+    final firstContent = content?.firstOrNull;
+    if (firstContent == null) {
+      debugPrint('No content in response');
+      return null;
     }
 
-    final content = messageItem['content'] as List?;
-    if (content == null || content.isEmpty) {
-      throw Exception('No content in message: ${response.body}');
+    // Check for refusal
+    if (firstContent['type'] == 'refusal') {
+      debugPrint('Request was refused: ${firstContent['refusal']}');
+      return null;
     }
 
-    final outputText = content[0]['text'] as String?;
+    // Extract text content
+    final outputText = firstContent['text'] as String?;
     if (outputText == null) {
-      throw Exception('No text in content: ${response.body}');
+      debugPrint('No text in response');
+      return null;
     }
 
+    // Parse JSON - may be null for invalid user input
     final transcriptJson = jsonDecode(outputText);
+    if (transcriptJson == null) {
+      debugPrint('Model returned null - invalid transcript input');
+      return null;
+    }
+
     return TranscriptDocument.fromJson(transcriptJson);
   }
 }

@@ -15,7 +15,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 */
 class MongoService {
   static const String _transcriptsCollection = 'transcripts';
-  static const String _coursesCollection = 'courses';
+  static const String _coursesCollection = 'courses_info';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -35,11 +35,12 @@ class MongoService {
     return UserTranscript.fromJson(doc);
   }
 
-  Future<void> uploadTranscript(String userID, TranscriptDocument transcript) async {
+  Future<void> uploadTranscript(String userID, TranscriptDocument transcript, String programLiteral) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
 
     final userTranscript = UserTranscript(
+      programLiteral: programLiteral,
       userID: userID,
       transcript: transcript,
     );
@@ -77,6 +78,23 @@ class MongoService {
     } catch (e) {
       print("Error loading modules: $e");
       rethrow; 
+    }
+  }
+
+  Future<Module?> getModuleByNumber(String moduleNr) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_coursesCollection);
+      final queryParam = int.tryParse(moduleNr) ?? moduleNr;
+
+      final doc = await collection.findOne(where.eq('number', queryParam));
+
+      if (doc == null) return null;
+
+      return Module.fromMap(doc);
+    } catch (e) {
+      print("Error loading module $moduleNr: $e");
+      return null;
     }
   }
 }

@@ -8,12 +8,14 @@ class AdaptiveSearchField extends StatelessWidget{
   final Function(String) onChanged;
   final bool showFilter;
   final VoidCallback? onFilterTap;
+  final String hintText;
 
   const AdaptiveSearchField({
     super.key,
     required this.onChanged,
     this.showFilter = false,
     this.onFilterTap,
+    this.hintText = "Search modules",
   });
 
   @override
@@ -31,7 +33,7 @@ class AdaptiveSearchField extends StatelessWidget{
           Expanded(
             child: CupertinoSearchTextField(
               onChanged: onChanged,
-              placeholder: 'Search modules',
+              placeholder: hintText,
             ),
           ),
           if(showFilter)
@@ -49,7 +51,7 @@ class AdaptiveSearchField extends StatelessWidget{
       return TextField(
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search modules',
+          hintText: hintText,
           prefixIcon: Icon(Icons.search), 
           suffixIcon: showFilter
               ? IconButton(

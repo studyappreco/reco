@@ -31,6 +31,7 @@ class BackendClient {
 // should be singleton instance. Each client should have its own connection pool as described in this mongoDB documentation
 // https://www.mongodb.com/docs/manual/administration/connection-pool-overview/#use-an-instance-of-your-driver-s-mongoclient-object
 class DbCLient {
+  static const String _databaseName = 'reco_db';
 
   static Db? mongoDB = null;
 
@@ -39,7 +40,10 @@ class DbCLient {
       return mongoDB;
     } else {
       try{
-        mongoDB = await Db.create(MONGO_URI!);
+        // Parse URI and insert database name before query parameters
+        final uri = Uri.parse(MONGO_URI!);
+        final dbUri = uri.replace(path: '/$_databaseName').toString();
+        mongoDB = await Db.create(dbUri);
         await mongoDB?.open();
         return mongoDB;
       } on Exception catch (e) {
