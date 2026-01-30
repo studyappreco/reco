@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
@@ -28,7 +31,9 @@ class HomePage extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         body: Consumer<HomePageViewmodel>(
           builder: (context, vm, child) {
-            return Padding(
+            return vm.loading
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
               padding: EdgeInsets.all(24),
               child: SingleChildScrollView(
                 child: Column(
@@ -57,7 +62,7 @@ class HomePage extends StatelessWidget {
                                   padding: EdgeInsets.only(bottom: 4.0),
                                   child: Text("Current GPA", style: textTheme.titleSmall?.copyWith(color: Colors.white)),
                                 ),
-                                Text("3.7", style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
+                                Text(vm.gpa.toStringAsFixed(1), style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
                               ],
                             ),
                             Column(
@@ -65,9 +70,9 @@ class HomePage extends StatelessWidget {
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(bottom: 4.0),
-                                  child: Text("Total ECTS", style: textTheme.titleSmall?.copyWith(color: Colors.white)),
+                                  child: Text("Current ECTS", style: textTheme.titleSmall?.copyWith(color: Colors.white)),
                                 ),
-                                Text("120", style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
+                                Text(vm.ects.toString(), style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
                               ],
                             ),
                           ],
@@ -76,7 +81,10 @@ class HomePage extends StatelessWidget {
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
-                      child: CourseOverview(detailsButtonDestination: "/home/review-courses")
+                      child: CourseOverview(
+                        categories: vm.categories,
+                        detailsButtonDestination: "/review-courses"
+                      )
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 20),
@@ -186,5 +194,42 @@ class HomePage extends StatelessWidget {
 }
 
 class HomePageViewmodel extends ChangeNotifier {
+  HomePageViewmodel() {
+    _init();
+  }
 
+  bool _loading = false;
+  double _gpa = 0.0;
+  int _ects = 0;
+  List<OverviewCategory> _categories = [];
+
+  bool get loading => _loading;
+  double get gpa => _gpa;
+  int get ects => _ects;
+  List<OverviewCategory> get categories => _categories;
+
+  Future<void> _init() async {
+    _loading = true;
+    final repo = TranscriptRepository();
+    final userId = clientSession.session?.userId;
+    if (userId == null) {
+      _loading = false;
+      notifyListeners();
+      return;
+    }
+
+    final userTranscript = await repo.getTranscript(userId);
+    final dto = userTranscriptToDashboardDTO(userTranscript);
+    if (dto == null) {
+      _loading = false;
+      notifyListeners();
+      return;
+    }
+
+    _gpa = dto.gpa ?? 0.0;
+    _ects = dto.earnedECTS;
+    _categories = dto.categories;
+    _loading = false;
+    notifyListeners();
+  }
 }
