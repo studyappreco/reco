@@ -7,6 +7,7 @@ import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
+import 'package:frontend/ui/PlannerPage.dart';
 import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
@@ -115,14 +116,14 @@ final router = GoRouter(
           builder: (context, state) => HomePage(),
           routes: [
             GoRoute(
-              path: 'review-courses',
-              builder: (context, state) => ReviewCoursesPage(),
-            ),
-            GoRoute(
               path: 'course-details',
               builder: (context, state) => CourseDetailsPage(),
             ),
           ]
+        ),
+        GoRoute(
+          path: '/review-courses',
+          builder: (context, state) => ReviewCoursesPage(),
         ),
         GoRoute(
           path: '/search',
@@ -130,7 +131,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/planner',
-          builder: (context, state) => Center(child: Text("The PlannerPage will be added here later")),
+          builder: (context, state) => PlannerPage(),
         ),
         GoRoute(
           path: '/favourites',
