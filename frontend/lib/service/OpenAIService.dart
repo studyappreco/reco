@@ -46,35 +46,26 @@ Extract all completed and failed exams from this transcript into a structured fo
 Rules:
 - German and English transcripts share the same structure (different column names)
 - ECTS: Only include courses with 3-12 ECTS
-- Grades: Only include grades between 0.0 and 5.0
+- Grades: include not only grades between 0.0 and 5.0, there are modules without a grade
 - Dates: Format is dd.MM.yyyy
+- Exclude entries starting with "Leistungsnachweis: "
 
 Overall structure of the Computer Science (CS) Bachelors Degree with English | German names is hierarchical:
-  - three main categories: "Compulsory Modules" | "Pflichtbereich" and "Compulsory Electives" | "Wahlpflichtbereich"
-  - "Compulsory Modules" can be further subdivided into:
-      - "Foundations of Scientific Work in Computer Science" | "Grundlagen des wissenschaftlichen Arbeitens in der Informatik"
-      - "Technical Foundations of Computer Science" | "Technische Grundlagen der Informatik"
-      - "Methodical-Practical Foundations of Computer Science" | "Methodisch-Praktische Grundlagen der Informatik"
-      - "Theoretical Foundations of Computer Science" | "Theoretische Grundlagen der Informatik"
-      - "Foundations of Mathematics" | "Grundlagen der Mathematik"
-      - "Computer Science in its Societal Relevance" | "Informatik in ihrer gesellschaftlichen Relevanz"
+  - three main categories: "Compulsory Modules" | "Pflichtbereich", "Compulsory Electives" | "Wahlpflichtbereich" and "Free Electives" | "Wahlbereich"
+  - "Compulsory Modules"
+      - can have courses directly and are not further subdivided
   - "Compulsory Electives" can be further subdivided into:
       - "Technical Computer Science" | "Technische Informatik"
       - "Programming Practical" | "Programmierpraktikum"
       - "Theoretical Computer Science" | "Theoretische Informatik"
       - "Computer Science Catalog" | "Katalog Informatik"
-  - "Compulsory Electives"
-    -  can have courses directly and are not further subdivided
+  - "Free Electives"
+      - can have courses directly and are not further subdivided
 
 For the output on how to call the TranscriptNodes per category:
   - "Compulsory Modules" => "compulsory_modules"
   - "Compulsory Electives" => "compulsory_electives"
-  - "Foundations of Scientific Work in Computer Science" => "foundations_of_scientific_work"
-  - "Technical Foundations of Computer Science" => "technical_foundations"
-  - "Methodical-Practical Foundations of Computer Science" => "methodical_practical_foundations"
-  - "Theoretical Foundations of Computer Science" => "theoretical_foundations"
-  - "Foundations of Mathematics" => "foundations_of_mathematics"
-  - "Computer Science in its Societal Relevance" => "societal_relevance"
+  - "Free Electives" => "free_electives"
   - "Technical Computer Science" => "technical_computer_science"
   - "Programming Practical" => "programming_practical"
   - "Theoretical Computer Science" => "theoretical_computer_science"
@@ -83,6 +74,9 @@ For the output on how to call the TranscriptNodes per category:
 If the course is prefixed with "Modulprüfung: "
 
 Even if certain categories that are named above do not appear in the transcript directly include it as a TranscriptNode with an empty array of courses.
+
+Don't confuse "Technical Foundations of Computer Science" | "Technische Grundlagen der Informatik" with "Theoretical Computer Science" | "Theoretische Informatik".
+These are two different things. One is under compulsory modules and one under compulsory electives
 
 If the provided content does not match the CS bachelor transcript rules and structure return null.
 """;
