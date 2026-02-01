@@ -65,7 +65,7 @@ class MongoService {
     return count > 0;
   }
 
-  Future<List<Module>> getAllModules() async {
+  Future<List<Map<String, dynamic>>> getAllModules() async {
     try {
       final db = await _getDb();
       final collection = db.collection(_coursesCollection);
@@ -74,7 +74,7 @@ class MongoService {
 
       print("Loaded ${jsonList.length} courses from DB");
 
-      return jsonList.map((json) => Module.fromMap(json)).toList();
+      return jsonList;
 
     } catch (e) {
       print("Error loading modules: $e");
@@ -82,7 +82,7 @@ class MongoService {
     }
   }
 
-  Future<Module?> getModuleByNumber(String moduleNr) async {
+  Future<Map<String, dynamic>?> getModuleByNumber(String moduleNr) async {
     try {
       final db = await _getDb();
       final collection = db.collection(_coursesCollection);
@@ -92,7 +92,7 @@ class MongoService {
 
       if (doc == null) return null;
 
-      return Module.fromMap(doc);
+      return doc;
     } catch (e) {
       print("Error loading module $moduleNr: $e");
       return null;
@@ -155,26 +155,41 @@ class MongoService {
 
   // Getter for planned modules
   Future<List<String>> getPlannedModuleNrs(String userID) async {
-    final db = await _getDb();
-    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
-    if(doc == null) return [];
-    return List<String>.from(doc['planned_modules'] ?? []);
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if(doc == null) return [];
+      return List<String>.from(doc['planned_modules'] ?? []);
+    } catch (e) {
+      print("Error fetching planned modules: $e");
+      return [];
+    }
   }
 
   // Getter for favorites
   Future<List<String>> getFavoriteModuleNrs(String userID) async {
-    final db = await _getDb();
-    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
-    if(doc == null) return [];
-    return List<String>.from(doc['favorited_modules'] ?? []);
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if(doc == null) return [];
+      return List<String>.from(doc['favorited_modules'] ?? []);
+    } catch (e) {
+      print("Error fetching favorites: $e");
+      return [];
+    }
   }
 
   // Getter for interests
   Future<List<String>> getUserInterests(String userID) async {
-    final db = await _getDb();
-    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
-    if (doc == null) return [];
-    return List<String>.from(doc['interests'] ?? []);
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if (doc == null) return [];
+      return List<String>.from(doc['interests'] ?? []);
+    } catch (e) {
+      print("Error fetching interests: $e");
+      return [];
+    }
   }
 
   Future<void> movePlannedToTranscript(String userID, String moduleNr, double grade) async {

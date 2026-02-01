@@ -63,12 +63,19 @@ class Module {
     this.duration = "-",
   });
 
-  factory Module.fromMap(Map<String, dynamic> map) {
+  factory Module.fromMap(
+    Map<String, dynamic> map, {
+    required List<String> userFavorites,
+    required List<String> userPlanned,
+  }) {
+    
     List<ChipType> parsedTags = [];
     if(map['Keywords'] != null){
       parsedTags = (map['Keywords'] as List).map((tag){
         return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
     }
+
+    String moduleNr = map['number']?.toString() ?? "N/A";
 
     return Module(
       id: (map['_id'] as ObjectId).oid,
@@ -76,7 +83,7 @@ class Module {
       // Official Data from Moses
       url: map['url'] ?? '',
       title: map['title'] ?? "No Title",
-      moduleNr: map['number']?.toString() ?? "N/A",
+      moduleNr: moduleNr,
       credits: map['credits']?.toString() ?? "0",
       examType: map['exam_type'] ?? "Not specified",
       
@@ -105,8 +112,8 @@ class Module {
       ratingCount: 0, // Static placeholder
 
       // account-specific data
-      isFavorite: false, // Static placeholder
-      isPlanned: false, // Static placeholder
+      isFavorite: userFavorites.contains(moduleNr),
+      isPlanned: userPlanned.contains(moduleNr),
     );
   }
 }

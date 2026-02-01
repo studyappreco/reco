@@ -20,9 +20,10 @@ class CourseDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<CourseDetailsPageViewmodel>(
-      create: (_) => CourseDetailsPageViewmodel(moduleNr),
+      create: (_) => CourseDetailsPageViewmodel(moduleNr, userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -102,7 +103,7 @@ class CourseDetailsPage extends StatelessWidget {
                                       child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
                                     ),
                                     InkWell(
-                                      onTap: () => vm.toggleFavorite(context),
+                                      onTap: () => vm.toggleFavorite(),
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
                                         padding: EdgeInsets.all(8),
@@ -253,7 +254,7 @@ class CourseDetailsPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => vm.togglePlanned(context),
+                                  onPressed: () => vm.togglePlanned(),
                                   child: Center( 
                                     child: Text(
                                       vm.module!.isPlanned ? "- Remove from Plan" : "+ Add to Plan",
@@ -371,12 +372,14 @@ class DetailCard extends StatelessWidget {
 
 class CourseDetailsPageViewmodel extends ChangeNotifier {
   final String moduleNr;
+  final String userID;
+
   Module? module;
   bool isLoading = true;
   String? errorMessage;
   final UserRepository _userRepo = UserRepository();
 
-  CourseDetailsPageViewmodel(this.moduleNr){
+  CourseDetailsPageViewmodel(this.moduleNr, this.userID){
     _loadModule();
   }
   
@@ -385,8 +388,16 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
 
+    // should not be empty
+    if(userID.isEmpty){
+        errorMessage = "UserID is empty";
+        isLoading = false;
+        notifyListeners();
+        return;
+    }
+
     try{
-      module = await CourseSearchRepo().getModuleByNumber(moduleNr);
+      module = await CourseSearchRepo().getModuleByNumber(moduleNr, userID);
       if(module == null){
         errorMessage = "Module with ID $moduleNr not found.";
       }
@@ -401,47 +412,49 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
   }
 
-  Future<void> togglePlanned(BuildContext context) async {
+  Future<void> togglePlanned() async {
     
-    if(module == null) return;
+    if(module == null){
+      print("Module is null");
+      return;
+    }
+    if(userID.isEmpty){
+      print("UserID is empty");
+      return;
+    }
     module!.isPlanned = !module!.isPlanned;
     notifyListeners(); 
 
-    final String? userId = context.read<ClientSession>().getUserID();
-
-    if(userId == null) return;
-
     try {
-      // Updating the database
-      await _userRepo.togglePlannedModule(userId, moduleNr);
+      await _userRepo.togglePlannedModule(userID, moduleNr);
       print("Planned status updated in DB");
     } catch (e) {
       print("DB Error: $e");
       module!.isPlanned = !module!.isPlanned;
       notifyListeners();
-      // TODO maybe a status alert error should be displayed
     }
   }
 
-  Future<void> toggleFavorite(BuildContext context) async {
-    
-    if(module == null) return;
+  Future<void> toggleFavorite() async {
+
+    if(module == null){
+      print("Module is null");
+      return;
+    }
+    if(userID.isEmpty){
+      print("UserID is empty");
+      return;
+    }
     module!.isFavorite = !module!.isFavorite;
     notifyListeners();
 
-    final String? userId = context.read<ClientSession>().getUserID();
-
-    if(userId == null) return;
-
     try {
-      // Updating the database
-      await _userRepo.toggleFavoriteModule(userId, moduleNr);
+      await _userRepo.toggleFavoriteModule(userID, moduleNr);
       print("Favorite status updated in DB");
     } catch (e) {
       print("DB Error: $e");
       module!.isFavorite = !module!.isFavorite;
       notifyListeners();
-      // TODO maybe a status alert error should be displayed
     }
   }
 }
