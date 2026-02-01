@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
-import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
@@ -19,12 +18,10 @@ import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
-import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
-import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:provider/provider.dart';
 
 
@@ -170,19 +167,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -325,12 +309,12 @@ class _MyHomePageState extends State<MyHomePage> {
             // Test OpenAI transcript parsing
             ElevatedButton(
               onPressed: () async {
-                print("starting");
+                debugPrint("starting");
                 final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
                 var repo = TranscriptRepository();
                 var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM");
                 if (res != null) {
-                  print(res.toString());
+                  debugPrint(res.toString());
                 } else {
                   debugPrint('Error: Failed to parse transcript');
                 }

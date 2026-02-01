@@ -17,7 +17,7 @@ class CourseCardStyles {
     border: Border.all(color: Color.fromARGB(50, 255, 255, 255), width: 1),
   );
 
-  // This gives the correct style (dark, light) to the course_card.dart based on theme Mode in the main
+  // This gives the correct style (dark, light) to the CourseCard.dart based on theme Mode in the main
   static BoxDecoration getCardDecoration({required bool isDarkMode}) {
     return isDarkMode ? _darkDecorationCard : _lightDecorationCard;
   }

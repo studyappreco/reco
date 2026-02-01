@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 // https://pub.dev/packages/logger#-readme-tab-
@@ -17,7 +16,7 @@ class Log {
     // Disable logging in Release Mode
     // https://api.flutter.dev/flutter/foundation/kReleaseMode-constant.html
     // https://codehubjournal.com/mastering-logging-in-flutter-from-print-to-logger/
-    level: kReleaseMode ? Level.off : Level.all,
+    level: bool.fromEnvironment('dart.vm.product') ? Level.off : Level.all,
   );
 
   static void trace(dynamic message) {

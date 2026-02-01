@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../../theme/colors.dart';
 
 class AdaptiveButton extends StatelessWidget {
   final Widget child;

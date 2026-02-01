@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
@@ -71,18 +72,18 @@ void main() {
       expect(transcript, isNotNull, reason: 'No transcript found for user $testUserId');
       final categories = CSBTranscript.getOverviewCategories(transcript!);
 
-      print('=== CS Bachelor Overview Categories ===');
+      debugPrint('=== CS Bachelor Overview Categories ===');
       for (final category in categories) {
-        print('Category: ${category.name}');
-        print('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        print('  Required ECTS: ${category.categoryEcts}');
-        print('  Courses: ${category.courses?.length ?? 0}');
+        debugPrint('Category: ${category.name}');
+        debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
+        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
-            print('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
+            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
           }
         }
-        print('');
+        debugPrint('');
       }
     });
 
@@ -95,18 +96,18 @@ void main() {
 
       final categories = CSMTranscript.getOverviewCategories(transcript!);
 
-      print('=== CS Master Overview Categories ===');
+      debugPrint('=== CS Master Overview Categories ===');
       for (final category in categories) {
-        print('Category: ${category.name}');
-        print('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        print('  Required ECTS: ${category.categoryEcts}');
-        print('  Courses: ${category.courses?.length ?? 0}');
+        debugPrint('Category: ${category.name}');
+        debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
+        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
-            print('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
+            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
           }
         }
-        print('');
+        debugPrint('');
       }
     });
 
@@ -119,18 +120,18 @@ void main() {
 
       final categories = ISMTranscript.getOverviewCategories(transcript!);
 
-      print('=== ISM Master Overview Categories ===');
+      debugPrint('=== ISM Master Overview Categories ===');
       for (final category in categories) {
-        print('Category: ${category.name}');
-        print('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        print('  Required ECTS: ${category.categoryEcts}');
-        print('  Courses: ${category.courses?.length ?? 0}');
+        debugPrint('Category: ${category.name}');
+        debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
+        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
-            print('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
+            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
           }
         }
-        print('');
+        debugPrint('');
       }
     });
   });

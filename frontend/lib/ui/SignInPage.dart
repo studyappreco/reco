@@ -45,7 +45,8 @@ class SignInPageState extends State<SignInPageForm> {
     String userEmail = emailController.text;
 
     Session session = await account.createEmailPasswordSession(email: userEmail, password: userPassword);
-    print(session.toString());
+    debugPrint(session.toString());
+    if (!mounted) return;
     context.read<ClientSession>().setUserSession(session);
   }
 
