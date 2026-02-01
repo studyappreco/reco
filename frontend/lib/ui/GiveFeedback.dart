@@ -123,7 +123,7 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    "${_rating}/5",
+                    "$_rating/5",
                     style: textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
