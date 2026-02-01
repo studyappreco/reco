@@ -18,6 +18,7 @@ import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
+import 'package:frontend/ui/OnboardingPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
@@ -61,13 +62,15 @@ final router = GoRouter(
 
   redirect: (context, state) {
     final loggedIn = clientSession.isLoggedIn;
-    final loggingIn = state.uri.path.startsWith('/sign-in') || state.uri.path.startsWith('/register');
+    final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
+                       state.uri.path.startsWith('/register') ||
+                       state.uri.path.startsWith('/onboarding');
 
-    if (!loggedIn && !loggingIn) {
-      return '/register';
+    if (!loggedIn && !onAuthFlow) {
+      return '/onboarding';
     }
 
-    if (loggedIn && loggingIn) {
+    if (loggedIn && onAuthFlow) {
       return '/home';
     }
 
@@ -75,6 +78,10 @@ final router = GoRouter(
   },
 
   routes: [
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => OnboardingPage(),
+    ),
     GoRoute(
       path: '/register',
       builder: (context, state) => CreateAccountForm(),
