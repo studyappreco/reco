@@ -62,6 +62,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           name: userName,
       );
 
+      if (!mounted) return;
       context.read<ClientSession>().setNewUser(user, userPassword);
   }
 
@@ -90,9 +91,11 @@ class CreateAccountFormState extends State<CreateAccountForm> {
     if (_formKey.currentState!.validate()) {
       try {
         await registerNewUser();
+        if (!mounted) return;
         context.go('/register/specify-degree');
       } on Exception catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
+        if (!mounted) return;
         showDialog(
           context: context,
           builder: (BuildContext context) {

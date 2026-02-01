@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 
@@ -10,13 +9,13 @@ class ValidatedTextField extends StatelessWidget {
   final TextEditingController controller;
 
   const ValidatedTextField({
-    Key? key,
+    super.key,
     this.focusNode,
     this.autofocus = false,
     this.validator,
     this.labelText,
     required this.controller,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

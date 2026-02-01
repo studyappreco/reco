@@ -5,10 +5,10 @@ import 'package:frontend/repos/transcriptUtils.dart';
 
 class CSMTranscript {
 
-  static int program_ects = 120;
+  static int programEcts = 120;
 
   // important: have to match with the prompt
-  static Map<String, int> ects_for_categories = {
+  static Map<String, int> ectsForCategories = {
     "data_and_software_engineering": 18,
     "embedded_systems_and_computer_architectures": 18,
     "foundations_of_computing": 18,
@@ -19,7 +19,7 @@ class CSMTranscript {
   };
 
   // important: have to match with the prompt
-  static Map<String, String> categories_for_dashboard = {
+  static Map<String, String> categoriesForDashboard = {
     "data_and_software_engineering": "Data and Software Engineering",
     "embedded_systems_and_computer_architectures": "Embedded Systems and Computer Architectures",
     "foundations_of_computing": "Foundations of Computing",
@@ -32,11 +32,11 @@ class CSMTranscript {
   static List<OverviewCategory> getOverviewCategories(UserTranscript ismTranscript) {
     List<OverviewCategory> dashBoardcategories = [];
 
-    categories_for_dashboard.forEach((key, val) {
+    categoriesForDashboard.forEach((key, val) {
       TranscriptNode? found = findNodeByName(key, ismTranscript);
       if (found != null) {
         int earnedEcts = found.courses?.fold<int>(0, (sum, c) => sum + c.ects) ?? 0;
-        int requiredEcts = ects_for_categories[key]!;
+        int requiredEcts = ectsForCategories[key]!;
         double progress = requiredEcts > 0 ? (earnedEcts / requiredEcts).clamp(0.0, 1.0) : 0.0;
         dashBoardcategories.add(OverviewCategory(
           name: val,
@@ -56,7 +56,7 @@ class CSMTranscript {
     final earnedECTS = calculateTotalEarnedECTS(ismTranscript);
 
     return DashboardDTO(
-      programECTS: program_ects,
+      programECTS: programEcts,
       earnedECTS: earnedECTS,
       gpa: gpa,
       categories: categories,

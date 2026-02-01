@@ -31,7 +31,6 @@ class StatusMessage {
         screenPosition = Alignment.bottomCenter;
         break;
       case SnackAlignment.CENTER:
-      default:
         screenPosition = Alignment.center;
         break;
     }

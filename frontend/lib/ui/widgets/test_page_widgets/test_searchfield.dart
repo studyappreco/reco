@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import '../AdaptiveSearchfield.dart';
 
 // This is an example of how to use AdaptiveSearchField, based on our Search page in Figma
@@ -67,7 +66,7 @@ class _SearchScreenState extends State<SearchScreen>{
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(foundModules[index]),
-                    onTap: () { print("Selected: ${foundModules[index]}");},
+                    onTap: () { debugPrint("Selected: ${foundModules[index]}");},
                   );
                 },
               ),
