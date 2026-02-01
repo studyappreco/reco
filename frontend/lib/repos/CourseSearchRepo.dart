@@ -5,7 +5,28 @@ import 'package:frontend/ui/SearchPage.dart';
 
 class CourseSearchRepo {
   final MongoService _mongoService = MongoService();
-  List<Module> _allModules = [];
+  static List<Module> _allModules = [];
+
+  Future<Module?> getModuleByNumber(String moduleNr) async {
+    // First check all modules to see if we already have the module in our list => saves database calls
+    if(_allModules.isNotEmpty){
+      try {
+        final moduleFromCache = _allModules.firstWhere((m) => m.moduleNr == moduleNr);
+        print("Module $moduleNr found in cache");
+        return moduleFromCache;
+      } catch (e) {
+        print("Module $moduleNr not in cache. Fetching from DB...");
+      }
+    }
+    
+    // database search for the module
+    try {
+      return await _mongoService.getModuleByNumber(moduleNr);
+    } catch (e) {
+      print("Repository Error fetching module: $e");
+      rethrow; 
+    }
+}
 
   // Load data (only if necessary or forced)
   Future<List<Module>> fetchModules({bool forceRefresh = false}) async {

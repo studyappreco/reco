@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/models/Module.dart';
-import 'package:frontend/service/MongoService.dart'; 
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
+import 'package:frontend/ui/utils/auth.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/UserRepository.dart';
 
 class CourseDetailsPage extends StatelessWidget {
   final String moduleNr; 
@@ -100,7 +102,7 @@ class CourseDetailsPage extends StatelessWidget {
                                       child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
                                     ),
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () => vm.toggleFavorite(context),
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
                                         padding: EdgeInsets.all(8),
@@ -251,7 +253,7 @@ class CourseDetailsPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => vm.togglePlanned(),
+                                  onPressed: () => vm.togglePlanned(context),
                                   child: Center( 
                                     child: Text(
                                       vm.module!.isPlanned ? "- Remove from Plan" : "+ Add to Plan",
@@ -372,6 +374,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
   Module? module;
   bool isLoading = true;
   String? errorMessage;
+  final UserRepository _userRepo = UserRepository();
 
   CourseDetailsPageViewmodel(this.moduleNr){
     _loadModule();
@@ -383,8 +386,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     notifyListeners();
 
     try{
-      module = await MongoService().getModuleByNumber(moduleNr);
-
+      module = await CourseSearchRepo().getModuleByNumber(moduleNr);
       if(module == null){
         errorMessage = "Module with ID $moduleNr not found.";
       }
@@ -399,12 +401,47 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
   }
 
-  void togglePlanned(){
-    if(module != null){
-      module!.isPlanned = !module!.isPlanned;
-      // TODO Adjust DB data
+  Future<void> togglePlanned(BuildContext context) async {
+    
+    if(module == null) return;
+    module!.isPlanned = !module!.isPlanned;
+    notifyListeners(); 
 
-      notifyListeners(); 
+    final String? userId = context.read<ClientSession>().getUserID();
+
+    if(userId == null) return;
+
+    try {
+      // Updating the database
+      await _userRepo.togglePlannedModule(userId, moduleNr);
+      print("Planned status updated in DB");
+    } catch (e) {
+      print("DB Error: $e");
+      module!.isPlanned = !module!.isPlanned;
+      notifyListeners();
+      // TODO maybe a status alert error should be displayed
+    }
+  }
+
+  Future<void> toggleFavorite(BuildContext context) async {
+    
+    if(module == null) return;
+    module!.isFavorite = !module!.isFavorite;
+    notifyListeners();
+
+    final String? userId = context.read<ClientSession>().getUserID();
+
+    if(userId == null) return;
+
+    try {
+      // Updating the database
+      await _userRepo.toggleFavoriteModule(userId, moduleNr);
+      print("Favorite status updated in DB");
+    } catch (e) {
+      print("DB Error: $e");
+      module!.isFavorite = !module!.isFavorite;
+      notifyListeners();
+      // TODO maybe a status alert error should be displayed
     }
   }
 }

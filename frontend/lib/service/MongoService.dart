@@ -16,6 +16,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 class MongoService {
   static const String _transcriptsCollection = 'transcripts';
   static const String _coursesCollection = 'courses_info';
+  static const String _userDetailsCollection = 'user_details';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -96,5 +97,90 @@ class MongoService {
       print("Error loading module $moduleNr: $e");
       return null;
     }
+  }
+
+  // updates the status (planned/favorite) by adding or removing the module
+  Future<void> toggleModuleState(String userID, String moduleNr, String fieldName) async {
+    
+    if(fieldName != 'planned_modules' && fieldName != 'favorited_modules'){
+      throw Exception("Invalid fieldName: '$fieldName'. Must be 'planned_modules' or 'favorited_modules'.");
+    }
+
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+
+      // searching user
+      final userMap = await collection.findOne(where.eq('userID', userID));
+
+      // if user does not yet exist (should not happen)
+      // TODO Remove this after it is done during the creation of the new account
+      if(userMap == null){
+        print("WARNING: User details for $userID not found! Creating new entry.");
+
+        await collection.insert({
+          'userID': userID,
+          'username': 'Student X', // TODO
+          'interests': [],
+          'planned_modules': (fieldName == 'planned_modules') ? [moduleNr] : [],
+          'favorited_modules': (fieldName == 'favorited_modules') ? [moduleNr] : [],
+        });
+        return;
+      }
+
+      // user exists -> Get list
+      List<String> currentList = List<String>.from(userMap[fieldName] ?? []);
+
+      // updating the list
+      if (currentList.contains(moduleNr)) {
+        currentList.remove(moduleNr);
+      } else {
+        currentList.add(moduleNr);
+      }
+
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set(fieldName, currentList),
+      );
+
+    } catch (e) {
+      print("Error toggling module state ($fieldName) for user $userID: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserInterests(String userID, List<String> newInterests) async {
+    // TODO
+  }
+
+  // Getter for planned modules
+  Future<List<String>> getPlannedModuleNrs(String userID) async {
+    final db = await _getDb();
+    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+    if(doc == null) return [];
+    return List<String>.from(doc['planned_modules'] ?? []);
+  }
+
+  // Getter for favorites
+  Future<List<String>> getFavoriteModuleNrs(String userID) async {
+    final db = await _getDb();
+    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+    if(doc == null) return [];
+    return List<String>.from(doc['favorited_modules'] ?? []);
+  }
+
+  // Getter for interests
+  Future<List<String>> getUserInterests(String userID) async {
+    final db = await _getDb();
+    final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+    if (doc == null) return [];
+    return List<String>.from(doc['interests'] ?? []);
+  }
+
+  Future<void> movePlannedToTranscript(String userID, String moduleNr, double grade) async {
+    // TODO:
+    // 1. Remove form planned_modules
+    // 2. Get Module Details
+    // 3. Add to transcript with grade
   }
 }
