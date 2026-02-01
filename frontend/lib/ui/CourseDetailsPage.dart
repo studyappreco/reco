@@ -12,6 +12,7 @@ import 'package:frontend/ui/widgets/AnimatedIconButton.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/utils/logger.dart';
+import 'package:frontend/ui/GiveFeedback.dart';
 
 class CourseDetailsPage extends StatelessWidget {
   final String moduleNr; 
@@ -264,7 +265,14 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const GiveFeedbackPage(),
+                                      ),
+                                    );
+                                  },
                                   child: Center(
                                     child: Text(
                                       "+ Give Feedback",
