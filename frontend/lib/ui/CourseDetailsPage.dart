@@ -10,6 +10,7 @@ import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/utils/logger.dart';
 
 class CourseDetailsPage extends StatelessWidget {
   final String moduleNr; 
@@ -390,6 +391,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
 
     // should not be empty
     if(userID.isEmpty){
+        Log.error("UserID is empty");
         errorMessage = "UserID is empty";
         isLoading = false;
         notifyListeners();
@@ -399,11 +401,14 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     try{
       module = await CourseSearchRepo().getModuleByNumber(moduleNr, userID);
       if(module == null){
+        Log.warning("Module $moduleNr not found");
         errorMessage = "Module with ID $moduleNr not found.";
+      } else {
+        Log.info("Module ${module!.title} loaded successfully");
       }
 
-    } catch (e){
-      print("Error loading module: $e");
+    } catch (e, s){
+      Log.error("Error loading module $moduleNr", e, s);
       errorMessage = "Error loading module: $e";
       module = null;
     } finally{
@@ -415,11 +420,11 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
   Future<void> togglePlanned() async {
     
     if(module == null){
-      print("Module is null");
+      Log.error("Cannot toggle planned. Module is null");
       return;
     }
     if(userID.isEmpty){
-      print("UserID is empty");
+      Log.error("Cannot toggle planned. UserID is empty");
       return;
     }
     module!.isPlanned = !module!.isPlanned;
@@ -427,9 +432,9 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
 
     try {
       await _userRepo.togglePlannedModule(userID, moduleNr);
-      print("Planned status updated in DB");
-    } catch (e) {
-      print("DB Error: $e");
+      Log.info("Planned status updated in DB");
+    } catch (e, s) {
+      Log.error("DB Error:", e, s);
       module!.isPlanned = !module!.isPlanned;
       notifyListeners();
     }
@@ -438,11 +443,11 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
   Future<void> toggleFavorite() async {
 
     if(module == null){
-      print("Module is null");
+      Log.error("Cannot toggle favorite. Module is null");
       return;
     }
     if(userID.isEmpty){
-      print("UserID is empty");
+      Log.error("Cannot toggle favorite. UserID is empty");
       return;
     }
     module!.isFavorite = !module!.isFavorite;
@@ -450,9 +455,9 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
 
     try {
       await _userRepo.toggleFavoriteModule(userID, moduleNr);
-      print("Favorite status updated in DB");
-    } catch (e) {
-      print("DB Error: $e");
+      Log.info("Favorite status updated in DB");
+    } catch (e, s) {
+      Log.error("DB Error:", e, s);
       module!.isFavorite = !module!.isFavorite;
       notifyListeners();
     }

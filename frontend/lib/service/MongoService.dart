@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
-import 'package:frontend/models/Module.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:mongo_dart/mongo_dart.dart';
+import 'package:mongo_dart/mongo_dart.dart' hide Log;
+import 'package:frontend/utils/logger.dart';
 
 /*
 * After the MVVM pattern:
@@ -73,12 +72,12 @@ class MongoService {
 
       final List<Map<String, dynamic>> jsonList = await collection.find().toList();
 
-      debugPrint("Loaded ${jsonList.length} courses from DB");
+      Log.info("Loaded ${jsonList.length} courses from DB");
 
       return jsonList;
 
-    } catch (e) {
-      debugPrint("Error loading modules: $e");
+    } catch (e, s) {
+      Log.error("Error loading modules from DB", e, s);
       rethrow; 
     }
   }
@@ -91,11 +90,14 @@ class MongoService {
 
       final doc = await collection.findOne(where.eq('number', queryParam));
 
-      if (doc == null) return null;
+      if(doc == null){
+        Log.warning("Module search: Module '$moduleNr' not found in DB");
+        return null;
+      }
 
       return doc;
-    } catch (e) {
-      debugPrint("Error loading module $moduleNr: $e");
+    } catch (e, s) {
+      Log.error("Error loading module $moduleNr", e, s);
       return null;
     }
   }
@@ -117,7 +119,7 @@ class MongoService {
       // if user does not yet exist (should not happen)
       // TODO Remove this after it is done during the creation of the new account
       if(userMap == null){
-        print("WARNING: User details for $userID not found! Creating new entry.");
+        Log.warning("User details for $userID not found! Creating new entry.");
 
         await collection.insert({
           'userID': userID,
@@ -144,8 +146,8 @@ class MongoService {
         modify.set(fieldName, currentList),
       );
 
-    } catch (e) {
-      print("Error toggling module state ($fieldName) for user $userID: $e");
+    } catch (e, s) {
+      Log.error("Error toggling module state ($fieldName) for user $userID", e, s);
       rethrow;
     }
   }
@@ -161,8 +163,8 @@ class MongoService {
       final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
       if(doc == null) return [];
       return List<String>.from(doc['planned_modules'] ?? []);
-    } catch (e) {
-      print("Error fetching planned modules: $e");
+    } catch (e, s) {
+      Log.error("Error fetching planned modules", e, s);
       return [];
     }
   }
@@ -174,8 +176,8 @@ class MongoService {
       final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
       if(doc == null) return [];
       return List<String>.from(doc['favorited_modules'] ?? []);
-    } catch (e) {
-      print("Error fetching favorites: $e");
+    } catch (e, s) {
+      Log.error("Error fetching favorites", e, s);
       return [];
     }
   }
@@ -187,8 +189,8 @@ class MongoService {
       final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
       if (doc == null) return [];
       return List<String>.from(doc['interests'] ?? []);
-    } catch (e) {
-      print("Error fetching interests: $e");
+    } catch (e, s) {
+      Log.error("Error fetching interests", e, s);
       return [];
     }
   }

@@ -10,7 +10,7 @@ import 'package:frontend/models/Module.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:frontend/utils/logger.dart';
 
 // Enum for the possible sorting options
 enum SortOption { bestMatch, ratingHigh, ratingCount, ectsHigh, ectsLow }
@@ -52,11 +52,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   // Load data (also for refresh)
- Future<void> _loadData(bool force) async {
+  Future<void> _loadData(bool force) async {
     final String? userID = context.read<ClientSession>().getUserID();
 
     if(userID == null){
-      print("Error: No User ID found in session");
+      Log.error("Error: No User ID found in session during _loadData");
       if(mounted){
         StatusMessage.show(
             context: context,
@@ -67,7 +67,6 @@ class _SearchPageState extends State<SearchPage> {
             duration: Duration(seconds: 5),
         );
         setState(() {
-          _allModules = [];
           _filteredModules = [];
           _isLoading = false;
         });
@@ -98,8 +97,8 @@ class _SearchPageState extends State<SearchPage> {
           _applyFilters(); 
         });
       }
-    } catch (e) {
-      debugPrint("ERROR: $e");
+    } catch (e, s) {
+      Log.error("Error fetching modules", e, s);
       
       if(mounted){
         StatusMessage.show(
@@ -596,6 +595,7 @@ class _SearchPageState extends State<SearchPage> {
                                   final userID = context.read<ClientSession>().getUserID();
                                   
                                   if(userID == null){
+                                    Log.error("Favorite Toggle failed: UserID is null");
                                     StatusMessage.show(
                                       context: context,
                                       alignment: SnackAlignment.CENTER,
@@ -614,8 +614,8 @@ class _SearchPageState extends State<SearchPage> {
                                   // DB update
                                   try {
                                     await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
-                                  } catch (e) {
-                                    print("Error saving favorite: $e");
+                                  } catch (e, s) {
+                                    Log.error("Error saving favorite", e, s);
                                     if(mounted){
                                       setState(() => module.isFavorite = !module.isFavorite);
                                       StatusMessage.show(
@@ -633,6 +633,7 @@ class _SearchPageState extends State<SearchPage> {
                                   final userID = context.read<ClientSession>().getUserID();
 
                                   if(userID == null){
+                                    Log.error("Planner Toggle failed: UserID is null");
                                     StatusMessage.show(
                                       context: context,
                                       alignment: SnackAlignment.CENTER,
@@ -650,8 +651,8 @@ class _SearchPageState extends State<SearchPage> {
 
                                   try {
                                     await UserRepository().togglePlannedModule(userID, module.moduleNr);
-                                  } catch (e) {
-                                    print("Error saving in planner: $e");
+                                  } catch (e, s) {
+                                    Log.error("Error saving in planner", e, s);
                                     if (mounted) {
                                       setState(() => module.isPlanned = !module.isPlanned);
                                       StatusMessage.show(

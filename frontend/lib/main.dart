@@ -23,7 +23,6 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/models/Module.dart';
 
 
 // Use this instance of clientSession globally

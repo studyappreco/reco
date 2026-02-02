@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/ui/SearchPage.dart';
+import 'package:frontend/utils/logger.dart';
 
 class CourseSearchRepo {
   final MongoService _mongoService = MongoService();
@@ -12,10 +13,10 @@ class CourseSearchRepo {
     if(_allModules.isNotEmpty){
       try {
         final moduleFromCache = _allModules.firstWhere((m) => m.moduleNr == moduleNr);
-        print("Module $moduleNr found in cache");
+        Log.info("Module $moduleNr found in cache");
         return moduleFromCache;
       } catch (e) {
-        print("Module $moduleNr not in cache. Fetching from DB...");
+        Log.info("Module $moduleNr not in cache. Fetching from DB...");
       }
     }
     
@@ -26,7 +27,10 @@ class CourseSearchRepo {
       final favorites = await _mongoService.getFavoriteModuleNrs(userID);
       final planned = await _mongoService.getPlannedModuleNrs(userID);
 
-      if(jsonmodule == null) return null;
+      if(jsonmodule == null) {
+        Log.warning("Module $moduleNr not found in Database");
+        return null;
+      }
 
       return Module.fromMap(
         jsonmodule, 
@@ -34,8 +38,8 @@ class CourseSearchRepo {
         userPlanned: planned
       );
 
-    } catch (e) {
-      print("Repository Error fetching module: $e");
+    } catch (e, s) {
+      Log.error("Repository Error fetching module $moduleNr", e, s);
       rethrow; 
     }
   }
@@ -46,7 +50,7 @@ class CourseSearchRepo {
       return _allModules;
     }
 
-    print("Loading modules from DB");
+    Log.info("Loading modules from DB");
 
     try {
 
@@ -64,10 +68,10 @@ class CourseSearchRepo {
         );
       }).toList();
 
-      print("Modules loaded: ${_allModules.length}");
+      Log.info("Modules loaded: ${_allModules.length}");
 
-    } catch (e) {
-      print("Error inside fetchModules: $e");
+    } catch (e, s) {
+      Log.error("Error inside fetchModules", e, s);
       rethrow; 
     }
 
