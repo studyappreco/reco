@@ -6,7 +6,6 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
-import 'package:go_router/go_router.dart';
 
 
 // Enum for the possible sorting options
@@ -21,24 +20,23 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final CourseSearchRepo _repository = CourseSearchRepo();
-  List<Module> _allModules = [];      
   List<Module> _filteredModules = []; 
   bool _isLoading = true;
 
   String _searchQuery = "";
   SortOption _selectedSort = SortOption.bestMatch; 
-  Set<String> _selectedExamTypes = {}; 
+  final Set<String> _selectedExamTypes = {}; 
   RangeValues _ectsRange = RangeValues(0, 15); 
   RangeValues _ratingRange = RangeValues(0, 5);
 
-  Set<String> _selectedTags = {}; 
+  final Set<String> _selectedTags = {}; 
   String _tagSearchQuery = "";    
   List<String> _allTags = []; // TODO change when we have the tags for the interest selection page, We currently create the list based on the tags received from the DB with the modul information
 
-  Set<String> _selectedTerms = {};
+  final Set<String> _selectedTerms = {};
   final List<String> _availableTerms = ["Winter Term", "Summer Term"];
 
-  Set<String> _selectedLanguages = {};
+  final Set<String> _selectedLanguages = {};
   final List<String> _availableLanguages = ["German", "English"];
 
   final List<String> _allExamTypes = ["Written Exam", "Oral Exam", "Portfolio Exam", "Homework", "Presentation", "Internship", "No Exam"];
@@ -68,7 +66,6 @@ class _SearchPageState extends State<SearchPage> {
 
       if(mounted){
         setState(() {
-          _allModules = modules;
           _allTags = sortedTags; 
           _filteredModules = modules; 
           _isLoading = false;
@@ -76,7 +73,7 @@ class _SearchPageState extends State<SearchPage> {
         });
       }
     } catch (e) {
-      print("ERROR: $e");
+      debugPrint("ERROR: $e");
       
       if(mounted){
         StatusMessage.show(
@@ -88,7 +85,6 @@ class _SearchPageState extends State<SearchPage> {
             duration: Duration(seconds: 8),
         );
         setState(() {
-          _allModules = [];
           _filteredModules = [];
           _isLoading = false;
         });

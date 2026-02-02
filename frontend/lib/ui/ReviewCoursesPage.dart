@@ -154,7 +154,7 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
                             style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
                           ),
                           Text(
-                            "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedEcts}/${widget.category.requiredEcts} ECTS",
+                            "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
                             style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
@@ -316,7 +316,7 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
   }
 
   _gpa = dto.gpa ?? 0.0;
-  _ects = dto.earnedECTS;
+  _ects = dto.earnedCredits;
   _categories = dto.categories;
   _loading = false;
   notifyListeners();

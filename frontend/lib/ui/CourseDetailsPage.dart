@@ -24,6 +24,7 @@ class CourseDetailsPage extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         body: Consumer<CourseDetailsPageViewmodel>(
           builder: (context, vm, child) {
+            final isFavorite = vm.isFavorite;
             return Padding(
               padding: EdgeInsets.all(24),
               child: Column(
@@ -68,9 +69,9 @@ class CourseDetailsPage extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
                                         padding: EdgeInsets.all(8),
-                                        decoration: CourseCardStyles.getFavoriteDecoration(isActive: false),
+                                        decoration: CourseCardStyles.getFavoriteDecoration(isActive: isFavorite),
                                         child: Icon(
-                                          false ? Icons.favorite : Icons.favorite_border,
+                                          isFavorite ? Icons.favorite : Icons.favorite_border,
                                           color: AppColors.pink,
                                           size: 20,
                                         ),
@@ -316,6 +317,6 @@ class DetailCard extends StatelessWidget {
 }
 
 class CourseDetailsPageViewmodel extends ChangeNotifier {
-
+  bool isFavorite = false;
 }
 

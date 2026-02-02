@@ -227,7 +227,7 @@ class HomePageViewmodel extends ChangeNotifier {
     }
 
     _gpa = dto.gpa ?? 0.0;
-    _ects = dto.earnedECTS;
+    _ects = dto.earnedCredits;
     _categories = dto.categories;
     _loading = false;
     notifyListeners();

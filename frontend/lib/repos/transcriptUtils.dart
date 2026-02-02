@@ -7,18 +7,18 @@ import '../models/TranscriptDocument.dart';
 import '../models/UserTrancript.dart';
 
 class Transcript {
-  late int program_ects;
+  late int programCredits;
 
   // important: have to match with the prompt
-  late Map<String, int> ects_for_categories;
+  late Map<String, int> creditsForCategories;
 
   // important: have to match with the prompt
-  late Map<String, String> categories_for_dashboard;
+  late Map<String, String> categoriesForDashboard;
 
   List<OverviewCategory> getOverviewCategories(UserTranscript ismTranscript) {
     List<OverviewCategory> dashBoardcategories = [];
 
-    categories_for_dashboard.forEach((key, val) {
+    categoriesForDashboard.forEach((key, val) {
       TranscriptNode? found = findNodeByName(key, ismTranscript);
       if (found != null) {
         int earnedEcts = 0;
@@ -39,14 +39,14 @@ class Transcript {
         traverseNode(found);
 
         // int earnedEcts = found.courses?.fold<int>(0, (sum, c) => sum + c.ects) ?? 0;
-        int requiredEcts = ects_for_categories[key]!;
+        int requiredEcts = creditsForCategories[key]!;
         print("$key, $val, $earnedEcts, $requiredEcts");
         double progress = requiredEcts > 0 ? (earnedEcts / requiredEcts).clamp(0.0, 1.0) : 0.0;
         dashBoardcategories.add(OverviewCategory(
           name: val,
           progress: progress,
-          requiredEcts: requiredEcts,
-          earnedEcts: earnedEcts,
+          requiredCredits: requiredEcts,
+          earnedCredits: earnedEcts,
           courses: courses,
         ));
       }
@@ -61,8 +61,8 @@ class Transcript {
     final earnedECTS = calculateTotalEarnedECTS(transcript);
 
     return DashboardDTO(
-      programECTS: program_ects,
-      earnedECTS: earnedECTS,
+      programCredits: programCredits,
+      earnedCredits: earnedECTS,
       gpa: gpa,
       categories: categories,
     );
@@ -154,14 +154,14 @@ int calculateTotalEarnedECTS(UserTranscript ismTranscript) {
  }
 
  class DashboardDTO {
-   final int programECTS;
-   final int earnedECTS;
+   final int programCredits;
+   final int earnedCredits;
    final double? gpa;
    final List<OverviewCategory> categories;
 
    DashboardDTO({
-     required this.programECTS,
-     required this.earnedECTS,
+     required this.programCredits,
+     required this.earnedCredits,
      this.gpa,
      required this.categories,
    });
@@ -172,14 +172,14 @@ int calculateTotalEarnedECTS(UserTranscript ismTranscript) {
    final String name;
    final double progress;
    final List<TranscriptCourse> courses;
-   final int requiredEcts;
-   final int earnedEcts;
+   final int requiredCredits;
+   final int earnedCredits;
 
    OverviewCategory({
      required this.name,
      required this.progress,
      required this.courses,
-     required this.requiredEcts,
-     required this.earnedEcts,
+     required this.requiredCredits,
+     required this.earnedCredits,
    });
  }

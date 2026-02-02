@@ -3,11 +3,11 @@ import 'package:frontend/repos/transcriptUtils.dart';
 class CSMTranscript extends Transcript {
 
   @override
-  int program_ects = 120;
+  int programCredits = 120;
 
   // important: have to match with the prompt
   @override
-  Map<String, int> ects_for_categories = {
+  Map<String, int> creditsForCategories = {
     "data_and_software_engineering": 18,
     "embedded_systems_and_computer_architectures": 18,
     "foundations_of_computing": 18,
@@ -19,7 +19,7 @@ class CSMTranscript extends Transcript {
 
   // important: have to match with the prompt
   @override
-  Map<String, String> categories_for_dashboard = {
+  Map<String, String> categoriesForDashboard = {
     "data_and_software_engineering": "Data and Software Engineering",
     "embedded_systems_and_computer_architectures": "Embedded Systems and Computer Architectures",
     "foundations_of_computing": "Foundations of Computing",

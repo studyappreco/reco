@@ -126,7 +126,7 @@ class TranscriptCourse {
   }
 
   String _toStringWithIndent(String indent) {
-    return '$indent📚 $courseName (${ects} ECTS, Grade: $grade)\n';
+    return '$indent📚 $courseName ($ects ECTS, Grade: $grade)\n';
   }
 
   @override

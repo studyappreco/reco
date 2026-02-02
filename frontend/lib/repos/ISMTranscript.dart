@@ -3,11 +3,11 @@ import 'package:frontend/repos/transcriptUtils.dart';
 class ISMTranscript extends Transcript {
 
   @override
-  int program_ects = 120;
+  int programCredits = 120;
 
   // important: have to match with the prompt
   @override
-  Map<String, int> ects_for_categories = {
+  Map<String, int> creditsForCategories = {
     "information_systems" : 30,
     "computer_science" : 24,
     "business_and_economics" : 24,
@@ -16,7 +16,7 @@ class ISMTranscript extends Transcript {
 
   // important: have to match with the prompt
   @override
-  Map<String, String> categories_for_dashboard = {
+  Map<String, String> categoriesForDashboard = {
     "information_systems" : "Information Systems",
     "computer_science" : "Computer Science",
     "business_and_economics" : "Business and Economics",

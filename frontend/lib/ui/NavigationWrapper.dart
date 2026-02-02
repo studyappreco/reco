@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/NavigationBar.dart';
 import 'package:go_router/go_router.dart';
-
-import 'HomePage.dart'; 
 // import 'SearchPage.dart';
 // import 'PlannerPage.dart';
 // import 'FavoritesPage.dart';
@@ -29,7 +27,7 @@ class NavigationWrapper extends StatelessWidget {
       '/demo',
     ];
 
-    void _onTabSelected(int index) {
+    void onTabSelected(int index) {
       context.go(pages[index]);
     }
 
@@ -47,7 +45,7 @@ class NavigationWrapper extends StatelessWidget {
       body: child,
       bottomNavigationBar: NavBar(
         currentIndex: index,
-        onDestinationSelected: _onTabSelected,
+        onDestinationSelected: onTabSelected,
       ),
     );
   }
