@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: AdaptiveButton(
-                        onPressed: () => context.go("/home/review-courses"),
+                        onPressed: () => context.push("/review-courses"),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

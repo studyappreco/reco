@@ -1,7 +1,6 @@
 import 'package:frontend/theme/colors.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
-import 'package:flutter/material.dart';
 
 // Model representing a university module
 // It combines official data (from Moses), recommendation metrics and user-specific states

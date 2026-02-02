@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
@@ -69,14 +70,14 @@ void main() {
   group('ISMTranscript.getOverviewCategories', () {
     test('returns categories with correct progress', () {
       final categories = ISMTranscript.getOverviewCategories(transcriptWithCourses);
-      print(categories);
+      debugPrint(categories.toString());
       expect(categories.length, 4);
 
       // Compulsory Electives: 36 earned ECTS
-      final inf_systems = categories.firstWhere((c) => c.name == 'Information systems');
-      final inf_Ects = inf_systems.courses?.fold(0, (sum, c) => sum + c.ects) ?? 0;
-      expect(inf_Ects, 12);
-      expect(inf_systems.courses?.length, 2);
+      final infSystems = categories.firstWhere((c) => c.name == 'Information systems');
+      final infEcts = infSystems.courses?.fold(0, (sum, c) => sum + c.ects) ?? 0;
+      expect(infEcts, 12);
+      expect(infSystems.courses?.length, 2);
 
       // Free Electives: 6 earned / 12 required = 0.5
       final feCategory = categories.firstWhere((c) => c.name == 'Free Electives');

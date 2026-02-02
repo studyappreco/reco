@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import '../AdaptiveButton.dart';
 
 // Shows how to use AdaptiveButton with two variants that we will definitely use in the future
@@ -21,7 +20,7 @@ class TestWidgetButton extends StatelessWidget {
               
               // first Button example
               AdaptiveButton(
-                onPressed: () => print("Feedback pressed"),
+                onPressed: () => debugPrint("Feedback pressed"),
                 child: Text("Submit Feedback"),
               ),
 
@@ -29,7 +28,7 @@ class TestWidgetButton extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(top: 40),
                 child: AdaptiveButton(
-                  onPressed: () => print("GPA pressed"),
+                  onPressed: () => debugPrint("GPA pressed"),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

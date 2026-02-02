@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';

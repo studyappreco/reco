@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/models/Module.dart';
@@ -72,12 +73,12 @@ class MongoService {
 
       final List<Map<String, dynamic>> jsonList = await collection.find().toList();
 
-      print("Loaded ${jsonList.length} courses from DB");
+      debugPrint("Loaded ${jsonList.length} courses from DB");
 
       return jsonList;
 
     } catch (e) {
-      print("Error loading modules: $e");
+      debugPrint("Error loading modules: $e");
       rethrow; 
     }
   }
@@ -94,7 +95,7 @@ class MongoService {
 
       return doc;
     } catch (e) {
-      print("Error loading module $moduleNr: $e");
+      debugPrint("Error loading module $moduleNr: $e");
       return null;
     }
   }

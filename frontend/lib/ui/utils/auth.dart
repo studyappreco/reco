@@ -1,6 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
@@ -11,7 +11,7 @@ const CUSTOM_ENDPOINT = "https://apps-tub.de/v1";
 
 class BackendClient {
 
-  static Client? backendClient = null;
+  static Client? backendClient;
 
   static Client? getBackendClient() {
     if (backendClient != null) {
@@ -21,7 +21,7 @@ class BackendClient {
         backendClient = Client().
         setProject(PROJECT_ID!).setEndpoint(CUSTOM_ENDPOINT);
         return backendClient;
-      } on Exception catch (e){
+      } on Exception {
         return null;
       }
     }
@@ -33,7 +33,7 @@ class BackendClient {
 class DbCLient {
   static const String _databaseName = 'reco_db';
 
-  static Db? mongoDB = null;
+  static Db? mongoDB;
 
   static Future<Db?> getMongoDBClient () async {
     if (mongoDB != null) {
@@ -47,7 +47,7 @@ class DbCLient {
         await mongoDB?.open();
         return mongoDB;
       } on Exception catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
         return null;
       }
     }

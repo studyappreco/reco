@@ -84,7 +84,8 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     Account account = Account(client);
 
     Session session = await account.createEmailPasswordSession(email: email, password: password);
-    print(session.toString());
+    if (!mounted) return;
+    debugPrint(session.toString());
     context.read<ClientSession>().setUserSession(session);
     context.read<ClientSession>().resetNewUser();
   }

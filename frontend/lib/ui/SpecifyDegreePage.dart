@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:go_router/go_router.dart';
-import '../theme/colors.dart';
 
 class SpecifyDegreePage extends StatefulWidget {
   const SpecifyDegreePage({super.key});

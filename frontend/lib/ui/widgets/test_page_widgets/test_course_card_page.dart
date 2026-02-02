@@ -109,7 +109,7 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
               isFavorite: course.isFavorite,
               isPlanned: course.isPlanned, 
               matchBasis: course.matchBasis,
-              onCardTap: () => print("${course.moduleNr}"),
+              onCardTap: () => debugPrint(course.moduleNr),
               onFavoriteTap: () => clickFavorite(index),
               onPlanTap: () => clickPlan(index), 
             ),
