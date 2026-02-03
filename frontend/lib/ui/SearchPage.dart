@@ -51,6 +51,86 @@ class _SearchPageState extends State<SearchPage> {
     _loadData(false);
   }
 
+  Future<void> _toggleFavorite(Module module) async {
+    final userID = context.read<ClientSession>().getUserID();
+    
+    if(userID == null){
+      Log.error("Favorite Toggle failed: UserID is null");
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "UserID is null",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+
+    setState(() {
+      module.isFavorite = !module.isFavorite;
+    });
+
+    // DB update
+    try {
+      await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
+    } catch (e, s) {
+      Log.error("Error saving favorite", e, s);
+      
+      if(!mounted) return; 
+      setState(() => module.isFavorite = !module.isFavorite);
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "Could not save as favorite: $e",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+    }
+  }
+
+  Future<void> _togglePlanned(Module module) async {
+    final userID = context.read<ClientSession>().getUserID();
+
+    if(userID == null){
+      Log.error("Planner Toggle failed: UserID is null");
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "UserID is null",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+
+    setState(() {
+      module.isPlanned = !module.isPlanned;
+    });
+
+    // DB update
+    try {
+      await UserRepository().togglePlannedModule(userID, module.moduleNr);
+    } catch (e, s) {
+      Log.error("Error saving in planner", e, s);
+      
+      if(!mounted) return;
+      setState(() => module.isPlanned = !module.isPlanned);
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "Could not update Planner: $e",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+    }
+  }
+
   // Load data (also for refresh)
   Future<void> _loadData(bool force) async {
     final String? userID = context.read<ClientSession>().getUserID();
@@ -591,81 +671,8 @@ class _SearchPageState extends State<SearchPage> {
                                 isFavorite: module.isFavorite,
                                 isPlanned: module.isPlanned,
                                 onCardTap: () => context.go('/search/course-details', extra: module.moduleNr),
-                                onFavoriteTap: () async {
-                                  final userID = context.read<ClientSession>().getUserID();
-                                  
-                                  if(userID == null){
-                                    Log.error("Favorite Toggle failed: UserID is null");
-                                    StatusMessage.show(
-                                      context: context,
-                                      alignment: SnackAlignment.CENTER,
-                                      title: "Oops! Something went wrong!",
-                                      message: "UserID is null",
-                                      isError: true,
-                                      duration: Duration(seconds: 5),
-                                    );
-                                    return;
-                                  }
-
-                                  setState(() {
-                                    module.isFavorite = !module.isFavorite;
-                                  });
-
-                                  // DB update
-                                  try {
-                                    await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
-                                  } catch (e, s) {
-                                    Log.error("Error saving favorite", e, s);
-                                    if(mounted){
-                                      setState(() => module.isFavorite = !module.isFavorite);
-                                      StatusMessage.show(
-                                        context: context,
-                                        alignment: SnackAlignment.CENTER,
-                                        title: "Oops! Something went wrong!",
-                                        message: "Could not save as favorite: $e",
-                                        isError: true,
-                                        duration: Duration(seconds: 5),
-                                      );
-                                    }
-                                  }
-                                },
-                                onPlanTap: () async {
-                                  final userID = context.read<ClientSession>().getUserID();
-
-                                  if(userID == null){
-                                    Log.error("Planner Toggle failed: UserID is null");
-                                    StatusMessage.show(
-                                      context: context,
-                                      alignment: SnackAlignment.CENTER,
-                                      title: "Oops! Something went wrong!",
-                                      message: "UserID is null",
-                                      isError: true,
-                                      duration: Duration(seconds: 5),
-                                    );
-                                    return;
-                                  }
-
-                                  setState(() {
-                                    module.isPlanned = !module.isPlanned;
-                                  });
-
-                                  try {
-                                    await UserRepository().togglePlannedModule(userID, module.moduleNr);
-                                  } catch (e, s) {
-                                    Log.error("Error saving in planner", e, s);
-                                    if (mounted) {
-                                      setState(() => module.isPlanned = !module.isPlanned);
-                                      StatusMessage.show(
-                                        context: context,
-                                        alignment: SnackAlignment.CENTER,
-                                        title: "Oops! Something went wrong!",
-                                        message: "Could not update Planner: $e",
-                                        isError: true,
-                                        duration: Duration(seconds: 5),
-                                      );
-                                    }
-                                  }
-                                },
+                                onFavoriteTap: () => _toggleFavorite(module),
+                                onPlanTap: () => _togglePlanned(module),
                               ),
                             );
                           },
