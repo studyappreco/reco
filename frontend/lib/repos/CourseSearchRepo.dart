@@ -2,16 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/ui/SearchPage.dart';
+import 'package:frontend/utils/logger.dart';
 
 class CourseSearchRepo {
   final MongoService _mongoService = MongoService();
-  List<Module> _allModules = [];
+  static List<Module> _allModules = [];
+
+  Future<Module?> getModuleByNumber(String moduleNr, String userID) async {
+    // First check all modules to see if we already have the module in our list => saves database calls
+    if(_allModules.isNotEmpty){
+      try {
+        final moduleFromCache = _allModules.firstWhere((m) => m.moduleNr == moduleNr);
+        Log.info("Module $moduleNr found in cache");
+        return moduleFromCache;
+      } catch (e) {
+        Log.info("Module $moduleNr not in cache. Fetching from DB...");
+      }
+    }
+    
+    // database search for the module
+    try {
+      // getting the module and the list of planned and favorite modules
+      final jsonmodule = await _mongoService.getModuleByNumber(moduleNr);
+      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
+      final planned = await _mongoService.getPlannedModuleNrs(userID);
+
+      if(jsonmodule == null) {
+        Log.warning("Module $moduleNr not found in Database");
+        return null;
+      }
+
+      return Module.fromMap(
+        jsonmodule, 
+        userFavorites: favorites, 
+        userPlanned: planned
+      );
+
+    } catch (e, s) {
+      Log.error("Repository Error fetching module $moduleNr", e, s);
+      rethrow; 
+    }
+  }
 
   // Load data (only if necessary or forced)
-  Future<List<Module>> fetchModules({bool forceRefresh = false}) async {
-    if (_allModules.isEmpty || forceRefresh){
-      _allModules = await _mongoService.getAllModules();
+  Future<List<Module>> fetchModules({bool forceRefresh = false, required String userID}) async {
+    if (_allModules.isNotEmpty && !forceRefresh) {
+      return _allModules;
     }
+
+    Log.info("Loading modules from DB");
+
+    try {
+
+      // we're getting all the modules and the list of planned and favorite modules
+      final List<Map<String, dynamic>> jsonmodules = await _mongoService.getAllModules();
+      final List<String> favorites = await _mongoService.getFavoriteModuleNrs(userID);
+      final List<String> planned = await _mongoService.getPlannedModuleNrs(userID);
+
+      // now creating the module objects with the information
+      _allModules = jsonmodules.map((json) {
+        return Module.fromMap(
+          json,
+          userFavorites: favorites,
+          userPlanned: planned
+        );
+      }).toList();
+
+      Log.info("Modules loaded: ${_allModules.length}");
+
+    } catch (e, s) {
+      Log.error("Error inside fetchModules", e, s);
+      rethrow; 
+    }
+
     return _allModules;
   }
 

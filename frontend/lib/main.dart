@@ -114,7 +114,10 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: 'course-details',
-              builder: (context, state) => CourseDetailsPage(),
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
             ),
           ]
         ),
@@ -125,7 +128,17 @@ final router = GoRouter(
         GoRoute(
           path: '/search',
           builder: (context, state) => SearchPage(),
+          routes: [
+            GoRoute(
+              path: 'course-details',
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
+            ),
+          ],
         ),
+
         GoRoute(
           path: '/planner',
           builder: (context, state) => PlannerPage(),
@@ -235,7 +248,11 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CourseDetailsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailsPage(
+                      moduleNr: "400", 
+                    ),
+                  ),
                 );
               },
               child: const Text("Course Details Page"),
