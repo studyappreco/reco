@@ -70,13 +70,13 @@ void main() {
       const testUserId = '6967699402af64b787c3';
       final transcript = await mongoService.getTranscript(testUserId);
       expect(transcript, isNotNull, reason: 'No transcript found for user $testUserId');
-      final categories = CSBTranscript.getOverviewCategories(transcript!);
+      final categories = CSBTranscript().getOverviewCategories(transcript!);
 
       debugPrint('=== CS Bachelor Overview Categories ===');
       for (final category in categories) {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Required ECTS: ${category.requiredCredits}');
         debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
@@ -94,13 +94,13 @@ void main() {
       final transcript = await mongoService.getTranscript(testUserId);
       expect(transcript, isNotNull, reason: 'No transcript found for user $testUserId');
 
-      final categories = CSMTranscript.getOverviewCategories(transcript!);
+      final categories = CSMTranscript().getOverviewCategories(transcript!);
 
       debugPrint('=== CS Master Overview Categories ===');
       for (final category in categories) {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Required ECTS: ${category.requiredCredits}');
         debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
@@ -118,13 +118,13 @@ void main() {
       final transcript = await mongoService.getTranscript(testUserId);
       expect(transcript, isNotNull, reason: 'No transcript found for user $testUserId');
 
-      final categories = ISMTranscript.getOverviewCategories(transcript!);
+      final categories = ISMTranscript().getOverviewCategories(transcript!);
 
       debugPrint('=== ISM Master Overview Categories ===');
       for (final category in categories) {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
-        debugPrint('  Required ECTS: ${category.categoryEcts}');
+        debugPrint('  Required ECTS: ${category.requiredCredits}');
         debugPrint('  Courses: ${category.courses?.length ?? 0}');
         if (category.courses != null) {
           for (final course in category.courses!) {
