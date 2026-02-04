@@ -11,6 +11,7 @@ import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
@@ -25,16 +26,20 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 
 
-// Use this instance of clientSession globally
+// Use these instances globally
 final clientSession = ClientSession();
+final transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(
-    ChangeNotifierProvider.value(
-      value: clientSession,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: clientSession),
+        ChangeNotifierProvider.value(value: transcriptProcessor),
+      ],
       child: MyApp(),
-    )
+    ),
   );
 }
 
