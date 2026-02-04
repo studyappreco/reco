@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/models/TranscriptDocument.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseOverview.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +27,9 @@ class ReviewCoursesPage extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         body: Consumer<ReviewCoursesPageViewmodel>(
           builder: (context, vm, child) {
-            return Padding(
+            return vm.loading
+              ? Center(child: CircularProgressIndicator())
+              : Padding(
               padding: EdgeInsets.all(24),
               child: SingleChildScrollView(
                 child: Column(
@@ -42,7 +48,7 @@ class ReviewCoursesPage extends StatelessWidget {
                                 padding: EdgeInsets.only(bottom: 4.0),
                                 child: Text("Current GPA", style: textTheme.titleSmall?.copyWith(color: AppColors.primaryBlue)),
                               ),
-                              Text("3.7", style: textTheme.headlineMedium?.copyWith(color: AppColors.primaryBlue)),
+                              Text(vm.gpa.toStringAsFixed(1), style: textTheme.headlineMedium?.copyWith(color: AppColors.primaryBlue)),
                             ],
                           ),
                           Column(
@@ -52,58 +58,22 @@ class ReviewCoursesPage extends StatelessWidget {
                                 padding: EdgeInsets.only(bottom: 4.0),
                                 child: Text("Total ECTS", style: textTheme.titleSmall?.copyWith(color: AppColors.primaryBlue)),
                               ),
-                              Text("120", style: textTheme.headlineMedium?.copyWith(color: AppColors.primaryBlue)),
+                              Text(vm.ects.toString(), style: textTheme.headlineMedium?.copyWith(color: AppColors.primaryBlue)),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    CourseCategoryCard(
-                      name: "Information Systems",
-                      courses: [
-                        Course(
-                          name: "Data Structures",
-                          moduleNr: "CS101",
-                          credits: 4,
-                          grade: "A"
-                        ),
-                        Course(
-                          name: "Algorithms",
-                          moduleNr: "CS202",
-                          credits: 4,
-                          grade: "A-"
-                        ),
-                        Course(
-                          name: "Database Systems",
-                          moduleNr: "CS150",
-                          credits: 3,
-                          grade: "B+"
-                        ),
-                        Course(
-                          name: "Web Development",
-                          moduleNr: "CS180",
-                          credits: 3,
-                          grade: "A"
-                        )
-                      ],
-                      requiredCredits: 30,
+                    Column(
+                      crossAxisAlignment: .start,
+                      spacing: 12,
+                      children: vm.categories.map((category) {
+                        return CourseCategoryCard(category: category);
+                      }).toList()
                     ),
-                    CourseCategoryCard(
-                      name: "Computer Science",
-                      courses: [],
-                      requiredCredits: 18,
+                    CourseOverview(
+                      categories: vm.categories,
                     ),
-                    CourseCategoryCard(
-                      name: "Business/Economics",
-                      courses: [],
-                      requiredCredits: 30,
-                    ),
-                    CourseCategoryCard(
-                      name: "Free Choice",
-                      courses: [],
-                      requiredCredits: 30,
-                    ),
-                    CourseOverview(),
                   ]
                 )
               )
@@ -116,15 +86,11 @@ class ReviewCoursesPage extends StatelessWidget {
 }
 
 class CourseCategoryCard extends StatefulWidget {
-  final String name;
-  final List<Course> courses;
-  final int requiredCredits;
+  final OverviewCategory category;
 
   const CourseCategoryCard({
     super.key,
-    required this.name,
-    required this.courses,
-    required this.requiredCredits,
+    required this.category,
   });
 
   @override
@@ -139,10 +105,7 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final coursesLabel = widget.courses.length == 1 ? "course" : "courses";
-    final currentCredits = widget.courses.isNotEmpty
-        ? widget.courses.map((c) => c.credits).reduce((c1, c2) => c1 + c2)
-        : 0;
+    final coursesLabel = widget.category.courses.length == 1 ? "course" : "courses";
 
     return Container(
       decoration: BoxDecoration(
@@ -187,11 +150,11 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.name,
+                            widget.category.name,
                             style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
                           ),
                           Text(
-                            "${widget.courses.length} $coursesLabel \u2022 $currentCredits/${widget.requiredCredits} ECTS",
+                            "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
                             style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                           ),
                         ],
@@ -217,7 +180,7 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
               child:Padding(
                 padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                 child: Column(
-                  children: widget.courses.asMap().entries.map((c) {
+                  children: widget.category.courses.asMap().entries.map((c) {
                     return Column(
                       children: [
                         CourseCategoryCardCourseItem(
@@ -237,7 +200,7 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
 }
 
 class CourseCategoryCardCourseItem extends StatelessWidget {
-  final Course course;
+  final TranscriptCourse course;
   final bool isFirst;
 
   const CourseCategoryCardCourseItem({
@@ -259,20 +222,29 @@ class CourseCategoryCardCourseItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: .spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text(
-                "${course.moduleNr} \u2022 ${course.credits} ECTS",
-                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-              ),
-              Text(
-                course.name,
-                style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
-              ),
-            ],
+          Expanded(
+            flex: 8,
+            child: Column(
+              crossAxisAlignment: .start,
+              children: [
+                Text(
+                  "${course.id} \u2022 ${course.ects} ECTS",
+                  style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                ),
+                Text(
+                  course.courseName,
+                  style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
+                ),
+              ],
+            )
           ),
-          Grade(grade: course.grade, color: Colors.green)
+          Expanded(
+            flex: 1,
+            child: Grade(
+              grade: course.grade.toStringAsFixed(1),
+              color: Colors.green
+            )
+          )
         ],
       )
     );
@@ -291,7 +263,9 @@ class Grade extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final textTheme = Theme
+        .of(context)
+        .textTheme;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 7, vertical: 6),
@@ -308,20 +282,43 @@ class Grade extends StatelessWidget {
   }
 }
 
-class Course {
-  final String name;
-  final String moduleNr;
-  final int credits;
-  final String grade;
-
-  const Course({
-    required this.name,
-    required this.moduleNr,
-    required this.credits,
-    required this.grade
-  });
-}
-
 class ReviewCoursesPageViewmodel extends ChangeNotifier {
+  ReviewCoursesPageViewmodel() {
+  _init();
+  }
 
+  bool _loading = false;
+  double _gpa = 0.0;
+  int _ects = 0;
+  List<OverviewCategory> _categories = [];
+
+  bool get loading => _loading;
+  double get gpa => _gpa;
+  int get ects => _ects;
+  List<OverviewCategory> get categories => _categories;
+
+  Future<void> _init() async {
+  _loading = true;
+  final repo = TranscriptRepository();
+  final userId = clientSession.session?.userId;
+  if (userId == null) {
+  _loading = false;
+  notifyListeners();
+  return;
+  }
+
+  final userTranscript = await repo.getTranscript(userId);
+  final dto = userTranscriptToDashboardDTO(userTranscript);
+  if (dto == null) {
+  _loading = false;
+  notifyListeners();
+  return;
+  }
+
+  _gpa = dto.gpa ?? 0.0;
+  _ects = dto.earnedCredits;
+  _categories = dto.categories;
+  _loading = false;
+  notifyListeners();
+  }
 }

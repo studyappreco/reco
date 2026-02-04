@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseOverview extends StatelessWidget {
+  final List<OverviewCategory> categories;
   final String? detailsButtonDestination;
 
   /// Creates the course overview section displayed on home page and review your courses page.
@@ -11,6 +13,7 @@ class CourseOverview extends StatelessWidget {
   /// the see details butten is hidden.
   const CourseOverview({
     super.key,
+    required this.categories,
     this.detailsButtonDestination,
   });
 
@@ -18,6 +21,10 @@ class CourseOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final barColors = [
+      colorScheme.primary, Colors.purple, Colors.green, Colors.deepOrange, Colors.cyan, Colors.pink,
+      colorScheme.primary, Colors.purple, Colors.green, Colors.deepOrange, Colors.cyan, Colors.pink
+    ];
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -39,38 +46,28 @@ class CourseOverview extends StatelessWidget {
                   style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
               ),
               if (detailsButtonDestination != null)
-              TextButton(
-                  onPressed: () => context.go(detailsButtonDestination!),
-                  style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap
-                  ),
-                  child: Text(
-                      "See Details",
-                      style: textTheme.titleSmall?.copyWith(color: AppColors.textSecondary)
-                  )
-              )
+                TextButton(
+                    onPressed: () => context.push(detailsButtonDestination!),
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                    ),
+                    child: Text(
+                        "See Details",
+                        style: textTheme.titleSmall?.copyWith(color: AppColors.textSecondary)
+                    )
+                )
             ],
           ),
-          PercentageBar(
-            label: "Information Systems",
-            percentage: 75,
-            color: colorScheme.primary
-          ),
-          PercentageBar(
-            label: "Computer Science",
-            percentage: 60,
-            color: Colors.purple
-          ),
-          PercentageBar(
-            label: "Business/Economics",
-            percentage: 45,
-            color: Colors.green
-          ),
-          PercentageBar(
-            label: "Free Choice",
-            percentage: 30,
-            color: Colors.deepOrangeAccent
+          Column(
+            spacing: 15,
+            children: categories.asMap().entries.map((category) {
+              return PercentageBar(
+                label: category.value.name,
+                percentage: category.value.progress,
+                color: barColors[category.key],
+              );
+            }).toList(),
           ),
         ],
       ),
@@ -80,7 +77,7 @@ class CourseOverview extends StatelessWidget {
 
 class PercentageBar extends StatelessWidget {
   final String label;
-  final int percentage;
+  final double percentage;
   final Color color;
 
   const PercentageBar({
@@ -106,7 +103,7 @@ class PercentageBar extends StatelessWidget {
               style: textTheme.bodyMedium
             ),
             Text(
-              "$percentage%",
+              "${(percentage * 100).round()}%",
               style: textTheme.bodyMedium
             )
 
@@ -125,7 +122,7 @@ class PercentageBar extends StatelessWidget {
               ),
             ),
             FractionallySizedBox(
-              widthFactor: percentage / 100,
+              widthFactor: percentage,
               child: SizedBox(
                 width: double.infinity,
                 height: 10,

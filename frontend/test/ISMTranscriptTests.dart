@@ -69,28 +69,28 @@ void main() {
 
   group('ISMTranscript.getOverviewCategories', () {
     test('returns categories with correct progress', () {
-      final categories = ISMTranscript.getOverviewCategories(transcriptWithCourses);
+      final categories = ISMTranscript().getOverviewCategories(transcriptWithCourses);
       debugPrint(categories.toString());
       expect(categories.length, 4);
 
       // Compulsory Electives: 36 earned ECTS
       final infSystems = categories.firstWhere((c) => c.name == 'Information systems');
-      final infEcts = infSystems.courses?.fold(0, (sum, c) => sum + c.ects) ?? 0;
+      final infEcts = infSystems.courses.fold(0, (sum, c) => sum + c.ects);
       expect(infEcts, 12);
-      expect(infSystems.courses?.length, 2);
+      expect(infSystems.courses.length, 2);
 
       // Free Electives: 6 earned / 12 required = 0.5
       final feCategory = categories.firstWhere((c) => c.name == 'Free Electives');
-      final feEarnedEcts = feCategory.courses?.fold(0, (sum, c) => sum + c.ects) ?? 0;
+      final feEarnedEcts = feCategory.courses.fold(0, (sum, c) => sum + c.ects);
       expect(feEarnedEcts, 6);
       expect(feCategory.progress, closeTo(0.5, 0.01));
     });
 
     test('returns categories with zero progress for empty transcript', () {
-      final categories = ISMTranscript.getOverviewCategories(emptyTranscript);
+      final categories = ISMTranscript().getOverviewCategories(emptyTranscript);
 
       for (final category in categories) {
-        final earnedEcts = category.courses?.fold(0, (sum, c) => sum + c.ects) ?? 0;
+        final earnedEcts = category.courses.fold(0, (sum, c) => sum + c.ects);
         expect(earnedEcts, 0);
         expect(category.progress, 0.0);
       }
