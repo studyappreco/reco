@@ -77,11 +77,9 @@ void main() {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
         debugPrint('  Required ECTS: ${category.requiredCredits}');
-        debugPrint('  Courses: ${category.courses?.length ?? 0}');
-        if (category.courses != null) {
-          for (final course in category.courses!) {
-            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
-          }
+        debugPrint('  Courses: ${category.courses.length}');
+        for (final course in category.courses) {
+          debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
         }
         debugPrint('');
       }
@@ -101,11 +99,9 @@ void main() {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
         debugPrint('  Required ECTS: ${category.requiredCredits}');
-        debugPrint('  Courses: ${category.courses?.length ?? 0}');
-        if (category.courses != null) {
-          for (final course in category.courses!) {
-            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
-          }
+        debugPrint('  Courses: ${category.courses.length}');
+        for (final course in category.courses) {
+          debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
         }
         debugPrint('');
       }
@@ -125,11 +121,9 @@ void main() {
         debugPrint('Category: ${category.name}');
         debugPrint('  Progress: ${(category.progress * 100).toStringAsFixed(1)}%');
         debugPrint('  Required ECTS: ${category.requiredCredits}');
-        debugPrint('  Courses: ${category.courses?.length ?? 0}');
-        if (category.courses != null) {
-          for (final course in category.courses!) {
-            debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
-          }
+        debugPrint('  Courses: ${category.courses.length}');
+        for (final course in category.courses) {
+          debugPrint('    - ${course.courseName} (${course.ects} ECTS, Grade: ${course.grade})');
         }
         debugPrint('');
       }
