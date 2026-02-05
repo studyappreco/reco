@@ -57,14 +57,6 @@ class MongoService {
     await collection.deleteOne(where.eq('userID', userID));
   }
 
-  Future<bool> transcriptExists(String userID) async {
-    final db = await _getDb();
-    final collection = db.collection(_transcriptsCollection);
-
-    final count = await collection.count(where.eq('userID', userID));
-    return count > 0;
-  }
-
   Future<List<Map<String, dynamic>>> getAllModules() async {
     try {
       final db = await _getDb();
