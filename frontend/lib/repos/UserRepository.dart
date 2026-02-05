@@ -27,6 +27,10 @@ class UserRepository {
     return await _mongoService.getUserInterests(userID);
   }
 
+  Future<String?> getUsername(String userID) async {
+    return await _mongoService.getUsername(userID);
+  }
+
   Future<void> markModuleAsCompleted(String userID, String moduleNr, double grade) async {
     await _mongoService.movePlannedToTranscript(userID, moduleNr, grade);
   }
