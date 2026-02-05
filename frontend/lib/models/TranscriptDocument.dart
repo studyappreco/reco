@@ -44,7 +44,7 @@ class TranscriptDocument {
 
 class TranscriptNode {
   final String name;
-  final List<TranscriptCourse>? courses;
+  List<TranscriptCourse>? courses;
   final List<TranscriptNode>? children;
 
   TranscriptNode({

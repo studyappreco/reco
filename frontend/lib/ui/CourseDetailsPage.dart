@@ -6,6 +6,7 @@ import 'package:frontend/ui/widgets/CourseCard/CourseCard_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart'; 
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
@@ -104,7 +105,7 @@ class CourseDetailsPage extends StatelessWidget {
                                       child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
                                     ),
                                     InkWell(
-                                      onTap: () => vm.toggleFavorite(),
+                                      onTap: () => vm.toggleFavorite(context),
                                       borderRadius: BorderRadius.circular(20),
                                       child: Container(
                                         padding: EdgeInsets.all(8),
@@ -255,7 +256,7 @@ class CourseDetailsPage extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => vm.togglePlanned(),
+                                  onPressed: () => vm.togglePlanned(context),
                                   child: Center( 
                                     child: Text(
                                       vm.module!.isPlanned ? "- Remove from Plan" : "+ Add to Plan",
@@ -417,7 +418,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
   }
 
-  Future<void> togglePlanned() async {
+  Future<void> togglePlanned(BuildContext context) async {
     
     if(module == null){
       Log.error("Cannot toggle planned. Module is null");
@@ -425,29 +426,121 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
     if(userID.isEmpty){
       Log.error("Cannot toggle planned. UserID is empty");
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Login Required",
+        message: "You must be logged in.",
+        isError: true,
+      );
       return;
     }
-    module!.isPlanned = !module!.isPlanned;
-    notifyListeners(); 
 
-    try {
-      await _userRepo.togglePlannedModule(userID, moduleNr);
-      Log.info("Planned status updated in DB");
-    } catch (e, s) {
-      Log.error("DB Error:", e, s);
-      module!.isPlanned = !module!.isPlanned;
-      notifyListeners();
+    if(module!.isPlanned){
+      module!.isPlanned = false;
+      notifyListeners(); 
+      try {
+        await _userRepo.removePlannedModule(userID, moduleNr);
+        Log.info("Planned status removed from DB");
+        
+        StatusMessage.show(
+          context: context,
+          alignment: SnackAlignment.TOP,
+          title: "Success",
+          message: "Removed from Planner",
+          isError: false,
+          duration: Duration(seconds: 2),
+        );
+
+      } catch (e, s) {
+        Log.error("DB Error removing plan:", e, s);
+        module!.isPlanned = true;
+        notifyListeners();
+        
+        StatusMessage.show(
+          context: context,
+          alignment: SnackAlignment.CENTER,
+          title: "Error",
+          message: "Could not remove from planner",
+          isError: true,
+        );
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          // https://api.flutter.dev/flutter/material/SimpleDialog-class.html
+          return SimpleDialog(
+            title: Text("Add to Planner"),
+            children: [
+              SimpleDialogOption(
+                padding: EdgeInsets.all(16),
+                child: Text("Add to Current Semester"),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await _savePlanned(context, true);
+                },
+              ),
+              SimpleDialogOption(
+                padding: EdgeInsets.all(16),
+                child: Text("Add to Next Semester"),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await _savePlanned(context, false);
+                },
+              ),
+            ],
+          );
+        }
+      );
     }
   }
 
-  Future<void> toggleFavorite() async {
+  Future<void> _savePlanned(BuildContext context, bool isCurrent) async {
+    module!.isPlanned = true;
+    notifyListeners();
+    try {
+      await _userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
+      Log.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
+      
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.TOP,
+        title: "Success",
+        message: "Added to ${isCurrent ? 'Current' : 'Next'} Semester",
+        isError: false,
+        duration: Duration(seconds: 2),
+      );
+
+    } catch (e, s) {
+       Log.error("DB Error adding plan:", e, s);
+       module!.isPlanned = false;
+       notifyListeners();
+       
+       StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Error",
+        message: "Could not save to planner",
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> toggleFavorite(BuildContext context) async {
 
     if(module == null){
       Log.error("Cannot toggle favorite. Module is null");
       return;
     }
     if(userID.isEmpty){
-      Log.error("Cannot toggle favorite. UserID is empty");
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Login Required",
+        message: "You must be logged in.",
+        isError: true,
+      );
       return;
     }
     module!.isFavorite = !module!.isFavorite;
@@ -456,10 +549,28 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     try {
       await _userRepo.toggleFavoriteModule(userID, moduleNr);
       Log.info("Favorite status updated in DB");
+      
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.TOP,
+        title: "Success",
+        message: module!.isFavorite ? "Added to Favorites" : "Removed from Favorites",
+        isError: false,
+        duration: Duration(seconds: 2),
+      );
+
     } catch (e, s) {
       Log.error("DB Error:", e, s);
       module!.isFavorite = !module!.isFavorite;
       notifyListeners();
+      
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Error",
+        message: "Could not update favorites",
+        isError: true,
+      );
     }
   }
 }

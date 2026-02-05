@@ -75,6 +75,17 @@ class _SearchPageState extends State<SearchPage> {
     // DB update
     try {
       await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
+      
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.TOP, 
+        title: "Success",
+        message: module.isFavorite ? "Added to Favorites" : "Removed from Favorites",
+        isError: false,
+        duration: Duration(seconds: 2),
+      );
+
     } catch (e, s) {
       Log.error("Error saving favorite", e, s);
       
@@ -82,9 +93,9 @@ class _SearchPageState extends State<SearchPage> {
       setState(() => module.isFavorite = !module.isFavorite);
       StatusMessage.show(
         context: context,
-        alignment: SnackAlignment.CENTER,
+        alignment: SnackAlignment.CENTER, 
         title: "Oops! Something went wrong!",
-        message: "Could not save as favorite: $e",
+        message: "Could not update favorites: $e",
         isError: true,
         duration: Duration(seconds: 5),
       );
@@ -108,23 +119,96 @@ class _SearchPageState extends State<SearchPage> {
       return;
     }
 
-    setState(() {
-      module.isPlanned = !module.isPlanned;
-    });
+    if(module.isPlanned){
+      setState(() => module.isPlanned = false);
+      try {
+        await UserRepository().removePlannedModule(userID, module.moduleNr);
+        
+        if(!mounted) return;
 
-    // DB update
+        StatusMessage.show(
+          context: context,
+          alignment: SnackAlignment.TOP,
+          title: "Success",
+          message: "Removed from Planner",
+          isError: false,
+          duration: Duration(seconds: 2),
+        );
+
+      } catch (e, s) {
+        Log.error("Error removing planner", e, s);
+        setState(() => module.isPlanned = true); 
+        
+        if(!mounted) return;
+
+        StatusMessage.show(
+          context: context,
+          alignment: SnackAlignment.CENTER,
+          title: "Error",
+          message: "Could not remove from planner",
+          isError: true,
+          duration: Duration(seconds: 4),
+        );
+      }
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // https://api.flutter.dev/flutter/material/SimpleDialog-class.html
+        return SimpleDialog(
+          title: Text("Add to Planner"),
+          children: [
+            SimpleDialogOption(
+              padding: EdgeInsets.all(16),
+              child: Text("Add to Current Semester"),
+              onPressed: () async {
+                Navigator.pop(context);
+                await _savePlanned(userID, module, true);
+              },
+            ),
+            SimpleDialogOption(
+              padding: EdgeInsets.all(16),
+              child: Text("Add to Next Semester"),
+              onPressed: () async {
+                Navigator.pop(context);
+                await _savePlanned(userID, module, false);
+              },
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _savePlanned(String userID, Module module, bool isCurrent) async {
+    setState(() => module.isPlanned = true);
+    
     try {
-      await UserRepository().togglePlannedModule(userID, module.moduleNr);
-    } catch (e, s) {
-      Log.error("Error saving in planner", e, s);
+      await UserRepository().togglePlannedModule(userID, module.moduleNr, isCurrent);
       
       if(!mounted) return;
-      setState(() => module.isPlanned = !module.isPlanned);
+
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.TOP,
+        title: "Success",
+        message: "Added to ${isCurrent ? 'Current' : 'Next'} Semester",
+        isError: false,
+        duration: Duration(seconds: 2),
+      );
+
+    } catch (e, s) {
+      Log.error("Planner save error", e, s);
+      setState(() => module.isPlanned = false);
+      
+      if(!mounted) return;
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,
         title: "Oops! Something went wrong!",
-        message: "Could not update Planner: $e",
+        message: "Could not save to planner",
         isError: true,
         duration: Duration(seconds: 5),
       );
