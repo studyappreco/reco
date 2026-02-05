@@ -4,6 +4,8 @@ import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
+import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/ui/utils/auth.dart';
 
 class InterestSelectionPage extends StatelessWidget {
   const InterestSelectionPage({super.key});
@@ -37,8 +39,20 @@ class InterestSelectionPage extends StatelessWidget {
               padding: const EdgeInsets.all(25),
               child: AdaptiveButton(
                 child: Text("Continue"),
-                onPressed: () {
+                onPressed: () async {
                   if (enabled) {
+                    final repo = UserRepository();
+                    final session = context.read<ClientSession>();
+                    final userId = session.newUser?.$id ?? session.getUserID();
+                    if (userId != null) {
+                      try {
+                        await repo.updateInterests(userId, vm.selectedInterests);
+                      } catch (e) {
+                        debugPrint('Failed to save interests: $e');
+                      }
+                    } else {
+                      debugPrint('No userId available to save interests');
+                    }
                     context.go('/register/specify-degree/interests/upload-transcript');
                   }
                 }
