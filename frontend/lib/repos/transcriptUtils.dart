@@ -1,4 +1,4 @@
-
+import 'package:flutter/foundation.dart';
 import 'package:frontend/repos/CSBTranscript.dart';
 import 'package:frontend/repos/CSMTranscript.dart';
 import 'package:frontend/repos/ISMTranscript.dart';
@@ -6,14 +6,14 @@ import 'package:frontend/repos/ISMTranscript.dart';
 import '../models/TranscriptDocument.dart';
 import '../models/UserTrancript.dart';
 
-class Transcript {
-  late int programCredits;
+abstract class Transcript {
+  int get programCredits;
 
   // important: have to match with the prompt
-  late Map<String, int> creditsForCategories;
+  Map<String, int> get creditsForCategories;
 
   // important: have to match with the prompt
-  late Map<String, String> categoriesForDashboard;
+  Map<String, String> get categoriesForDashboard;
 
   List<OverviewCategory> getOverviewCategories(UserTranscript ismTranscript) {
     List<OverviewCategory> dashBoardcategories = [];
@@ -40,7 +40,9 @@ class Transcript {
 
         // int earnedEcts = found.courses?.fold<int>(0, (sum, c) => sum + c.ects) ?? 0;
         int requiredEcts = creditsForCategories[key]!;
-        print("$key, $val, $earnedEcts, $requiredEcts");
+        if (kDebugMode) {
+          debugPrint("$key, $val, $earnedEcts, $requiredEcts");
+        }
         double progress = requiredEcts > 0 ? (earnedEcts / requiredEcts).clamp(0.0, 1.0) : 0.0;
         dashBoardcategories.add(OverviewCategory(
           id: key,
