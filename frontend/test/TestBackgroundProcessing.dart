@@ -12,7 +12,6 @@ String getTranscriptPath(String filename) {
 
 void main() async {
   await dotenv.load(fileName: ".env");
-  final mongo = MongoService();
   final repo = TranscriptRepository();
 
   group('TranscriptProcessor state changes', () {
