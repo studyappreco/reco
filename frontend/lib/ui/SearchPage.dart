@@ -75,17 +75,6 @@ class _SearchPageState extends State<SearchPage> {
     // DB update
     try {
       await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
-      
-      if(!mounted) return;
-      StatusMessage.show(
-        context: context,
-        alignment: SnackAlignment.TOP, 
-        title: "Success",
-        message: module.isFavorite ? "Added to Favorites" : "Removed from Favorites",
-        isError: false,
-        duration: Duration(seconds: 2),
-      );
-
     } catch (e, s) {
       Log.error("Error saving favorite", e, s);
       
@@ -123,17 +112,6 @@ class _SearchPageState extends State<SearchPage> {
       setState(() => module.isPlanned = false);
       try {
         await UserRepository().removePlannedModule(userID, module.moduleNr);
-        
-        if(!mounted) return;
-
-        StatusMessage.show(
-          context: context,
-          alignment: SnackAlignment.TOP,
-          title: "Success",
-          message: "Removed from Planner",
-          isError: false,
-          duration: Duration(seconds: 2),
-        );
 
       } catch (e, s) {
         Log.error("Error removing planner", e, s);
@@ -187,18 +165,6 @@ class _SearchPageState extends State<SearchPage> {
     
     try {
       await UserRepository().togglePlannedModule(userID, module.moduleNr, isCurrent);
-      
-      if(!mounted) return;
-
-      StatusMessage.show(
-        context: context,
-        alignment: SnackAlignment.TOP,
-        title: "Success",
-        message: "Added to ${isCurrent ? 'Current' : 'Next'} Semester",
-        isError: false,
-        duration: Duration(seconds: 2),
-      );
-
     } catch (e, s) {
       Log.error("Planner save error", e, s);
       setState(() => module.isPlanned = false);

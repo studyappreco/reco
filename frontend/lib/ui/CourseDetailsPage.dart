@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
-import 'package:frontend/ui/widgets/CourseCard/CourseCard_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart'; 
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
 import 'package:frontend/ui/utils/auth.dart';
+import 'package:frontend/ui/widgets/AnimatedIconButton.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/utils/logger.dart';
@@ -104,18 +104,14 @@ class CourseDetailsPage extends StatelessWidget {
                                     Flexible(
                                       child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
                                     ),
-                                    InkWell(
+                                    AnimatedIconButton(
+                                      isSelected: vm.module!.isFavorite,
                                       onTap: () => vm.toggleFavorite(context),
-                                      borderRadius: BorderRadius.circular(20),
-                                      child: Container(
-                                        padding: EdgeInsets.all(8),
-                                        decoration: CourseCardStyles.getFavoriteDecoration(isActive: vm.module!.isFavorite),
-                                        child: Icon(
-                                          vm.module!.isFavorite ? Icons.favorite : Icons.favorite_border,
-                                          color: AppColors.pink,
-                                          size: 20,
-                                        ),
-                                      ),
+                                      icon: Icons.favorite_border,
+                                      selectedIcon: Icons.favorite,
+                                      activeColor: AppColors.pink,
+                                      activeBackgroundColor: AppColors.pinkLight,
+                                      inactiveColor: AppColors.pink,
                                     ),
                                   ],
                                 ),
@@ -259,7 +255,7 @@ class CourseDetailsPage extends StatelessWidget {
                                   onPressed: () => vm.togglePlanned(context),
                                   child: Center( 
                                     child: Text(
-                                      vm.module!.isPlanned ? "- Remove from Plan" : "+ Add to Plan",
+                                      vm.module!.isPlanned ? "- Remove from Planner" : "+ Add to Planner",
                                       style: textTheme.bodyMedium?.copyWith(color: Colors.white),
                                       textAlign: TextAlign.center,
                                     ),
@@ -443,14 +439,6 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
         await _userRepo.removePlannedModule(userID, moduleNr);
         Log.info("Planned status removed from DB");
         
-        StatusMessage.show(
-          context: context,
-          alignment: SnackAlignment.TOP,
-          title: "Success",
-          message: "Removed from Planner",
-          isError: false,
-          duration: Duration(seconds: 2),
-        );
 
       } catch (e, s) {
         Log.error("DB Error removing plan:", e, s);
@@ -503,14 +491,6 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       await _userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
       Log.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
       
-      StatusMessage.show(
-        context: context,
-        alignment: SnackAlignment.TOP,
-        title: "Success",
-        message: "Added to ${isCurrent ? 'Current' : 'Next'} Semester",
-        isError: false,
-        duration: Duration(seconds: 2),
-      );
 
     } catch (e, s) {
        Log.error("DB Error adding plan:", e, s);
@@ -550,14 +530,6 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       await _userRepo.toggleFavoriteModule(userID, moduleNr);
       Log.info("Favorite status updated in DB");
       
-      StatusMessage.show(
-        context: context,
-        alignment: SnackAlignment.TOP,
-        title: "Success",
-        message: module!.isFavorite ? "Added to Favorites" : "Removed from Favorites",
-        isError: false,
-        duration: Duration(seconds: 2),
-      );
 
     } catch (e, s) {
       Log.error("DB Error:", e, s);
