@@ -25,6 +25,7 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/ui/GiveFeedback.dart';
 
 
 // Use these instances globally
@@ -161,7 +162,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/feedback',
-          builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+          builder: (context, state) => const GiveFeedbackPage(),
         ),
         GoRoute(
           path: '/demo',
