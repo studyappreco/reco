@@ -9,7 +9,7 @@ class GiveFeedbackPage extends StatefulWidget {
 }
 
 class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
-  int _rating = 0; // 0..5
+  int? _rating; // null = not selected yet (1..5 once selected)
   final TextEditingController _commentController = TextEditingController();
 
   @override
@@ -21,27 +21,28 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
   void _submit() {
     final comment = _commentController.text.trim();
 
-    if (_rating == 0) {
+    if (_rating == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select a rating.")),
       );
       return;
     }
 
-    if (comment.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please write a comment.")),
-      );
-      return;
-    }
+    // Optional: validate comment too (uncomment if required)
+    // if (comment.isEmpty) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text("Please write a comment.")),
+    //   );
+    //   return;
+    // }
 
     // TODO: Replace with backend submit later
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Submitted: $_rating/5 - $comment")),
+      SnackBar(content: Text("Submitted: ${_rating!}/5 - $comment")),
     );
 
     // Optional: clear after submit
-    // setState(() => _rating = 0);
+    // setState(() => _rating = null);
     // _commentController.clear();
   }
 
@@ -98,18 +99,17 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
 
               const SizedBox(height: 22),
 
-              // ===== Rating bar (clickable stars) + x/5 =====
+              // ===== Rating bar (clickable stars) + x/5 (only after selection) =====
               Row(
                 children: [
                   Row(
                     children: List.generate(5, (index) {
-                      final starValue = index + 1;
-                      final isFilled = starValue <= _rating;
+                      final starValue = index + 1; // 1..5
+                      final isFilled =
+                          _rating != null && starValue <= _rating!;
 
                       return IconButton(
-                        onPressed: () {
-                          setState(() => _rating = starValue);
-                        },
+                        onPressed: () => setState(() => _rating = starValue),
                         icon: Icon(
                           isFilled ? Icons.star : Icons.star_border,
                           color: Colors.amber,
@@ -122,12 +122,13 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
                     }),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    "$_rating/5",
-                    style: textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  if (_rating != null)
+                    Text(
+                      "${_rating}/5",
+                      style: textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
                 ],
               ),
 
@@ -148,7 +149,8 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blue.shade400, width: 1.2),
+                    borderSide:
+                        BorderSide(color: Colors.blue.shade400, width: 1.2),
                   ),
                   contentPadding: const EdgeInsets.all(14),
                 ),
