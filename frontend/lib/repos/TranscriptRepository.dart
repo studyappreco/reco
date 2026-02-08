@@ -5,6 +5,7 @@ import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
+import 'package:frontend/utils/logger.dart';
 
 class TranscriptRepository {
   final OpenAIService _openAIService;
@@ -13,7 +14,7 @@ class TranscriptRepository {
   TranscriptRepository({
     OpenAIService? openAIService,
     MongoService? mongoService,
-  })  : _openAIService = openAIService ?? OpenAIService(dotenv.env['OPENAI_API_KEY']!),
+  })  : _openAIService = openAIService ?? OpenAIService(dotenv.env['OPENAI_API_KEY'] ?? ""),
         _mongoService = mongoService ?? MongoService();
 
 
@@ -59,6 +60,67 @@ class TranscriptRepository {
       return true;
     } on Exception catch (e) {
       debugPrint('Failed to delete transcript: $e');
+      return false;
+    }
+  }
+
+  Future<bool> addCompletedCourseToTranscript({
+    required String userID,
+    required String courseName,
+    required String moduleNr,
+    required double grade,
+    required int ects,
+    required String targetCategoryName,
+    required String examDate,
+  }) async {
+    try {
+      UserTranscript? userTranscript = await _mongoService.getTranscript(userID);
+      // TODO proposal: even if the user has not uploaded a transcript, the empty list should already be in the database so that there are no problems here
+      if(userTranscript == null){
+        Log.warning("UserTranscript is null");
+        return false;
+      }
+
+      bool added = false;
+      
+      // I've used the logic from transcriptUtil.dart in calculateTotalEarnedECTS() here
+      void traverseAndAdd(TranscriptNode node){
+        if(added)return;
+
+        if(node.name == targetCategoryName){
+          node.courses ??= [];
+          node.courses!.add(TranscriptCourse(
+            id: moduleNr,
+            courseName: courseName,
+            ects: ects,
+            grade: grade,
+            examDate: examDate,
+          ));
+          added = true;
+        } else {
+          if(node.children != null){
+            for(var child in node.children!){
+              traverseAndAdd(child);
+            }
+          }
+        }
+      }
+
+      for(var rootNode in userTranscript.transcript.children){
+        traverseAndAdd(rootNode);
+      }
+
+      if(added){
+        await _mongoService.updateTranscript(userID, userTranscript.transcript);
+        Log.info("Added $courseName to transcript under $targetCategoryName");
+        return true;
+      } else {
+        Log.warning("Category ID '$targetCategoryName' not found in transcript tree");
+        return false;
+      }
+
+    } catch (e, s) {
+      Log.error("Failed to add course to transcript", e, s);
       return false;
     }
   }

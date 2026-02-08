@@ -1,5 +1,5 @@
 
- import 'package:frontend/repos/CSBTranscript.dart';
+import 'package:frontend/repos/CSBTranscript.dart';
 import 'package:frontend/repos/CSMTranscript.dart';
 import 'package:frontend/repos/ISMTranscript.dart';
 
@@ -43,6 +43,7 @@ class Transcript {
         print("$key, $val, $earnedEcts, $requiredEcts");
         double progress = requiredEcts > 0 ? (earnedEcts / requiredEcts).clamp(0.0, 1.0) : 0.0;
         dashBoardcategories.add(OverviewCategory(
+          id: key,
           name: val,
           progress: progress,
           requiredCredits: requiredEcts,
@@ -59,10 +60,12 @@ class Transcript {
     final gpa = calculateGPA(transcript);
     final categories = getOverviewCategories(transcript);
     final earnedECTS = calculateTotalEarnedECTS(transcript);
+    final completedCourses = calculateTotalCompletedCourses(transcript);
 
     return DashboardDTO(
       programCredits: programCredits,
       earnedCredits: earnedECTS,
+      completedCoursesCount: completedCourses,
       gpa: gpa,
       categories: categories,
     );
@@ -151,24 +154,45 @@ int calculateTotalEarnedECTS(UserTranscript ismTranscript) {
    }
 
    return totalEcts;
- }
+}
 
- class DashboardDTO {
+int calculateTotalCompletedCourses(UserTranscript ismTranscript) {
+  int count = 0;
+  void traverseNode(TranscriptNode node){
+    if(node.courses != null){
+      count += node.courses!.length;
+    }
+    if(node.children != null){
+      for(final child in node.children!){
+        traverseNode(child);
+      }
+    }
+  }
+  for(final node in ismTranscript.transcript.children){
+    traverseNode(node);
+  }
+  return count;
+}
+
+class DashboardDTO {
    final int programCredits;
    final int earnedCredits;
+   final int completedCoursesCount;
    final double? gpa;
    final List<OverviewCategory> categories;
 
    DashboardDTO({
      required this.programCredits,
      required this.earnedCredits,
+     required this.completedCoursesCount,
      this.gpa,
      required this.categories,
    });
- }
+}
 
 
- class OverviewCategory {
+class OverviewCategory {
+   final String id;
    final String name;
    final double progress;
    final List<TranscriptCourse> courses;
@@ -176,10 +200,11 @@ int calculateTotalEarnedECTS(UserTranscript ismTranscript) {
    final int earnedCredits;
 
    OverviewCategory({
+     required this.id,
      required this.name,
      required this.progress,
      required this.courses,
      required this.requiredCredits,
      required this.earnedCredits,
    });
- }
+}

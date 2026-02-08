@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/ui/widgets/AnimatedIconButton.dart';
 import 'CourseCard_styles.dart';
 
 class CourseCard extends StatelessWidget {
@@ -90,36 +90,27 @@ class CourseCard extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Herz Button
-                          InkWell(
+                          AnimatedIconButton(
+                            isSelected: isFavorite,
                             onTap: onFavoriteTap,
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: CourseCardStyles.getFavoriteDecoration(isActive: isFavorite),
-                              child: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: AppColors.pink,
-                                size: 20,
-                              ),
-                            ),
+                            icon: Icons.favorite_border,
+                            selectedIcon: Icons.favorite,
+                            activeColor: AppColors.pink,
+                            activeBackgroundColor: AppColors.pinkLight,
+                            inactiveColor: AppColors.pink, 
                           ),
                           
-                          SizedBox(width: 8),
+                          SizedBox(width: 8), 
 
                           // Plan Button
-                          InkWell(
+                          AnimatedIconButton(
+                            isSelected: isPlanned,
                             onTap: onPlanTap,
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: CourseCardStyles.getPlanDecoration(isActive: isPlanned),
-                              child: SvgPicture.asset(
-                                isPlanned ? 'assets/icons/book-open-filled.svg' : 'assets/icons/book-open.svg',
-                                width: 20,
-                                height: 20,
-                                colorFilter: const ColorFilter.mode(AppColors.grey, BlendMode.srcIn),
-                              ),
-                            ),
+                            svgAsset: 'assets/icons/book-open.svg',
+                            selectedSvgAsset: 'assets/icons/book-open-filled.svg',
+                            activeColor: AppColors.primaryBlue,
+                            activeBackgroundColor: AppColors.primaryBlueLight,
+                            inactiveColor: AppColors.primaryBlue,
                           ),
                         ],
                       ),
