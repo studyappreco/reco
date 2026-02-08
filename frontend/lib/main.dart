@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
@@ -11,7 +11,6 @@ import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
@@ -25,7 +24,6 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
-
 
 // Use these instances globally
 final clientSession = ClientSession();
@@ -65,14 +63,19 @@ final router = GoRouter(
   initialLocation: '/home',
   refreshListenable: clientSession,
 
-  redirect: (context, state) {
+  redirect: (context, state) async {
     final loggedIn = clientSession.isLoggedIn;
     final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
                        state.uri.path.startsWith('/register') ||
                        state.uri.path.startsWith('/onboarding');
 
-    if (!loggedIn && !onAuthFlow) {
+    final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
+
+    if (!loggedIn && !onAuthFlow && isFirstAppStart) {
       return '/onboarding';
+    }
+    if (!loggedIn && !onAuthFlow) {
+      return '/sign-in';
     }
 
     if (loggedIn && onAuthFlow) {
@@ -92,10 +95,6 @@ final router = GoRouter(
       builder: (context, state) => CreateAccountForm(),
       routes: [
         GoRoute(
-          path: '/sign-in',
-          builder: (context, state) => SignInPageForm(),
-        ),
-        GoRoute(
           path: 'specify-degree',
           builder: (context, state) => SpecifyDegreePage(),
           routes: [
@@ -103,9 +102,8 @@ final router = GoRouter(
               path: 'interests',
               builder: (context, state) => InterestSelectionPage(),
               routes: [
-
                 GoRoute(
-                  path: '/upload-transcript',
+                  path: 'upload-transcript',
                   builder: (context, state) => UploadTranscriptPage(),
                 ),
               ]
@@ -113,6 +111,10 @@ final router = GoRouter(
           ]
         ),
       ]
+    ),
+    GoRoute(
+      path: '/sign-in',
+      builder: (context, state) => SignInPageForm()
     ),
 
     ShellRoute(
@@ -171,7 +173,6 @@ final router = GoRouter(
     ),
   ],
 );
-
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
