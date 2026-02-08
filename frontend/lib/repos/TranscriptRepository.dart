@@ -54,15 +54,6 @@ class TranscriptRepository {
     }
   }
 
-  Future<bool?> hasTranscript(String userID) async {
-    try {
-      return await _mongoService.transcriptExists(userID);
-    } on Exception catch (e) {
-      debugPrint('Failed to check transcript existence: $e');
-      return null;
-    }
-  }
-
   Future<bool> deleteTranscript(String userID) async {
     try {
       await _mongoService.deleteTranscript(userID);
@@ -132,5 +123,57 @@ class TranscriptRepository {
       Log.error("Failed to add course to transcript", e, s);
       return false;
     }
+  }
+}
+
+// for background processing
+enum TranscriptProcessingState {
+  idle,
+  processing,
+  completed,
+  failed,
+}
+
+class TranscriptProcessor extends ChangeNotifier {
+  final TranscriptRepository _repository;
+
+  TranscriptProcessingState _state = TranscriptProcessingState.idle;
+  String? _errorMessage;
+
+  TranscriptProcessor({TranscriptRepository? repository})
+      : _repository = repository ?? TranscriptRepository();
+
+  TranscriptProcessingState get state => _state;
+  String? get errorMessage => _errorMessage;
+  bool get isProcessing => _state == TranscriptProcessingState.processing;
+
+  Future<void> processTranscript({
+    required File pdfFile,
+    required String userID,
+    required String programLiteral,
+  }) async {
+    _state = TranscriptProcessingState.processing;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final transcript = await _repository.uploadAndParseTranscript(
+        pdfFile: pdfFile,
+        userID: userID,
+        programLiteral: programLiteral,
+      );
+
+      if (transcript != null) {
+        _state = TranscriptProcessingState.completed;
+      } else {
+        _state = TranscriptProcessingState.failed;
+        _errorMessage = 'Failed to parse transcript';
+      }
+    } catch (e) {
+      _state = TranscriptProcessingState.failed;
+      _errorMessage = e.toString();
+    }
+
+    notifyListeners();
   }
 }
