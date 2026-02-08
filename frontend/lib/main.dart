@@ -130,6 +130,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ]
         ),
@@ -147,6 +153,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ],
         ),
@@ -161,7 +173,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/feedback',
-          builder: (context, state) => const GiveFeedbackPage(),
+          builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
         ),
         GoRoute(
           path: '/demo',
