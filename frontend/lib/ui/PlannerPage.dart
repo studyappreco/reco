@@ -413,6 +413,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
     await _userRepo.removePlannedModule(userID, module.moduleNr);
     await _loadData(); 
     
+    if (!context.mounted) return;
     StatusMessage.show(
       context: context,
       alignment: SnackAlignment.TOP,
@@ -563,6 +564,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
     if(success){
       await _loadData();
       
+      if (!context.mounted) return;
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.TOP,
@@ -577,6 +579,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
       
+      if (!context.mounted) return;
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,

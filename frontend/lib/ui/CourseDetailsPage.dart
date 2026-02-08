@@ -446,6 +446,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
         module!.isPlanned = true;
         notifyListeners();
         
+        if (!context.mounted) return;
         StatusMessage.show(
           context: context,
           alignment: SnackAlignment.CENTER,
@@ -498,6 +499,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
        module!.isPlanned = false;
        notifyListeners();
        
+       if (!context.mounted) return;
        StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,
@@ -537,6 +539,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       module!.isFavorite = !module!.isFavorite;
       notifyListeners();
       
+      if (!context.mounted) return;
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,
