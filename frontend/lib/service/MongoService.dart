@@ -181,6 +181,40 @@ class MongoService {
     }
   }
 
+  Future<void> updateUserInterests(String userID, List<String> newInterests) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set('interests', newInterests),
+      );
+    } catch (e, s) {
+      Log.error("Error updating interests for user $userID", e, s);
+      rethrow;
+    }
+  }
+
+  Future<void> createUserDetails(String userID, String username) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+
+      await collection.update(
+        where.eq('userID', userID),
+        modify
+            .setOnInsert('userID', userID)
+            .setOnInsert('username', username)
+            .setOnInsert('interests', [])
+            .setOnInsert('planned_modules', [])
+            .setOnInsert('favorited_modules', []),
+        upsert: true,
+      );
+    } catch (e, s) {
+      Log.error("Error creating user details for user $userID", e, s);
+      rethrow;
+    }
+  }
 
   Future<Map<String, List<String>>> getPlannedModulesStruct(String userID) async {
     try {
@@ -259,7 +293,4 @@ class MongoService {
     }
   }
 
-  Future<void> updateUserInterests(String userID, List<String> newInterests) async {
-    // TODO
-  }
 }
