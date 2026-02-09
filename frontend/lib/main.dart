@@ -18,23 +18,29 @@ import 'package:frontend/ui/HomePage.dart';
 import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
+import 'package:frontend/ui/OnboardingPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/ui/GiveFeedback.dart';
 
 
-// Use this instance of clientSession globally
+// Use these instances globally
 final clientSession = ClientSession();
+final transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(
-    ChangeNotifierProvider.value(
-      value: clientSession,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: clientSession),
+        ChangeNotifierProvider.value(value: transcriptProcessor),
+      ],
       child: MyApp(),
-    )
+    ),
   );
 }
 
@@ -61,13 +67,15 @@ final router = GoRouter(
 
   redirect: (context, state) {
     final loggedIn = clientSession.isLoggedIn;
-    final loggingIn = state.uri.path.startsWith('/sign-in') || state.uri.path.startsWith('/register');
+    final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
+                       state.uri.path.startsWith('/register') ||
+                       state.uri.path.startsWith('/onboarding');
 
-    if (!loggedIn && !loggingIn) {
-      return '/register';
+    if (!loggedIn && !onAuthFlow) {
+      return '/onboarding';
     }
 
-    if (loggedIn && loggingIn) {
+    if (loggedIn && onAuthFlow) {
       return '/home';
     }
 
@@ -75,6 +83,10 @@ final router = GoRouter(
   },
 
   routes: [
+    GoRoute(
+      path: '/onboarding',
+      builder: (context, state) => OnboardingPage(),
+    ),
     GoRoute(
       path: '/register',
       builder: (context, state) => CreateAccountForm(),
@@ -118,6 +130,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ]
         ),
@@ -135,6 +153,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ],
         ),
