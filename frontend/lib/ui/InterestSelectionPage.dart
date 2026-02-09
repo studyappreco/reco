@@ -53,6 +53,7 @@ class InterestSelectionPage extends StatelessWidget {
                     } else {
                       debugPrint('No userId available to save interests');
                     }
+                    if (!context.mounted) return;
                     context.go('/register/specify-degree/interests/upload-transcript');
                   }
                 }
