@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
-import 'package:frontend/service/MongoService.dart';
+
 
 String getTranscriptPath(String filename) {
   return '${Directory.current.path}/lib/transcripts/$filename';
@@ -12,7 +12,6 @@ String getTranscriptPath(String filename) {
 
 void main() async {
   await dotenv.load(fileName: ".env");
-  final mongo = MongoService();
   final repo = TranscriptRepository();
 
   group('TranscriptProcessor state changes', () {

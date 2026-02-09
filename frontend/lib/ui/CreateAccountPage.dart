@@ -9,6 +9,7 @@ import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/repos/UserRepository.dart';
 
 
 class CreateAccountForm extends StatefulWidget {
@@ -50,6 +51,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       Client? client = BackendClient.getBackendClient();
       if (client == null) throw Exception("Backend client could not be initialized");
       Account account = Account(client);
+      final userRepo = UserRepository();
 
       String userName = nameController.text;
       String userPassword = passwordController.text;
@@ -61,6 +63,8 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           password: userPassword,
           name: userName,
       );
+
+      await userRepo.createUserDetails(user.$id, user.name);
 
       if (!mounted) return;
       context.read<ClientSession>().setNewUser(user, userPassword);

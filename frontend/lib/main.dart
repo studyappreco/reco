@@ -24,6 +24,7 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/ui/GiveFeedback.dart';
 
 // Use these instances globally
 final clientSession = ClientSession();
@@ -132,6 +133,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ]
         ),
@@ -149,6 +156,12 @@ final router = GoRouter(
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
               },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) => const GiveFeedbackPage(),
+                ),
+              ],
             ),
           ],
         ),
