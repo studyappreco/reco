@@ -48,8 +48,6 @@ class UserRepository {
     return await _mongoService.getUsername(userID);
   }
 
-  Future<void> markModuleAsCompleted(String userID, String moduleNr, double grade) async {
-    await _mongoService.movePlannedToTranscript(userID, moduleNr, grade);
   Future<bool> markModuleAsCompleted({
     required String userID,
     required Module module,
