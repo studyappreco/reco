@@ -293,7 +293,4 @@ class MongoService {
     }
   }
 
-  Future<void> updateUserInterests(String userID, List<String> newInterests) async {
-    // TODO
-  }
 }
