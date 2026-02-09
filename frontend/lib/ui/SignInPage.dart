@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/ui/widgets/PasswordField.dart';
 import 'package:frontend/ui/widgets/ValidatedtextField.dart';
 import 'package:frontend/ui/utils/auth.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../theme/colors.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
@@ -92,12 +93,22 @@ class SignInPageState extends State<SignInPageForm> {
                   crossAxisAlignment: .center,
                   children: [
                     AdaptiveButton(
-                        onPressed: loginUser,
-                        child: SizedBox(
-                            width: double.infinity,
-                            child: Center(child: Text("Sign in"))
-                        )
+                      onPressed: loginUser,
+                      child: SizedBox(
+                          width: double.infinity,
+                          child: Center(child: Text("Sign in"))
+                      )
                     ),
+                    Row(
+                      mainAxisAlignment: .center,
+                      children: [
+                        Text("Don't have an account?"),
+                        TextButton(
+                          onPressed: () => context.go('/register'),
+                          child: Text("Create one")
+                        )
+                      ],
+                    )
                   ],
                 )
               )
