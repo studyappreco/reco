@@ -267,6 +267,17 @@ class MongoService {
     }
   }
 
+  Future<String?> getUsername(String userID) async {
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if (doc == null) return null;
+      return doc['username'] as String?;
+    } catch (e, s) {
+      Log.error("Error fetching username for user $userID", e, s);
+      return null;
+    }
+  }
 
   Future<void> removePlannedModule(String userID, String moduleNr) async {
     try {
