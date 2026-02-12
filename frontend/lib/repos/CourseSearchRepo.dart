@@ -44,6 +44,27 @@ class CourseSearchRepo {
     }
   }
 
+  Future<List<Module>> getModulesByModuleNrs(List<String> moduleNrs, String userID) async {
+    if (moduleNrs.isEmpty) return [];
+
+    try {
+      final jsonList = await _mongoService.getModulesByModuleNrs(moduleNrs);
+      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
+      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+
+      return jsonList.map((json) {
+        return Module.fromMap(
+          json,
+          userFavorites: favorites,
+          userPlanned: planned,
+        );
+      }).toList();
+    } catch (e, s) {
+      Log.error("Error inside fetchSpecificModules", e, s);
+      rethrow;
+    }
+  }
+
   // Load data (only if necessary or forced)
   Future<List<Module>> fetchModules({bool forceRefresh = false, required String userID}) async {
     

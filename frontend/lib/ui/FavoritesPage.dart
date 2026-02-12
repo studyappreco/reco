@@ -336,8 +336,8 @@ class FavoritesPageViewmodel extends ChangeNotifier {
     }
 
     try {
-      final allModules = await _courseRepo.fetchModules(userID: userID);
-      favoriteModules = allModules.where((m) => m.isFavorite).toList();
+      final favoriteIDs = await _userRepo.getFavoriteModuleNrs(userID);
+      favoriteModules = await _courseRepo.getModulesByModuleNrs(favoriteIDs, userID);
       Log.info("Loaded ${favoriteModules.length} favorites");
     } catch (e, s) {
       Log.error("Error loading favorites", e, s);
