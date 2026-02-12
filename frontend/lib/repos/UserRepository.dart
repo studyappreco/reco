@@ -35,8 +35,17 @@ class UserRepository {
     await _mongoService.updateUserInterests(userID, newInterests);
   }
 
+  Future<void> createUserDetails(String userID, String username) async {
+    await _mongoService.createUserDetails(userID, username);
+  }
+
+
   Future<List<String>> getInterests(String userID) async {
     return await _mongoService.getUserInterests(userID);
+  }
+
+  Future<String?> getUsername(String userID) async {
+    return await _mongoService.getUsername(userID);
   }
 
   Future<bool> markModuleAsCompleted({

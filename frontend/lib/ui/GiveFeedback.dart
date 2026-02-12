@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/theme/colors.dart';
 
-
 class GiveFeedbackPage extends StatefulWidget {
   final String title;
   final String credits;
@@ -51,7 +50,6 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
     // _commentController.clear();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -74,7 +72,6 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== Header (dynamic) =====
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Row(

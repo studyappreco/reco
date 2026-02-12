@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
+import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
@@ -41,7 +42,7 @@ class HomePage extends StatelessWidget {
                   spacing: 4,
                   children: [
                     Text(
-                      "Hello Zohreh",
+                      "Hello ${vm.username.isNotEmpty ? vm.username : 'there'}",
                       style: textTheme.headlineSmall?.copyWith(color: AppColors.textMain),
                     ),
                     Text(
@@ -202,20 +203,28 @@ class HomePageViewmodel extends ChangeNotifier {
   double _gpa = 0.0;
   int _ects = 0;
   List<OverviewCategory> _categories = [];
+  String _username = '';
 
   bool get loading => _loading;
   double get gpa => _gpa;
   int get ects => _ects;
   List<OverviewCategory> get categories => _categories;
+  String get username => _username;
 
   Future<void> _init() async {
     _loading = true;
     final repo = TranscriptRepository();
+    final userRepo = UserRepository();
     final userId = clientSession.session?.userId;
     if (userId == null) {
       _loading = false;
       notifyListeners();
       return;
+    }
+
+    final username = await userRepo.getUsername(userId);
+    if (username != null) {
+      _username = username;
     }
 
     final userTranscript = await repo.getTranscript(userId);
