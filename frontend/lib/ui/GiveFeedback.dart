@@ -77,8 +77,13 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(widget.title, style: textTheme.headlineSmall),
-                    Text(widget.credits, style: textTheme.headlineSmall),
+                    Flexible(
+                      child: Text(widget.title, style: textTheme.headlineSmall),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(widget.credits, style: textTheme.headlineSmall),
+                    ),
                   ],
                 ),
               ),
