@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:go_router/go_router.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -13,7 +14,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   int _index = 0;
 
   // ✅ Start Your Journey -> go to Create Account page
-  void _finishOnboarding() {
+  Future<void> _finishOnboarding() async {
+    SharedPreferencesService().setFirstAppStart();
     context.go('/register');
   }
 

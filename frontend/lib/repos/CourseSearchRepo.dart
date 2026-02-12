@@ -2,17 +2,81 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/ui/SearchPage.dart';
+import 'package:frontend/utils/logger.dart';
 
 class CourseSearchRepo {
   final MongoService _mongoService = MongoService();
-  List<Module> _allModules = [];
+  static List<Module> _allModules = [];
+
+  Future<Module?> getModuleByNumber(String moduleNr, String userID) async {
+    // First check all modules to see if we already have the module in our list => saves database calls
+    if(_allModules.isNotEmpty){
+      try {
+        final moduleFromCache = _allModules.firstWhere((m) => m.moduleNr == moduleNr);
+        Log.info("Module $moduleNr found in cache");
+        return moduleFromCache;
+      } catch (e) {
+        Log.info("Module $moduleNr not in cache. Fetching from DB...");
+      }
+    }
+    
+    // database search for the module
+    try {
+      // getting the module and the list of planned and favorite modules
+      final jsonmodule = await _mongoService.getModuleByNumber(moduleNr);
+      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
+      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+
+      if(jsonmodule == null) {
+        Log.warning("Module $moduleNr not found in Database");
+        return null;
+      }
+
+      return Module.fromMap(
+        jsonmodule, 
+        userFavorites: favorites, 
+        userPlanned: planned
+      );
+
+    } catch (e, s) {
+      Log.error("Repository Error fetching module $moduleNr", e, s);
+      rethrow; 
+    }
+  }
 
   // Load data (only if necessary or forced)
-  Future<List<Module>> fetchModules({bool forceRefresh = false}) async {
-    if (_allModules.isEmpty || forceRefresh){
-      _allModules = await _mongoService.getAllModules();
+  Future<List<Module>> fetchModules({bool forceRefresh = false, required String userID}) async {
+    
+    try {
+
+      // first, we fetch all modules if we don't already have them or if forcerefersh == true
+      if(_allModules.isEmpty || forceRefresh){
+        Log.info("Fetching raw modules from DB...");
+        final List<Map<String, dynamic>> jsonmodules = await _mongoService.getAllModules();
+        
+        // creating the module list without the user specific data (favorite, planned)
+        _allModules = jsonmodules.map((json) {
+          return Module.fromMap(json, userFavorites: [], userPlanned: []);
+        }).toList();
+      }
+
+      // always retrieve the user specific data (favorites, planned) fresh from the database
+      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
+      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+
+      // updating the module list with user-specific data
+      for(var module in _allModules){
+        module.isFavorite = favorites.contains(module.moduleNr);
+        module.isPlanned = planned.contains(module.moduleNr);
+      }
+
+      Log.info("Modules loaded: ${_allModules.length}");
+      return _allModules;
+
+    } catch (e, s) {
+      Log.error("Error inside fetchModules", e, s);
+      rethrow; 
     }
-    return _allModules;
   }
 
   // Filter & Sort (https://www.geeksforgeeks.org/flutter/flutter-filter-a-list-using-some-condition/)

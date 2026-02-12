@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart'; 
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
-
+import 'package:frontend/repos/UserRepository.dart';
+import 'package:go_router/go_router.dart';
+import 'package:frontend/utils/logger.dart';
 
 // Enum for the possible sorting options
 enum SortOption { bestMatch, ratingHigh, ratingCount, ectsHigh, ectsLow }
@@ -47,11 +51,162 @@ class _SearchPageState extends State<SearchPage> {
     _loadData(false);
   }
 
+  Future<void> _toggleFavorite(Module module) async {
+    final userID = context.read<ClientSession>().getUserID();
+    
+    if(userID == null){
+      Log.error("Favorite Toggle failed: UserID is null");
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "UserID is null",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+
+    setState(() {
+      module.isFavorite = !module.isFavorite;
+    });
+
+    // DB update
+    try {
+      await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
+    } catch (e, s) {
+      Log.error("Error saving favorite", e, s);
+      
+      if(!mounted) return; 
+      setState(() => module.isFavorite = !module.isFavorite);
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER, 
+        title: "Oops! Something went wrong!",
+        message: "Could not update favorites: $e",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+    }
+  }
+
+  Future<void> _togglePlanned(Module module) async {
+    final userID = context.read<ClientSession>().getUserID();
+
+    if(userID == null){
+      Log.error("Planner Toggle failed: UserID is null");
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "UserID is null",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+      return;
+    }
+
+    if(module.isPlanned){
+      setState(() => module.isPlanned = false);
+      try {
+        await UserRepository().removePlannedModule(userID, module.moduleNr);
+
+      } catch (e, s) {
+        Log.error("Error removing planner", e, s);
+        setState(() => module.isPlanned = true); 
+        
+        if(!mounted) return;
+
+        StatusMessage.show(
+          context: context,
+          alignment: SnackAlignment.CENTER,
+          title: "Error",
+          message: "Could not remove from planner",
+          isError: true,
+          duration: Duration(seconds: 4),
+        );
+      }
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // https://api.flutter.dev/flutter/material/SimpleDialog-class.html
+        return SimpleDialog(
+          title: Text("Add to Planner"),
+          children: [
+            SimpleDialogOption(
+              padding: EdgeInsets.all(16),
+              child: Text("Add to Current Semester"),
+              onPressed: () async {
+                Navigator.pop(context);
+                await _savePlanned(userID, module, true);
+              },
+            ),
+            SimpleDialogOption(
+              padding: EdgeInsets.all(16),
+              child: Text("Add to Next Semester"),
+              onPressed: () async {
+                Navigator.pop(context);
+                await _savePlanned(userID, module, false);
+              },
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Future<void> _savePlanned(String userID, Module module, bool isCurrent) async {
+    setState(() => module.isPlanned = true);
+    
+    try {
+      await UserRepository().togglePlannedModule(userID, module.moduleNr, isCurrent);
+    } catch (e, s) {
+      Log.error("Planner save error", e, s);
+      setState(() => module.isPlanned = false);
+      
+      if(!mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Oops! Something went wrong!",
+        message: "Could not save to planner",
+        isError: true,
+        duration: Duration(seconds: 5),
+      );
+    }
+  }
+
   // Load data (also for refresh)
   Future<void> _loadData(bool force) async {
+    final String? userID = context.read<ClientSession>().getUserID();
+
+    if(userID == null){
+      Log.error("Error: No User ID found in session during _loadData");
+      if(mounted){
+        StatusMessage.show(
+            context: context,
+            alignment: SnackAlignment.CENTER,
+            title: "Oops! Something went wrong!",
+            message: "No User ID found in session",
+            isError: true,
+            duration: Duration(seconds: 5),
+        );
+        setState(() {
+          _filteredModules = [];
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
     try {
-      List<Module> modules = await _repository.fetchModules(forceRefresh: force);
-      
+      List<Module> modules = await _repository.fetchModules(forceRefresh: force, userID: userID);
+
       // Extract tags from the data
       Set<String> extractedTags = {};
       for(var module in modules){
@@ -72,8 +227,8 @@ class _SearchPageState extends State<SearchPage> {
           _applyFilters(); 
         });
       }
-    } catch (e) {
-      debugPrint("ERROR: $e");
+    } catch (e, s) {
+      Log.error("Error fetching modules", e, s);
       
       if(mounted){
         StatusMessage.show(
@@ -565,9 +720,9 @@ class _SearchPageState extends State<SearchPage> {
                                 tags: module.tags,
                                 isFavorite: module.isFavorite,
                                 isPlanned: module.isPlanned,
-                                onCardTap: () {},
-                                onFavoriteTap: () => setState(() => module.isFavorite = !module.isFavorite),
-                                onPlanTap: () => setState(() => module.isPlanned = !module.isPlanned),
+                                onCardTap: () => context.go('/search/course-details', extra: module.moduleNr),
+                                onFavoriteTap: () => _toggleFavorite(module),
+                                onPlanTap: () => _togglePlanned(module),
                               ),
                             );
                           },

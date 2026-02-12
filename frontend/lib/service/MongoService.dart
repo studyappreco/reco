@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
-import 'package:frontend/models/Module.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:mongo_dart/mongo_dart.dart';
+import 'package:mongo_dart/mongo_dart.dart' hide Log;
+import 'package:frontend/utils/logger.dart';
 
 /*
 * After the MVVM pattern:
@@ -17,6 +16,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 class MongoService {
   static const String _transcriptsCollection = 'transcripts';
   static const String _coursesCollection = 'courses_info';
+  static const String _userDetailsCollection = 'user_details';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -50,6 +50,16 @@ class MongoService {
     );
   }
 
+  Future<void> updateTranscript(String userID, TranscriptDocument transcript) async {
+    final db = await _getDb();
+    final collection = db.collection(_transcriptsCollection);
+    
+    await collection.update(
+      where.eq('userID', userID),
+      modify.set('transcript', transcript.toJson()),
+    );
+  }
+
   Future<void> deleteTranscript(String userID) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
@@ -57,32 +67,24 @@ class MongoService {
     await collection.deleteOne(where.eq('userID', userID));
   }
 
-  Future<bool> transcriptExists(String userID) async {
-    final db = await _getDb();
-    final collection = db.collection(_transcriptsCollection);
-
-    final count = await collection.count(where.eq('userID', userID));
-    return count > 0;
-  }
-
-  Future<List<Module>> getAllModules() async {
+  Future<List<Map<String, dynamic>>> getAllModules() async {
     try {
       final db = await _getDb();
       final collection = db.collection(_coursesCollection);
 
       final List<Map<String, dynamic>> jsonList = await collection.find().toList();
 
-      debugPrint("Loaded ${jsonList.length} courses from DB");
+      Log.info("Loaded ${jsonList.length} courses from DB");
 
-      return jsonList.map((json) => Module.fromMap(json)).toList();
+      return jsonList;
 
-    } catch (e) {
-      debugPrint("Error loading modules: $e");
+    } catch (e, s) {
+      Log.error("Error loading modules from DB", e, s);
       rethrow; 
     }
   }
 
-  Future<Module?> getModuleByNumber(String moduleNr) async {
+  Future<Map<String, dynamic>?> getModuleByNumber(String moduleNr) async {
     try {
       final db = await _getDb();
       final collection = db.collection(_coursesCollection);
@@ -90,12 +92,216 @@ class MongoService {
 
       final doc = await collection.findOne(where.eq('number', queryParam));
 
-      if (doc == null) return null;
+      if(doc == null){
+        Log.warning("Module search: Module '$moduleNr' not found in DB");
+        return null;
+      }
 
-      return Module.fromMap(doc);
-    } catch (e) {
-      debugPrint("Error loading module $moduleNr: $e");
+      return doc;
+    } catch (e, s) {
+      Log.error("Error loading module $moduleNr", e, s);
       return null;
     }
   }
+  
+  // updates the status (planned/favorite) by adding or removing the module
+  Future<void> toggleModuleState(String userID, String moduleNr, String fieldName, {String? category}) async {
+    
+    if(fieldName != 'planned_modules' && fieldName != 'favorited_modules'){
+      throw Exception("Invalid fieldName: '$fieldName'. Must be 'planned_modules' or 'favorited_modules'.");
+    }
+
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+
+      // searching user
+      final user = await collection.findOne(where.eq('userID', userID));
+
+      // if user does not yet exist (should not happen)
+      // TODO Remove this after it is done during the creation of the new account
+      if(user == null){
+        Log.warning("User details for $userID not found! Creating new entry.");
+
+        var initialData = {
+          'userID': userID,
+          'username': 'Student', 
+          'interests': [],
+          'favorited_modules': [],
+          'planned_modules': {'current': [], 'next': []}
+        };
+
+        if(fieldName == 'favorited_modules'){
+          initialData['favorited_modules'] = [moduleNr];
+        } else if (fieldName == 'planned_modules' && category != null){
+          (initialData['planned_modules'] as Map)[category] = [moduleNr];
+        }
+
+        await collection.insert(initialData);
+        return;
+      }
+
+      if(fieldName == 'favorited_modules'){
+        List<String> currentList = List<String>.from(user['favorited_modules'] ?? []);
+        if(currentList.contains(moduleNr)){
+          currentList.remove(moduleNr);
+        } else {
+          currentList.add(moduleNr);
+        }
+        await collection.update(
+          where.eq('userID', userID),
+          modify.set(fieldName, currentList),
+        );
+      } 
+      else if(fieldName == 'planned_modules' && category != null){
+        Map<String, dynamic> planned = user['planned_modules'];
+        List<String> targetList = List<String>.from(planned[category] ?? []);
+
+        if(targetList.contains(moduleNr)){
+          targetList.remove(moduleNr);
+        } else {
+          targetList.add(moduleNr);
+          // if it is in the other category, it must be removed so that the user cannot specify it as current and next
+          String othercategory = (category == 'current') ? 'next' : 'current';
+          List<String> otherList = List<String>.from(planned[othercategory] ?? []);
+          if(otherList.contains(moduleNr)) {
+            otherList.remove(moduleNr);
+            planned[othercategory] = otherList;
+          }
+        }
+        
+        planned[category] = targetList;
+        
+        await collection.update(where.eq('userID', userID), modify.set(fieldName, planned));
+      }
+
+    } catch (e, s) {
+      Log.error("Error toggling module state ($fieldName) for user $userID", e, s);
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserInterests(String userID, List<String> newInterests) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set('interests', newInterests),
+      );
+    } catch (e, s) {
+      Log.error("Error updating interests for user $userID", e, s);
+      rethrow;
+    }
+  }
+
+  Future<void> createUserDetails(String userID, String username) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+
+      await collection.update(
+        where.eq('userID', userID),
+        modify
+            .setOnInsert('userID', userID)
+            .setOnInsert('username', username)
+            .setOnInsert('interests', [])
+            .setOnInsert('planned_modules', [])
+            .setOnInsert('favorited_modules', []),
+        upsert: true,
+      );
+    } catch (e, s) {
+      Log.error("Error creating user details for user $userID", e, s);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, List<String>>> getPlannedModulesStruct(String userID) async {
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      
+      if(doc == null || doc['planned_modules'] == null){
+        return {'current': [], 'next': []};
+      }
+
+      final planned = doc['planned_modules'] as Map<String, dynamic>;
+      return {
+        'current': List<String>.from(planned['current']),
+        'next': List<String>.from(planned['next']),
+      };
+    } catch (e, s) {
+      Log.error("Error fetching planned structure", e, s);
+      return {'current': [], 'next': []};
+    }
+  }
+
+  Future<List<String>> getAllPlannedModuleNrs(String userID) async {
+    final planned = await getPlannedModulesStruct(userID);
+    return [...planned['current']!, ...planned['next']!];
+  }
+
+  // Getter for favorites
+  Future<List<String>> getFavoriteModuleNrs(String userID) async {
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if(doc == null) return [];
+      return List<String>.from(doc['favorited_modules'] ?? []);
+    } catch (e, s) {
+      Log.error("Error fetching favorites", e, s);
+      return [];
+    }
+  }
+
+  // Getter for interests
+  Future<List<String>> getUserInterests(String userID) async {
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if (doc == null) return [];
+      return List<String>.from(doc['interests'] ?? []);
+    } catch (e, s) {
+      Log.error("Error fetching interests", e, s);
+      return [];
+    }
+  }
+
+  Future<String?> getUsername(String userID) async {
+    try {
+      final db = await _getDb();
+      final doc = await db.collection(_userDetailsCollection).findOne(where.eq('userID', userID));
+      if (doc == null) return null;
+      return doc['username'] as String?;
+    } catch (e, s) {
+      Log.error("Error fetching username for user $userID", e, s);
+      return null;
+    }
+  }
+
+  Future<void> removePlannedModule(String userID, String moduleNr) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      final user = await collection.findOne(where.eq('userID', userID));
+      
+      if(user == null || user['planned_modules'] == null) return;
+
+      Map<String, dynamic> planned = user['planned_modules'];
+      
+      List<String> current = List<String>.from(planned['current']);
+      List<String> next = List<String>.from(planned['next']);
+      
+      current.remove(moduleNr);
+      next.remove(moduleNr);
+
+      planned['current'] = current;
+      planned['next'] = next;
+
+      await collection.update(where.eq('userID', userID), modify.set('planned_modules', planned));
+    } catch (e, s) {
+      Log.error("Error removing planned module", e, s);
+    }
+  }
+
 }

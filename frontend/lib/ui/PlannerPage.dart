@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/models/Module.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/repos/transcriptUtils.dart'; 
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart'; 
 import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
+import 'package:frontend/utils/logger.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
@@ -12,9 +20,10 @@ class PlannerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<PlannerPageViewmodel>(
-      create: (_) => PlannerPageViewmodel(),
+      create: (_) => PlannerPageViewmodel(userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -25,6 +34,10 @@ class PlannerPage extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         body: Consumer<PlannerPageViewmodel>(
           builder: (context, vm, child) {
+            if(vm.isLoading){
+              return Center(child: CircularProgressIndicator());
+            }
+
             return Padding(
               padding: EdgeInsets.all(24),
               child: SingleChildScrollView(
@@ -37,28 +50,36 @@ class PlannerPage extends StatelessWidget {
                       children: [
                         CreditsButton(
                           title: "Current Credits",
-                          credits: 54,
-                          modules: 6,
+                          credits: vm.earnedCredits,
+                          modules: vm.earnedModulesCount, 
                           onPressed: () => context.push("/review-courses"),
                         ),
                         CreditsButton(
                           title: "Planned Credits",
-                          credits: 66,
-                          modules: 8,
-                          onPressed: () => {},
+                          credits: vm.totalPlannedCredits,
+                          modules: vm.totalPlannedCount,
+                          onPressed: () {},
                         )
                       ]
                     ),
                     SemesterSection(
                       title: "Current Semester",
-                      period: "Fall 2024",
-                      credits: 12,
+                      period: "Fall 2024", //TODO
+                      credits: vm.plannedCurrentCredits,
                       expanded: true,
+                      modules: vm.plannedModulesCurrent,
+                      onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
+                      onRemoveModule: (mod) => vm.removeModule(context, mod),
                     ),
+
                     SemesterSection(
                         title: "Next Semester",
-                        period: "Spring 2025",
-                        credits: 12
+                        period: "Spring 2025", //TODO
+                        credits: vm.plannedNextCredits,
+                        expanded: true,
+                        modules: vm.plannedModulesNext,
+                        onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
+                        onRemoveModule: (mod) => vm.removeModule(context, mod),
                     ),
                   ]
                 )
@@ -83,7 +104,7 @@ class CreditsButton extends StatelessWidget {
     required this.credits,
     required this.modules,
     this.onPressed,
-  });
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +149,9 @@ class SemesterSection extends StatefulWidget {
   final String period;
   final int credits;
   final bool? expanded;
+  final List<Module> modules;
+  final Function(Module) onFinishModule;
+  final Function(Module) onRemoveModule;
 
   const SemesterSection({
     super.key,
@@ -135,7 +159,10 @@ class SemesterSection extends StatefulWidget {
     required this.period,
     required this.credits,
     this.expanded,
-  });
+    required this.modules,
+    required this.onFinishModule,
+    required this.onRemoveModule
+    });
 
   @override
   State<SemesterSection> createState() => _SemesterSectionState();
@@ -153,9 +180,7 @@ class _SemesterSectionState extends State<SemesterSection> {
       spacing: 20,
       children: [
         GestureDetector(
-          onTap: () => setState(() {
-            expanded = !expanded;
-          }),
+          onTap: () => setState(() => expanded = !expanded),
           child: Row(
             mainAxisAlignment: .spaceBetween,
             crossAxisAlignment: .center,
@@ -164,26 +189,26 @@ class _SemesterSectionState extends State<SemesterSection> {
                 crossAxisAlignment: .start,
                 children: [
                   Text(
-                      widget.title,
-                      style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
-                  ),
+                    widget.title,
+                    style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
+                    ),
                   Text(
-                      widget.period,
-                      style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)
-                  ),
+                    widget.period,
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)
+                    ),
                 ],
               ),
               Column(
                 crossAxisAlignment: .end,
                 children: [
                   Text(
-                      widget.credits.toString(),
-                      style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
-                  ),
+                    widget.credits.toString(),
+                    style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
+                    ),
                   Text(
-                      "ECTS",
-                      style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)
-                  ),
+                    "ECTS",
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)
+                    ),
                 ],
               ),
             ],
@@ -193,50 +218,52 @@ class _SemesterSectionState extends State<SemesterSection> {
           Column(
             spacing: 20,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                decoration: BoxDecoration(
-                  border: BoxBorder.all(color: colorScheme.surfaceContainer, width: 1),
-                  borderRadius: BorderRadius.circular(13),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  spacing: 15,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CourseItem(
-                      name: "Deep Learning",
-                      moduleNr: "AI301",
-                      credits: 6
-                    ),
-                    CourseItem(
-                      name: "Data Mining",
-                      moduleNr: "DS202",
-                      credits: 6
-                    )
-                  ]
+              if(widget.modules.isNotEmpty)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  decoration: BoxDecoration(
+                    border: BoxBorder.all(color: colorScheme.surfaceContainer, width: 1),
+                    borderRadius: BorderRadius.circular(13),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    spacing: 15,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widget.modules.map((module) {
+                      return CourseItem(
+                        module: module,
+                        onCheck: () => widget.onFinishModule(module),
+                        onTrash: () => widget.onRemoveModule(module),
+                      );
+                    }).toList(),
+                  )
                 )
-              ),
+              else
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Text("No courses planned in this section."),
+                ),
+              
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => {},
+                      onPressed: () => context.go('/search'),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
                           color: colorScheme.surfaceContainerHighest,
                           width: 3
-                        ),
+                          ),
                         backgroundColor: Colors.white,
                         foregroundColor: AppColors.textMain,
                         shape: RoundedRectangleBorder(
-                            borderRadius: .circular(13)
-                        )
+                          borderRadius: .circular(13)
+                          )
                       ),
                       child: Text(
                         "+ Add Module",
                         style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
-                      ),
+                        ),
                     )
                   )
                 ],
@@ -249,16 +276,16 @@ class _SemesterSectionState extends State<SemesterSection> {
 }
 
 class CourseItem extends StatelessWidget {
-  final String name;
-  final String moduleNr;
-  final int credits;
+  final Module module;
+  final VoidCallback onCheck;
+  final VoidCallback onTrash;
 
   const CourseItem({
     super.key,
-    required this.name,
-    required this.moduleNr,
-    required this.credits,
-  });
+    required this.module,
+    required this.onCheck,
+    required this.onTrash
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -274,34 +301,36 @@ class CourseItem extends StatelessWidget {
         child: Row(
           mainAxisAlignment: .spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: .start,
-              children: [
-                Text(
-                    name,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: .start,
+                children: [
+                  Text(
+                    module.title,
                     style: textTheme.bodyLarge?.copyWith(color: AppColors.textMain)
-                ),
-                Text(
-                    "$moduleNr • $credits ECTS",
+                    ),
+                  Text(
+                    "${module.moduleNr} • ${module.credits} ECTS",
                     style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)
-                ),
-              ],
+                    ),
+                ],
+              ),
             ),
             Row(
               children: [
                 IconButton(
-                  onPressed: () => {},
-                  icon: SvgPicture.asset('assets/icons/check-button-green.svg'),
+                  onPressed: onCheck,
+                  icon: SvgPicture.asset('assets/icons/check-button-green.svg'), 
                   style: IconButton.styleFrom(
                     padding: EdgeInsets.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap
-                  ),
+                    ),
                 ),
                 IconButton(
-                  onPressed: () => {},
-                  icon: SvgPicture.asset('assets/icons/trash-red.svg'),
+                  onPressed: onTrash,
+                  icon: SvgPicture.asset('assets/icons/trash-red.svg'), 
                   style: IconButton.styleFrom(
-                  padding: EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap
                   ),
                 )
@@ -314,5 +343,250 @@ class CourseItem extends StatelessWidget {
 }
 
 class PlannerPageViewmodel extends ChangeNotifier {
+  final String userID;
+  final TranscriptRepository _transcriptRepo = TranscriptRepository(); 
+  final UserRepository _userRepo = UserRepository();
+  final CourseSearchRepo _courseRepo = CourseSearchRepo();
 
+  bool isLoading = true;
+  int earnedCredits = 0;
+  int earnedModulesCount = 0; 
+  
+  List<Module> plannedModulesCurrent = [];
+  List<Module> plannedModulesNext = [];
+  
+  List<OverviewCategory> availableCategories = []; 
+
+  int get plannedCurrentCredits => _calculateCredits(plannedModulesCurrent);
+  int get plannedNextCredits    => _calculateCredits(plannedModulesNext);
+  int get totalPlannedCredits   => plannedCurrentCredits + plannedNextCredits;
+  int get totalPlannedCount     => plannedModulesCurrent.length + plannedModulesNext.length;
+
+  int _calculateCredits(List<Module> modules){
+    int sum = 0;
+    for(var module in modules){
+      int credits = int.parse(module.credits);
+      sum += credits;
+    }
+    return sum;
+  }
+
+  PlannerPageViewmodel(this.userID){
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      if(userID.isEmpty) return;
+
+      final userTranscript = await _transcriptRepo.getTranscript(userID);
+      if(userTranscript != null){
+        final dashboardDTO = userTranscriptToDashboardDTO(userTranscript);
+        if(dashboardDTO != null){
+          earnedCredits = dashboardDTO.earnedCredits;
+          earnedModulesCount = dashboardDTO.completedCoursesCount;
+          availableCategories = dashboardDTO.categories;
+        }
+      }
+
+      final plannedmodule = await _userRepo.getPlannedModulesStruct(userID);
+      final currentIDs = plannedmodule['current']!;
+      final nextIDs = plannedmodule['next']!;
+
+      final allModules = await _courseRepo.fetchModules(userID: userID);
+
+      plannedModulesCurrent = allModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
+      plannedModulesNext = allModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
+
+    } catch (e, s) {
+      Log.error("Error loading Planner Data", e, s);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeModule(BuildContext context, Module module) async {
+    await _userRepo.removePlannedModule(userID, module.moduleNr);
+    await _loadData(); 
+    
+    if (!context.mounted) return;
+    StatusMessage.show(
+      context: context,
+      alignment: SnackAlignment.TOP,
+      title: "Success",
+      message: "Removed from Planner",
+      isError: false,
+      duration: Duration(seconds: 2),
+    );
+  }
+
+
+  void showaddModuleDialog(BuildContext context, Module module) {
+    final gradeController = TextEditingController();
+    final dateController = TextEditingController();
+    dateController.text = "${DateTime.now().day.toString().padLeft(2, '0')}.${DateTime.now().month.toString().padLeft(2, '0')}.${DateTime.now().year}";
+
+    String? selectedCategoryId = availableCategories.isNotEmpty ? availableCategories.first.id : null;
+    String? errorText;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            // https://api.flutter.dev/flutter/material/AlertDialog-class.html
+            return AlertDialog(
+              title: Text("Complete Module"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // small titel text
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Text("Enter details for ${module.title}"),
+                    ),
+                    
+                    // Grade Input
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: TextField(
+                        controller: gradeController,
+                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        decoration: InputDecoration(
+                          labelText: "Grade (1.0 - 5.0)",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+
+                    // Exam Date
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 16.0),
+                      child: TextField(
+                        controller: dateController,
+                        readOnly: true, 
+                        decoration: InputDecoration(
+                          labelText: "Exam Date",
+                          border: OutlineInputBorder(),
+                          suffixIcon: Icon(Icons.calendar_today),
+                        ),
+                        onTap: () async {
+                          DateTime? pickedDate = await showDatePicker(   // https://api.flutter.dev/flutter/material/showDatePicker.html TODO IOS style add
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
+                          );
+                          if(pickedDate != null){
+                            setState(() {
+                               dateController.text = "${pickedDate.day.toString().padLeft(2, '0')}.${pickedDate.month.toString().padLeft(2, '0')}.${pickedDate.year}";
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    
+                    DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      initialValue: selectedCategoryId,
+                      decoration: InputDecoration(
+                        labelText: "Transcript Category",
+                        border: OutlineInputBorder(),
+                      ),
+                      items: availableCategories.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat.id, 
+                          child: Text(cat.name)
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => selectedCategoryId = val),
+                    ),
+                    
+                    if(errorText != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Text(
+                          errorText!,
+                          style: TextStyle(color: AppColors.red, fontSize: 13),
+                        ),
+                      )
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context), 
+                  child: Text("Cancel")
+                ),
+                AdaptiveButton(
+                  onPressed: () async {
+                    final gradeText = gradeController.text.replaceAll(',', '.');
+                    final dateText = dateController.text;
+                    final grade = double.tryParse(gradeText);
+
+                    if(grade == null || grade < 1.0 || grade > 5.0 || selectedCategoryId == null || dateText.isEmpty){
+                      setState(() {
+                        errorText = "Please check grade (1.0-5.0), date, and category.";
+                      });
+                      return; 
+                    }
+                    
+                    Navigator.pop(context); 
+                    await _finishModule(context, module, grade, selectedCategoryId!, dateText); 
+                  },
+                  child: Text("Save to Transcript"),
+                )
+              ],
+            );
+          }
+        );
+      }
+    );
+  }
+
+  Future<void> _finishModule(BuildContext context, Module module, double grade, String categoryId, String examDate) async {
+    isLoading = true;
+    notifyListeners();
+
+    bool success = await _userRepo.markModuleAsCompleted(
+      userID: userID,
+      module: module,
+      grade: grade,
+      categoryId: categoryId,
+      examDate: examDate,
+    );
+
+    if(success){
+      await _loadData();
+      
+      if (!context.mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.TOP,
+        title: "Success",
+        message: "Module Completed & Saved",
+        isError: false,
+        duration: Duration(seconds: 3),
+      );
+
+    } else {
+      Log.error("Could not save to transcript");
+      isLoading = false;
+      notifyListeners();
+      
+      if (!context.mounted) return;
+      StatusMessage.show(
+        context: context,
+        alignment: SnackAlignment.CENTER,
+        title: "Error",
+        message: "Could not save to transcript",
+        isError: true,
+      );
+    }
+  }
 }

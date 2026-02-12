@@ -121,4 +121,9 @@ class ClientSession extends ChangeNotifier {
     _newUser = null;
     _newUserPassword = null;
   }
+
+  String? getUserID(){
+    return _session?.userId;
+  }
+
 }

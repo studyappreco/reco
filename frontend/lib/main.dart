@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
@@ -24,18 +24,23 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/ui/GiveFeedback.dart';
 
 
-// Use this instance of clientSession globally
+// Use these instances globally
 final clientSession = ClientSession();
+final transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(
-    ChangeNotifierProvider.value(
-      value: clientSession,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: clientSession),
+        ChangeNotifierProvider.value(value: transcriptProcessor),
+      ],
       child: MyApp(),
-    )
+    ),
   );
 }
 
@@ -60,14 +65,19 @@ final router = GoRouter(
   initialLocation: '/home',
   refreshListenable: clientSession,
 
-  redirect: (context, state) {
+  redirect: (context, state) async {
     final loggedIn = clientSession.isLoggedIn;
     final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
                        state.uri.path.startsWith('/register') ||
                        state.uri.path.startsWith('/onboarding');
 
-    if (!loggedIn && !onAuthFlow) {
+    final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
+
+    if (!loggedIn && !onAuthFlow && isFirstAppStart) {
       return '/onboarding';
+    }
+    if (!loggedIn && !onAuthFlow) {
+      return '/sign-in';
     }
 
     if (loggedIn && onAuthFlow) {
@@ -87,10 +97,6 @@ final router = GoRouter(
       builder: (context, state) => CreateAccountForm(),
       routes: [
         GoRoute(
-          path: '/sign-in',
-          builder: (context, state) => SignInPageForm(),
-        ),
-        GoRoute(
           path: 'specify-degree',
           builder: (context, state) => SpecifyDegreePage(),
           routes: [
@@ -98,9 +104,8 @@ final router = GoRouter(
               path: 'interests',
               builder: (context, state) => InterestSelectionPage(),
               routes: [
-
                 GoRoute(
-                  path: '/upload-transcript',
+                  path: 'upload-transcript',
                   builder: (context, state) => UploadTranscriptPage(),
                 ),
               ]
@@ -108,6 +113,10 @@ final router = GoRouter(
           ]
         ),
       ]
+    ),
+    GoRoute(
+      path: '/sign-in',
+      builder: (context, state) => SignInPageForm()
     ),
 
     ShellRoute(
@@ -121,7 +130,23 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: 'course-details',
-              builder: (context, state) => CourseDetailsPage(),
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
+                ),
+              ],
             ),
           ]
         ),
@@ -132,7 +157,30 @@ final router = GoRouter(
         GoRoute(
           path: '/search',
           builder: (context, state) => SearchPage(),
+          routes: [
+            GoRoute(
+              path: 'course-details',
+              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+              },
+              routes: [
+                GoRoute(
+                  path: 'give-feedback',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
+
         GoRoute(
           path: '/planner',
           builder: (context, state) => PlannerPage(),
@@ -153,7 +201,6 @@ final router = GoRouter(
     ),
   ],
 );
-
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -242,7 +289,11 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CourseDetailsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailsPage(
+                      moduleNr: "400", 
+                    ),
+                  ),
                 );
               },
               child: const Text("Course Details Page"),
