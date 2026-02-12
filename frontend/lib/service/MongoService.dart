@@ -228,7 +228,7 @@ class MongoService {
             .setOnInsert('userID', userID)
             .setOnInsert('username', username)
             .setOnInsert('interests', [])
-            .setOnInsert('planned_modules', [])
+            .setOnInsert('planned_modules', {'current': [], 'next': []})
             .setOnInsert('favorited_modules', []),
         upsert: true,
       );
