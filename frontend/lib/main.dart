@@ -133,7 +133,14 @@ final router = GoRouter(
               routes: [
                 GoRoute(
                   path: 'give-feedback',
-                  builder: (context, state) => const GiveFeedbackPage(),
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
                 ),
               ],
             ),
@@ -156,7 +163,14 @@ final router = GoRouter(
               routes: [
                 GoRoute(
                   path: 'give-feedback',
-                  builder: (context, state) => const GiveFeedbackPage(),
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
                 ),
               ],
             ),

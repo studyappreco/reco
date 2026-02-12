@@ -265,7 +265,14 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => context.push('${GoRouterState.of(context).uri.path}/give-feedback'),
+                                  onPressed: () => context.push(
+                                    '${GoRouterState.of(context).uri.path}/give-feedback',
+                                    extra: {
+                                      'title': vm.module!.title,
+                                      'credits': vm.module!.credits,
+                                      'moduleNr': vm.module!.moduleNr,
+                                    },
+                                  ),
                                   child: Center(
                                     child: Text(
                                       "+ Give Feedback",
