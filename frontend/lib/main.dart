@@ -19,6 +19,7 @@ import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
+import 'package:frontend/ui/FavoritesPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
@@ -172,7 +173,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/favourites',
-          builder: (context, state) => Center(child: Text("The FavouritesPage will be added here later")),
+          builder: (context, state) => FavoritesPage(),
         ),
         GoRoute(
           path: '/feedback',

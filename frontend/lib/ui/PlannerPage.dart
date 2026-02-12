@@ -396,10 +396,11 @@ class PlannerPageViewmodel extends ChangeNotifier {
       final currentIDs = plannedmodule['current']!;
       final nextIDs = plannedmodule['next']!;
 
-      final allModules = await _courseRepo.fetchModules(userID: userID);
+      final allPlannedIDs = [...currentIDs, ...nextIDs];
+      final List<Module> allPlannedModules = await _courseRepo.getModulesByModuleNrs(allPlannedIDs, userID);
 
-      plannedModulesCurrent = allModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
-      plannedModulesNext = allModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
+      plannedModulesCurrent = allPlannedModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
+      plannedModulesNext = allPlannedModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
 
     } catch (e, s) {
       Log.error("Error loading Planner Data", e, s);

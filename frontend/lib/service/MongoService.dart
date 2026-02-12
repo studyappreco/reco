@@ -103,6 +103,28 @@ class MongoService {
       return null;
     }
   }
+
+  Future<List<Map<String, dynamic>>> getModulesByModuleNrs(List<String> moduleNrs) async {
+    if(moduleNrs.isEmpty) return [];
+
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_coursesCollection);
+
+      final List<dynamic> queryParams = [];
+      for(var nr in moduleNrs){
+        queryParams.add(int.tryParse(nr) ?? nr);
+      }
+
+      final List<Map<String, dynamic>> jsonList = await collection.find(where.oneFrom('number', queryParams)).toList();
+
+      Log.info("Loaded ${jsonList.length} modules from DB");
+      return jsonList;
+    } catch (e, s) {
+      Log.error("Error loading modules from DB", e, s);
+      rethrow;
+    }
+  }
   
   // updates the status (planned/favorite) by adding or removing the module
   Future<void> toggleModuleState(String userID, String moduleNr, String fieldName, {String? category}) async {
