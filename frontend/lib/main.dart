@@ -258,6 +258,15 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OnboardingPage()),
+                            );
+                          }, 
+                          child: const Text("Onboarding Flow"),
+                        ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
