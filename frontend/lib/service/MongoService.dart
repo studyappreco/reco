@@ -109,13 +109,14 @@ class MongoService {
       final db = await _getDb();
       final collection = db.collection(_userDetailsCollection);
       final user = await collection.findOne(where.eq('userID', userID));
-      if(user == null){
+      if (user == null) {
         return null;
       }
       return UserDetails.fromJson(user);
     } catch (e, s) {
       return null;
     }
+  }
     
   Future<List<Map<String, dynamic>>> getModulesByModuleNrs(List<String> moduleNrs) async {
     if(moduleNrs.isEmpty) return [];
