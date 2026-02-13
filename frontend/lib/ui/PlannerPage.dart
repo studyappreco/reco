@@ -380,8 +380,9 @@ class PlannerPageViewmodel extends ChangeNotifier {
       if(userID.isEmpty) return;
 
       final userTranscript = await _transcriptRepo.getTranscript(userID);
+      final userDetails = await _userRepo.getUserDetails(userID);
       if(userTranscript != null){
-        final dashboardDTO = userTranscriptToDashboardDTO(userTranscript);
+        final dashboardDTO = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
         if(dashboardDTO != null){
           earnedCredits = dashboardDTO.earnedCredits;
           earnedModulesCount = dashboardDTO.completedCoursesCount;

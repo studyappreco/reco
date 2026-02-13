@@ -243,7 +243,8 @@ class HomePageViewmodel extends ChangeNotifier {
     }
 
     final userTranscript = await repo.getTranscript(userId);
-    final dto = userTranscriptToDashboardDTO(userTranscript);
+    final userDetails = await userRepo.getUserDetails(userId);
+    final dto = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
     if (dto == null) {
       _loading = false;
       notifyListeners();

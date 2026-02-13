@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseOverview.dart';
@@ -300,6 +301,7 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
   Future<void> _init() async {
   _loading = true;
   final repo = TranscriptRepository();
+  final userRepo = UserRepository();
   final userId = clientSession.session?.userId;
   if (userId == null) {
   _loading = false;
@@ -308,7 +310,8 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
   }
 
   final userTranscript = await repo.getTranscript(userId);
-  final dto = userTranscriptToDashboardDTO(userTranscript);
+  final userDetails = await userRepo.getUserDetails(userId);
+  final dto = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
   if (dto == null) {
   _loading = false;
   notifyListeners();

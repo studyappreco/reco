@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:frontend/models/TranscriptDocument.dart';
+import 'package:frontend/models/UserDetails.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:mongo_dart/mongo_dart.dart' hide Log;
@@ -41,7 +42,6 @@ class MongoService {
     final collection = db.collection(_transcriptsCollection);
 
     final userTranscript = UserTranscript(
-      programLiteral: programLiteral,
       userID: userID,
       transcript: transcript,
     );
@@ -104,6 +104,19 @@ class MongoService {
     }
   }
 
+  Future<UserDetails?> getUserDetails (String userID) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      final user = await collection.findOne(where.eq('userID', userID));
+      if(user == null){
+        return null;
+      }
+      return UserDetails.fromJson(user);
+    } catch (e, s) {
+      return null;
+    }
+    
   Future<List<Map<String, dynamic>>> getModulesByModuleNrs(List<String> moduleNrs) async {
     if(moduleNrs.isEmpty) return [];
 

@@ -69,8 +69,8 @@ class Module {
   }) {
     
     List<ChipType> parsedTags = [];
-    if(map['Keywords'] != null){
-      parsedTags = (map['Keywords'] as List).map((tag){
+    if(map['keywords'] != null){
+      parsedTags = (map['keywords'] as List).map((tag){
         return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
     }
 

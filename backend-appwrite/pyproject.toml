@@ -13,4 +13,6 @@ dependencies = [
     "pymongo[srv]>=4.16.0",
     "requests>=2.32.5",
     "selenium>=4.40.0",
+    "pydantic-ai>=1.57.0",
+    "httpx>=0.28.1",
 ]

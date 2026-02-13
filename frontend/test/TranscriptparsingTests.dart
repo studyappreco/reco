@@ -28,7 +28,7 @@ void main() async {
       debugPrint('ISM Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "ISM", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 51);
@@ -47,7 +47,7 @@ void main() async {
       debugPrint('CS Master Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_M", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 24);
@@ -66,7 +66,7 @@ void main() async {
       debugPrint('CS Bachelor Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_B", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 123);

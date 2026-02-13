@@ -221,4 +221,22 @@ class CourseSearchRepo {
 
     return filteredList;
   }
+
+  Future<List<Module>> getAllCoursesForStupo (String programLiteral, String userID) async {
+
+    const mapping_literal_largeword = {
+      "ISM" : 'Information Systems Management (Wirtschaftsinformatik) (M. Sc.)',
+      "CS_M" : 'Computer Science (Informatik) (M. Sc.)',
+      "CS_B" : 'Informatik (B. Sc.)'
+    };
+    var longStupoName = mapping_literal_largeword[programLiteral];
+    if(_allModules.isEmpty){
+      await fetchModules(userID: userID);
+    }
+    final modulesForStupo = _allModules.where((module) =>
+      module.assignedDegrees.any((degree) => degree['program'] == longStupoName)
+    ).toList();
+    Log.info("Found ${modulesForStupo.length} modules for $programLiteral");
+    return modulesForStupo;
+  }
 }
