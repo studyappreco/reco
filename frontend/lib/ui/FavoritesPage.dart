@@ -4,7 +4,6 @@ import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
 import 'package:frontend/utils/logger.dart';
@@ -25,9 +24,7 @@ class FavoritesPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: AdaptiveSearchField(
-            onChanged: (str) {},
-          ),
+          title: Text("Favourites"),
         ),
         backgroundColor: colorScheme.surface,
 
