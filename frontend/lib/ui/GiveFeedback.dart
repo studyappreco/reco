@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:frontend/theme/colors.dart';
 
 class GiveFeedbackPage extends StatefulWidget {
-  const GiveFeedbackPage({super.key});
+  final String title;
+  final String credits;
+  final String moduleNr;
+
+  const GiveFeedbackPage({super.key, required this.title, required this.credits, required this.moduleNr});
 
   @override
   State<GiveFeedbackPage> createState() => _GiveFeedbackPageState();
@@ -68,14 +72,18 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== Header (manual for now) =====
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Algorithm", style: textTheme.headlineSmall),
-                    Text("6", style: textTheme.headlineSmall),
+                    Flexible(
+                      child: Text(widget.title, style: textTheme.headlineSmall),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(widget.credits, style: textTheme.headlineSmall),
+                    ),
                   ],
                 ),
               ),
@@ -83,7 +91,7 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "CS201",
+                    widget.moduleNr,
                     style: textTheme.titleMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),

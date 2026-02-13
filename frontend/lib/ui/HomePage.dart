@@ -1,10 +1,11 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
-import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
 import 'package:frontend/ui/widgets/CourseCard/CourseCard.dart';
 import 'package:frontend/ui/widgets/CourseOverview.dart';
 import 'package:go_router/go_router.dart';
@@ -25,9 +26,23 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: AdaptiveSearchField(
-            onChanged: (str) {},
-          ),
+          title: Text("Dashboard"),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                Client? client = BackendClient.getBackendClient();
+                if (client == null) {
+                  clientSession.clearUserSession();
+                  return;
+                }
+                Account account = Account(client);
+                await account.deleteSession(sessionId: 'current');
+                clientSession.clearUserSession();
+              },
+              iconSize: 30,
+              icon: Icon(Icons.account_circle_outlined)
+            )
+          ],
         ),
         backgroundColor: colorScheme.surface,
         body: Consumer<HomePageViewmodel>(

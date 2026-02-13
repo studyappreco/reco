@@ -19,12 +19,14 @@ import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
+import 'package:frontend/ui/FavoritesPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
+
 
 // Use these instances globally
 final clientSession = ClientSession();
@@ -136,7 +138,14 @@ final router = GoRouter(
               routes: [
                 GoRoute(
                   path: 'give-feedback',
-                  builder: (context, state) => const GiveFeedbackPage(),
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
                 ),
               ],
             ),
@@ -159,7 +168,14 @@ final router = GoRouter(
               routes: [
                 GoRoute(
                   path: 'give-feedback',
-                  builder: (context, state) => const GiveFeedbackPage(),
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return GiveFeedbackPage(
+                      title: extra?["title"] ?? "",
+                      credits: extra?["credits"] ?? "",
+                      moduleNr: extra?["moduleNr"] ?? "",
+                    );
+                  },
                 ),
               ],
             ),
@@ -172,7 +188,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/favourites',
-          builder: (context, state) => Center(child: Text("The FavouritesPage will be added here later")),
+          builder: (context, state) => FavoritesPage(),
         ),
         GoRoute(
           path: '/feedback',
