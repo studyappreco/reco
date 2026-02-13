@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/models/TranscriptDocument.dart';
+import '../models/Module.dart';
 
 
 const _csMasterPrompt = """
@@ -121,6 +122,10 @@ class OpenAIService {
   final String apiKey;
 
   OpenAIService(this.apiKey);
+
+  Future<List<Module>?> KnnQueryForCourses(String userID) async {
+        return null;
+  }
 
   /// Returns null if the model refused, returned null (invalid input), or an error occurred
   Future<TranscriptDocument?> parseTranscriptPdf(File pdfFile, String programLiteral) async {

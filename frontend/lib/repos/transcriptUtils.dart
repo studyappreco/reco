@@ -74,9 +74,9 @@ abstract class Transcript {
   }
 }
 
-DashboardDTO? userTranscriptToDashboardDTO(UserTranscript? userTranscript) {
-  if (userTranscript == null) return null;
-  switch (userTranscript.programLiteral) {
+DashboardDTO? userTranscriptToDashboardDTO(UserTranscript? userTranscript, String? programLiteral) {
+  if (userTranscript == null || programLiteral == null) return null;
+  switch (programLiteral) {
     case "ISM":
       return ISMTranscript().createDashboardDTO(userTranscript);
     case "CS_B":
