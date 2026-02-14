@@ -3,8 +3,8 @@ import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserDetails.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/ui/utils/auth.dart';
-import 'package:mongo_dart/mongo_dart.dart' hide Log;
-import 'package:frontend/utils/logger.dart';
+import 'package:mongo_dart/mongo_dart.dart';
+import 'package:frontend/utils/RecoLog.dart';
 
 /*
 * After the MVVM pattern:
@@ -74,12 +74,12 @@ class MongoService {
 
       final List<Map<String, dynamic>> jsonList = await collection.find().toList();
 
-      Log.info("Loaded ${jsonList.length} courses from DB");
+      RecoLog.info("Loaded ${jsonList.length} courses from DB");
 
       return jsonList;
 
     } catch (e, s) {
-      Log.error("Error loading modules from DB", e, s);
+      RecoLog.error("Error loading modules from DB", e, s);
       rethrow; 
     }
   }
@@ -93,13 +93,13 @@ class MongoService {
       final doc = await collection.findOne(where.eq('number', queryParam));
 
       if(doc == null){
-        Log.warning("Module search: Module '$moduleNr' not found in DB");
+        RecoLog.warning("Module search: Module '$moduleNr' not found in DB");
         return null;
       }
 
       return doc;
     } catch (e, s) {
-      Log.error("Error loading module $moduleNr", e, s);
+      RecoLog.error("Error loading module $moduleNr", e, s);
       return null;
     }
   }
@@ -132,10 +132,10 @@ class MongoService {
 
       final List<Map<String, dynamic>> jsonList = await collection.find(where.oneFrom('number', queryParams)).toList();
 
-      Log.info("Loaded ${jsonList.length} modules from DB");
+      RecoLog.info("Loaded ${jsonList.length} modules from DB");
       return jsonList;
     } catch (e, s) {
-      Log.error("Error loading modules from DB", e, s);
+      RecoLog.error("Error loading modules from DB", e, s);
       rethrow;
     }
   }
@@ -157,7 +157,7 @@ class MongoService {
       // if user does not yet exist (should not happen)
       // TODO Remove this after it is done during the creation of the new account
       if(user == null){
-        Log.warning("User details for $userID not found! Creating new entry.");
+        RecoLog.warning("User details for $userID not found! Creating new entry.");
 
         var initialData = {
           'userID': userID,
@@ -212,7 +212,7 @@ class MongoService {
       }
 
     } catch (e, s) {
-      Log.error("Error toggling module state ($fieldName) for user $userID", e, s);
+      RecoLog.error("Error toggling module state ($fieldName) for user $userID", e, s);
       rethrow;
     }
   }
@@ -226,7 +226,7 @@ class MongoService {
         modify.set('interests', newInterests),
       );
     } catch (e, s) {
-      Log.error("Error updating interests for user $userID", e, s);
+      RecoLog.error("Error updating interests for user $userID", e, s);
       rethrow;
     }
   }
@@ -247,7 +247,7 @@ class MongoService {
         upsert: true,
       );
     } catch (e, s) {
-      Log.error("Error creating user details for user $userID", e, s);
+      RecoLog.error("Error creating user details for user $userID", e, s);
       rethrow;
     }
   }
@@ -267,7 +267,7 @@ class MongoService {
         'next': List<String>.from(planned['next']),
       };
     } catch (e, s) {
-      Log.error("Error fetching planned structure", e, s);
+      RecoLog.error("Error fetching planned structure", e, s);
       return {'current': [], 'next': []};
     }
   }
@@ -285,7 +285,7 @@ class MongoService {
       if(doc == null) return [];
       return List<String>.from(doc['favorited_modules'] ?? []);
     } catch (e, s) {
-      Log.error("Error fetching favorites", e, s);
+      RecoLog.error("Error fetching favorites", e, s);
       return [];
     }
   }
@@ -298,7 +298,7 @@ class MongoService {
       if (doc == null) return [];
       return List<String>.from(doc['interests'] ?? []);
     } catch (e, s) {
-      Log.error("Error fetching interests", e, s);
+      RecoLog.error("Error fetching interests", e, s);
       return [];
     }
   }
@@ -310,7 +310,7 @@ class MongoService {
       if (doc == null) return null;
       return doc['username'] as String?;
     } catch (e, s) {
-      Log.error("Error fetching username for user $userID", e, s);
+      RecoLog.error("Error fetching username for user $userID", e, s);
       return null;
     }
   }
@@ -336,7 +336,7 @@ class MongoService {
 
       await collection.update(where.eq('userID', userID), modify.set('planned_modules', planned));
     } catch (e, s) {
-      Log.error("Error removing planned module", e, s);
+      RecoLog.error("Error removing planned module", e, s);
     }
   }
 

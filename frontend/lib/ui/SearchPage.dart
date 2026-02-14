@@ -10,7 +10,7 @@ import 'package:frontend/models/Module.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:go_router/go_router.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/utils/RecoLog.dart';
 
 // Enum for the possible sorting options
 enum SortOption { bestMatch, ratingHigh, ratingCount, ectsHigh, ectsLow }
@@ -55,7 +55,7 @@ class _SearchPageState extends State<SearchPage> {
     final userID = context.read<ClientSession>().getUserID();
     
     if(userID == null){
-      Log.error("Favorite Toggle failed: UserID is null");
+      RecoLog.error("Favorite Toggle failed: UserID is null");
       if(!mounted) return;
       StatusMessage.show(
         context: context,
@@ -76,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
     try {
       await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
     } catch (e, s) {
-      Log.error("Error saving favorite", e, s);
+      RecoLog.error("Error saving favorite", e, s);
       
       if(!mounted) return; 
       setState(() => module.isFavorite = !module.isFavorite);
@@ -95,7 +95,7 @@ class _SearchPageState extends State<SearchPage> {
     final userID = context.read<ClientSession>().getUserID();
 
     if(userID == null){
-      Log.error("Planner Toggle failed: UserID is null");
+      RecoLog.error("Planner Toggle failed: UserID is null");
       if(!mounted) return;
       StatusMessage.show(
         context: context,
@@ -114,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
         await UserRepository().removePlannedModule(userID, module.moduleNr);
 
       } catch (e, s) {
-        Log.error("Error removing planner", e, s);
+        RecoLog.error("Error removing planner", e, s);
         setState(() => module.isPlanned = true); 
         
         if(!mounted) return;
@@ -166,7 +166,7 @@ class _SearchPageState extends State<SearchPage> {
     try {
       await UserRepository().togglePlannedModule(userID, module.moduleNr, isCurrent);
     } catch (e, s) {
-      Log.error("Planner save error", e, s);
+      RecoLog.error("Planner save error", e, s);
       setState(() => module.isPlanned = false);
       
       if(!mounted) return;
@@ -186,7 +186,7 @@ class _SearchPageState extends State<SearchPage> {
     final String? userID = context.read<ClientSession>().getUserID();
 
     if(userID == null){
-      Log.error("Error: No User ID found in session during _loadData");
+      RecoLog.error("Error: No User ID found in session during _loadData");
       if(mounted){
         StatusMessage.show(
             context: context,
@@ -228,7 +228,7 @@ class _SearchPageState extends State<SearchPage> {
         });
       }
     } catch (e, s) {
-      Log.error("Error fetching modules", e, s);
+      RecoLog.error("Error fetching modules", e, s);
       
       if(mounted){
         StatusMessage.show(

@@ -2,7 +2,7 @@ import 'package:logger/logger.dart';
 
 // https://pub.dev/packages/logger#-readme-tab-
 
-class Log {
+class RecoLog {
   // Logger configuration (I took it from the readme, we can adjust it if desired)
   static final Logger _logger = Logger(
     printer: PrettyPrinter(

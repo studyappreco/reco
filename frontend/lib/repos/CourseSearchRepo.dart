@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/Module.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/ui/SearchPage.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/utils/RecoLog.dart';
 
 class CourseSearchRepo {
   final MongoService _mongoService = MongoService();
@@ -13,10 +13,10 @@ class CourseSearchRepo {
     if(_allModules.isNotEmpty){
       try {
         final moduleFromCache = _allModules.firstWhere((m) => m.moduleNr == moduleNr);
-        Log.info("Module $moduleNr found in cache");
+        RecoLog.info("Module $moduleNr found in cache");
         return moduleFromCache;
       } catch (e) {
-        Log.info("Module $moduleNr not in cache. Fetching from DB...");
+        RecoLog.info("Module $moduleNr not in cache. Fetching from DB...");
       }
     }
     
@@ -28,7 +28,7 @@ class CourseSearchRepo {
       final planned = await _mongoService.getAllPlannedModuleNrs(userID);
 
       if(jsonmodule == null) {
-        Log.warning("Module $moduleNr not found in Database");
+        RecoLog.warning("Module $moduleNr not found in Database");
         return null;
       }
 
@@ -39,7 +39,7 @@ class CourseSearchRepo {
       );
 
     } catch (e, s) {
-      Log.error("Repository Error fetching module $moduleNr", e, s);
+      RecoLog.error("Repository Error fetching module $moduleNr", e, s);
       rethrow; 
     }
   }
@@ -60,7 +60,7 @@ class CourseSearchRepo {
         );
       }).toList();
     } catch (e, s) {
-      Log.error("Error inside fetchSpecificModules", e, s);
+      RecoLog.error("Error inside fetchSpecificModules", e, s);
       rethrow;
     }
   }
@@ -72,7 +72,7 @@ class CourseSearchRepo {
 
       // first, we fetch all modules if we don't already have them or if forcerefersh == true
       if(_allModules.isEmpty || forceRefresh){
-        Log.info("Fetching raw modules from DB...");
+        RecoLog.info("Fetching raw modules from DB...");
         final List<Map<String, dynamic>> jsonmodules = await _mongoService.getAllModules();
         
         // creating the module list without the user specific data (favorite, planned)
@@ -91,11 +91,11 @@ class CourseSearchRepo {
         module.isPlanned = planned.contains(module.moduleNr);
       }
 
-      Log.info("Modules loaded: ${_allModules.length}");
+      RecoLog.info("Modules loaded: ${_allModules.length}");
       return _allModules;
 
     } catch (e, s) {
-      Log.error("Error inside fetchModules", e, s);
+      RecoLog.error("Error inside fetchModules", e, s);
       rethrow; 
     }
   }
@@ -200,7 +200,7 @@ class CourseSearchRepo {
       return matchesText && matchesExamType && matchesEcts && matchesRating && matchesTags && matchesTerm && matchesLanguage;
     }).toList();
 
-    // Sorting Logic (https://stackoverflow.com/questions/53547997/sort-a-list-of-objects-in-flutter-dart-by-property-value)
+    // Sorting RecoLogic (https://stackoverflow.com/questions/53547997/sort-a-list-of-objects-in-flutter-dart-by-property-value)
     switch (sortOption) {
       case SortOption.bestMatch:
         filteredList.sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage)); 
@@ -236,7 +236,7 @@ class CourseSearchRepo {
     final modulesForStupo = _allModules.where((module) =>
       module.assignedDegrees.any((degree) => degree['program'] == longStupoName)
     ).toList();
-    Log.info("Found ${modulesForStupo.length} modules for $programLiteral");
+    RecoLog.info("Found ${modulesForStupo.length} modules for $programLiteral");
     return modulesForStupo;
   }
 }

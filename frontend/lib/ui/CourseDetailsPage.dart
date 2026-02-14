@@ -11,7 +11,7 @@ import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AnimatedIconButton.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseDetailsPage extends StatelessWidget {
@@ -396,7 +396,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
 
     // should not be empty
     if(userID.isEmpty){
-        Log.error("UserID is empty");
+      RecoLog.error("UserID is empty");
         errorMessage = "UserID is empty";
         isLoading = false;
         notifyListeners();
@@ -406,14 +406,14 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     try{
       module = await CourseSearchRepo().getModuleByNumber(moduleNr, userID);
       if(module == null){
-        Log.warning("Module $moduleNr not found");
+        RecoLog.warning("Module $moduleNr not found");
         errorMessage = "Module with ID $moduleNr not found.";
       } else {
-        Log.info("Module ${module!.title} loaded successfully");
+        RecoLog.info("Module ${module!.title} loaded successfully");
       }
 
     } catch (e, s){
-      Log.error("Error loading module $moduleNr", e, s);
+      RecoLog.error("Error loading module $moduleNr", e, s);
       errorMessage = "Error loading module: $e";
       module = null;
     } finally{
@@ -425,16 +425,16 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
   Future<void> togglePlanned(BuildContext context) async {
     
     if(module == null){
-      Log.error("Cannot toggle planned. Module is null");
+      RecoLog.error("Cannot toggle planned. Module is null");
       return;
     }
     if(userID.isEmpty){
-      Log.error("Cannot toggle planned. UserID is empty");
+      RecoLog.error("Cannot toggle planned. UserID is empty");
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,
-        title: "Login Required",
-        message: "You must be logged in.",
+        title: "RecoLogin Required",
+        message: "You must be RecoLogged in.",
         isError: true,
       );
       return;
@@ -445,11 +445,11 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       notifyListeners(); 
       try {
         await _userRepo.removePlannedModule(userID, moduleNr);
-        Log.info("Planned status removed from DB");
+        RecoLog.info("Planned status removed from DB");
         
 
       } catch (e, s) {
-        Log.error("DB Error removing plan:", e, s);
+        RecoLog.error("DB Error removing plan:", e, s);
         module!.isPlanned = true;
         notifyListeners();
         
@@ -466,7 +466,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       showDialog(
         context: context,
         builder: (context) {
-          // https://api.flutter.dev/flutter/material/SimpleDialog-class.html
+          // https://api.flutter.dev/flutter/material/SimpleDiaRecoLog-class.html
           return SimpleDialog(
             title: Text("Add to Planner"),
             children: [
@@ -498,11 +498,11 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     notifyListeners();
     try {
       await _userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
-      Log.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
+      RecoLog.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
       
 
     } catch (e, s) {
-       Log.error("DB Error adding plan:", e, s);
+       RecoLog.error("DB Error adding plan:", e, s);
        module!.isPlanned = false;
        notifyListeners();
        
@@ -520,15 +520,15 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
   Future<void> toggleFavorite(BuildContext context) async {
 
     if(module == null){
-      Log.error("Cannot toggle favorite. Module is null");
+      RecoLog.error("Cannot toggle favorite. Module is null");
       return;
     }
     if(userID.isEmpty){
       StatusMessage.show(
         context: context,
         alignment: SnackAlignment.CENTER,
-        title: "Login Required",
-        message: "You must be logged in.",
+        title: "RecoLogin Required",
+        message: "You must be RecoLogged in.",
         isError: true,
       );
       return;
@@ -538,11 +538,11 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
 
     try {
       await _userRepo.toggleFavoriteModule(userID, moduleNr);
-      Log.info("Favorite status updated in DB");
+      RecoLog.info("Favorite status updated in DB");
       
 
     } catch (e, s) {
-      Log.error("DB Error:", e, s);
+      RecoLog.error("DB Error:", e, s);
       module!.isFavorite = !module!.isFavorite;
       notifyListeners();
       

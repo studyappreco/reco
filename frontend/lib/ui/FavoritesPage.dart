@@ -6,7 +6,7 @@ import 'package:frontend/theme/colors.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -335,9 +335,9 @@ class FavoritesPageViewmodel extends ChangeNotifier {
     try {
       final favoriteIDs = await _userRepo.getFavoriteModuleNrs(userID);
       favoriteModules = await _courseRepo.getModulesByModuleNrs(favoriteIDs, userID);
-      Log.info("Loaded ${favoriteModules.length} favorites");
+      RecoLog.info("Loaded ${favoriteModules.length} favorites");
     } catch (e, s) {
-      Log.error("Error loading favorites", e, s);
+      RecoLog.error("Error loading favorites", e, s);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -356,7 +356,7 @@ class FavoritesPageViewmodel extends ChangeNotifier {
     try {
       await _userRepo.toggleFavoriteModule(userID, module.moduleNr);
     } catch (e, s) {
-      Log.error("Error removing favorite", e, s);
+      RecoLog.error("Error removing favorite", e, s);
       
       // if removal did not work, add the module again
       module.isFavorite = true;
