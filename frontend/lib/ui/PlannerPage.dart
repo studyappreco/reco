@@ -8,7 +8,7 @@ import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
@@ -401,7 +401,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
       plannedModulesNext = allPlannedModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
 
     } catch (e, s) {
-      Log.error("Error loading Planner Data", e, s);
+      RecoLog.error("Error loading Planner Data", e, s);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -574,7 +574,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
       );
 
     } else {
-      Log.error("Could not save to transcript");
+      RecoLog.error("Could not save to transcript");
       isLoading = false;
       notifyListeners();
       
