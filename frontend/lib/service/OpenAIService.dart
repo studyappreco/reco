@@ -11,6 +11,21 @@ const EMBEDDING_MODEL = "text-embedding-3-small";
 const TRANSCRIPT_PARSING_SYSTEM_PROMPT =
     "You are an expert at converting university transcripts into structured tree based JSON formats.";
 
+final _rankingOutputSchema = {
+  "\$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RankedCandidates",
+  "type": "object",
+  "required": ["module_numbers"],
+  "additionalProperties": false,
+  "properties": {
+    "module_numbers": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of recommended module numbers in ranked order",
+    },
+  },
+};
+
 final jsonSchema = {
   "\$schema": "http://json-schema.org/draft-07/schema#",
   "title": "TranscriptDocument",
@@ -122,12 +137,61 @@ class OpenAIService {
     }
 
     // Extract text from response: output[0].content[0].text
-    final outputText = (response.output as List?)
-        ?.firstWhere((item) => item['type'] == 'message', orElse: () => null)
-        ?['content']?[0]?['text'] as String?;
+    final outputText =
+        (response.output as List?)?.firstWhere(
+              (item) => item['type'] == 'message',
+              orElse: () => null,
+            )?['content']?[0]?['text']
+            as String?;
 
     if (outputText == null) return null;
 
     return TranscriptDocument.fromJson(jsonDecode(outputText));
+  }
+
+  Future<List<String>?> candidateRankingPromptExecution(
+    List<String> examsTaken,
+    List<String> interests,
+    List<Module> candidates,
+    int k,
+  ) async {
+    final prompt = createCandidateRankingPrompt(
+      examsTaken,
+      interests,
+      candidates,
+      k,
+    );
+
+    final response = await OpenAI.instance.responses.create(
+      model: "gpt-5",
+      input: [
+        {"role": "user", "content": prompt},
+      ],
+      text: {
+        "format": {
+          "type": "json_schema",
+          "name": "ranked_candidates",
+          "strict": true,
+          "schema": _rankingOutputSchema,
+        },
+      },
+    );
+
+    if (response.status != OpenAiResponseStatus.completed) {
+      RecoLog.error("Candidate ranking request came back not completed");
+      return null;
+    }
+
+    final outputText =
+        (response.output as List?)?.firstWhere(
+              (item) => item['type'] == 'message',
+              orElse: () => null,
+            )?['content']?[0]?['text']
+            as String?;
+
+    if (outputText == null) return null;
+
+    final parsed = jsonDecode(outputText) as Map<String, dynamic>;
+    return List<String>.from(parsed['module_numbers'] ?? []);
   }
 }

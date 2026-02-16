@@ -452,4 +452,21 @@ class MongoService {
 
     return matchedModuleNrs;
   }
+
+  Future<void> updateRankedCandidates(
+    String userID,
+    List<String> rankedCandidates,
+  ) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set('recommended_modules', rankedCandidates),
+      );
+    } catch (e, s) {
+      RecoLog.error("Error updating ranked candidates for user $userID", e, s);
+      rethrow;
+    }
+  }
 }

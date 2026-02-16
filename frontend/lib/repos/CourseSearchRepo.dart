@@ -260,7 +260,7 @@ class CourseSearchRepo {
     return filteredList;
   }
 
-  Future<List<Module>> getAllCoursesForStupo(
+  Future<List<String>> getAllCoursesForStupo(
     String programLiteral,
     String userID,
   ) async {
@@ -273,7 +273,7 @@ class CourseSearchRepo {
           (module) => module.assignedDegrees.any(
             (degree) => degree['program'] == longStupoName,
           ),
-        )
+        ).map((x) => x.id)
         .toList();
     RecoLog.info("Found ${modulesForStupo.length} modules for $programLiteral");
     return modulesForStupo;

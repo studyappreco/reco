@@ -1,4 +1,4 @@
-
+import '../models/Module.dart';
 
 const _csMasterPrompt = """
 Extract all completed and failed exams from this transcript into a structured format.
@@ -109,7 +109,6 @@ String getUserdetailsEmbeddingPrompt(List<String> interests, String program) {
   """;
 }
 
-
 String getProgramPrompt(String programLiteral) {
   return switch (programLiteral) {
     'ISM' => _ismPrompt,
@@ -119,3 +118,40 @@ String getProgramPrompt(String programLiteral) {
   };
 }
 
+String createCandidateRankingPrompt(
+  List<String> examsTaken,
+  List<String> interests,
+  List<Module> candidates,
+  int k,
+) {
+  final modulesFormatted = candidates.map((m) => '''
+- ${m.title} (${m.moduleNr})
+  ECTS: ${m.credits}
+  Content: ${m.learnContent ?? 'N/A'}
+  Learning Outcomes: ${m.learnResult ?? 'N/A'}''').join('\n');
+
+  return """
+You are a university course recommendation system.
+
+## Student Profile
+
+Courses already taken:
+${examsTaken.map((e) => '- $e').join('\n')}
+
+Interests:
+${interests.map((i) => '- $i').join('\n')}
+
+## Available Courses
+
+$modulesFormatted
+
+## Task
+
+Recommend the top $k courses that best match this student's profile based on:
+1. Their academic background (courses taken)
+2. Their stated interests
+3. Logical course progression
+
+Return ONLY the module numbers of your top $k recommendations, one per line.
+""";
+}
