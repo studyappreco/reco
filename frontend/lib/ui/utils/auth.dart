@@ -62,7 +62,7 @@ class DbCLient {
         final uri = Uri.parse(MONGO_URI!);
         final dbUri = uri.replace(path: '/$_databaseName').toString();
         mongoDB = await Db.create(dbUri);
-        await mongoDB?.open();
+        await mongoDB?.open(secure: true);
         if (mongoDB?.isConnected == true) {
           debugPrint('[DbClient] MongoDB connected successfully');
           return mongoDB;

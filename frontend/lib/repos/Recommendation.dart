@@ -36,15 +36,20 @@ class Recommendation {
      // TODO : add fuzzy search here..... how do we handle english and german names on the transcript?
      var filter_based_on_transcript = allCoursesinStupo.where((x) => !all_courses_in_transcript.any((y) => y.courseName == x.title));
      RecoLog.info("Found ${filter_based_on_transcript.length} candidates");
+
+
      // TODO: filter out all courses that are able to take based on the
      return filter_based_on_transcript.toList();
   }
 
-  Future<List<Module>?> candidate_ranking() async {
+  Future<List<Module>?> candidate_ranking(List<String> a) async {
     // each user should have one embedding: this embedding contains the
     // embed the
 
   }
+
+
+
 
   List<TranscriptCourse> getAllTranscriptcourses(UserTranscript userTranscript) {
     var res = <TranscriptCourse>[];

@@ -1,8 +1,8 @@
-
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/repos/Recommendation.dart';
+import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/utils/RecoLog.dart';
 
@@ -15,15 +15,15 @@ void main() {
     });
 
     test("Test ISM Master Transcript 1", () async {
-        String userID =  "695f8904bcac7f16a725";
-        var rec = Recommendation();
-        var candidates = await rec.candicate_generation(userID);
-        RecoLog.info("Got ${candidates?.length} candidates");
-        RecoLog.info(candidates);
+      String userID = "695f8904bcac7f16a725";
+      var rec = Recommendation();
+      var candidates = await rec.candicate_generation(userID);
+      RecoLog.info("Got ${candidates?.length} candidates");
+      RecoLog.info(candidates);
     });
 
     test("Test CS Master Transcript 1", () async {
-      String userID =  "696fc7786cc80f940621";
+      String userID = "696fc7786cc80f940621";
       var rec = Recommendation();
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -31,7 +31,7 @@ void main() {
     });
 
     test("Test ISM Master Transcript 2", () async {
-      String userID =  "697fcca16cb5002817b1";
+      String userID = "697fcca16cb5002817b1";
       var rec = Recommendation();
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -39,7 +39,7 @@ void main() {
     });
 
     test("Test CS bachelor transcript", () async {
-      String userID =  "6967699402af64b787c3";
+      String userID = "6967699402af64b787c3";
       var rec = Recommendation();
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -55,12 +55,79 @@ void main() {
     });
 
     test("create userdetail embedding", () async {
-       var service = OpenAIService();
-       var programLiteral = "ISM";
-       var interests = ["Blockchain", "Machine Learning"];
-       var embedding = await  service.embedUserdetails(interests, programLiteral);
-       expect(embedding , isNotNull);
-       expect(embedding?.length, 1536);
+      var service = OpenAIService();
+      var programLiteral = "ISM";
+      var interests = ["Blockchain", "Machine Learning"];
+      var embedding = await service.embedUserdetails(interests, programLiteral);
+      expect(embedding, isNotNull);
+      expect(embedding?.length, 1536);
     });
+  });
+
+  group("Test KNN mongo vector query", () {
+    setUpAll(() async {
+      await dotenv.load(fileName: '.env');
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+      OpenAI.requestsTimeOut = const Duration(minutes: 3);
+    });
+
+    test("Query for embedding", () async {
+      var service = OpenAIService();
+      var mongoService = MongoService();
+      var programLiteral = "ISM";
+      var interests = ["Blockchain", "Machine Learning"];
+      var embedding = await service.embedUserdetails(interests, programLiteral);
+      if (embedding == null) {
+        print("embedding was null");
+      }
+      var res = await mongoService.vectorSearchCourses(
+        queryVector: embedding!,
+        candidateModules: ["40009", "40021", "40036"],
+      );
+      print(res);
+    });
+
+    group("Fuzzy match the exams on the transcript with the course titles", () {
+        setUpAll(() async {
+          await dotenv.load(fileName: '.env');
+          OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+          OpenAI.requestsTimeOut = const Duration(minutes: 3);
+        });
+
+        test("test two similar names", () async {
+          var mongoService = MongoService();
+          var examNamesToTest = [
+            "Natural Language Processing",
+            "Blockchain-Technologie und Dezentrale Anwendungen",
+          ];
+          var expectedModulesNrs = ["41047", "40888"];
+
+          var matchedModules = await mongoService.fuzzyMatchExamNames(examNamesToTest);
+          print("Matched modules: $matchedModules");
+
+          expect(matchedModules.length, expectedModulesNrs.length);
+          for (var i = 0; i < expectedModulesNrs.length; i++) {
+            expect(matchedModules[i], expectedModulesNrs[i]);
+          }
+        });
+
+        test("test two non-similar names", () async {
+          var mongoService = MongoService();
+          var examNamesToTest = [
+            "Natural Language",
+            "Blockchain-Technologie und Dezentrale",
+          ];
+          var expectedModulesNrs = ["41047", "40888"];
+
+          var matchedModules = await mongoService.fuzzyMatchExamNames(examNamesToTest);
+          print("Matched modules: $matchedModules");
+
+          expect(matchedModules.length, expectedModulesNrs.length);
+          for (var i = 0; i < expectedModulesNrs.length; i++) {
+            expect(matchedModules[i], expectedModulesNrs[i]);
+          }
+        });
+      },
+    );
   });
 }
