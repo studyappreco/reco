@@ -5,6 +5,7 @@ class UserDetails {
   final List<String> interests;
   final Map<String, List<dynamic>> plannedModuleNrs;
   final List<String> favoritedModuleNrs;
+  final List<String> recommendedModules;
 
   UserDetails({
     required this.userID,
@@ -13,6 +14,7 @@ class UserDetails {
     required this.interests,
     required this.plannedModuleNrs,
     required this.favoritedModuleNrs,
+    required this.recommendedModules,
   });
 
   factory UserDetails.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class UserDetails {
       interests: List<String>.from(json['interests'] ?? []),
       plannedModuleNrs: Map<String, List<dynamic>>.from(json['planned_modules'] ?? []),
       favoritedModuleNrs: List<String>.from(json['favorited_modules'] ?? []),
+      recommendedModules: List<String>.from(json['recommended_modules'] ?? []),
     );
   }
 
@@ -32,7 +35,7 @@ class UserDetails {
       'username': username,
       'interests': interests,
       'planned_modules': plannedModuleNrs,
-      'programLiteral' : programLiteral,
+      'programLiteral': programLiteral,
       'favorited_modules': favoritedModuleNrs,
     };
   }
