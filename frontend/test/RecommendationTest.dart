@@ -1,13 +1,17 @@
 
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/repos/Recommendation.dart';
+import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/utils/RecoLog.dart';
 
 void main() {
   group('Test candidate generation', () {
     setUpAll(() async {
       await dotenv.load(fileName: '.env');
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+      OpenAI.requestsTimeOut = const Duration(minutes: 3);
     });
 
     test("Test ISM Master Transcript 1", () async {
@@ -40,6 +44,23 @@ void main() {
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
       RecoLog.info(candidates);
+    });
+  });
+
+  group('Test User detail embedding', () {
+    setUpAll(() async {
+      await dotenv.load(fileName: '.env');
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+      OpenAI.requestsTimeOut = const Duration(minutes: 3);
+    });
+
+    test("create userdetail embedding", () async {
+       var service = OpenAIService();
+       var programLiteral = "ISM";
+       var interests = ["Blockchain", "Machine Learning"];
+       var embedding = await  service.embedUserdetails(interests, programLiteral);
+       expect(embedding , isNotNull);
+       expect(embedding?.length, 1536);
     });
   });
 }

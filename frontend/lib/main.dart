@@ -5,6 +5,7 @@ import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/PlannerPage.dart';
 import 'package:frontend/ui/ReviewCoursesPage.dart';
@@ -34,6 +35,8 @@ final transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
+  OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+  OpenAI.requestsTimeOut = const Duration(minutes: 3);
   runApp(
     MultiProvider(
       providers: [

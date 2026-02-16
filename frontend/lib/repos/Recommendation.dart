@@ -1,5 +1,4 @@
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import '../models/Module.dart';
@@ -20,7 +19,7 @@ class Recommendation {
   Recommendation({
     OpenAIService? openAIService,
     MongoService? mongoService,
-  })  : _openAIService = openAIService ?? OpenAIService(dotenv.env['OPENAI_API_KEY'] ?? ""),
+  })  : _openAIService = openAIService ?? OpenAIService(),
         _mongoService = mongoService ?? MongoService(),
         _courserepo = CourseSearchRepo(),
       _userRepo = UserRepository();
@@ -28,16 +27,11 @@ class Recommendation {
   Future<List<Module>?> candicate_generation (String userID) async {
      var transcript = await _mongoService.getTranscript(userID);
      var userDetails = await _userRepo.getUserDetails(userID);
-     if (userDetails == null) {
+     if (userDetails == null || transcript == null) {
        return null;
      }
      var allCoursesinStupo = await _courserepo.getAllCoursesForStupo(userDetails.programLiteral, userID);
      RecoLog.info("Found ${allCoursesinStupo.length} courses in Stupo");
-     if (transcript == null) {
-       RecoLog.info("Transcript came out empty");
-       RecoLog.info("Found ${allCoursesinStupo.length} courses in Stupo");
-       return allCoursesinStupo;
-     }
      var all_courses_in_transcript = getAllTranscriptcourses(transcript);
      // TODO : add fuzzy search here..... how do we handle english and german names on the transcript?
      var filter_based_on_transcript = allCoursesinStupo.where((x) => !all_courses_in_transcript.any((y) => y.courseName == x.title));
@@ -48,7 +42,7 @@ class Recommendation {
 
   Future<List<Module>?> candidate_ranking() async {
     // each user should have one embedding: this embedding contains the
-    //
+    // embed the
 
   }
 

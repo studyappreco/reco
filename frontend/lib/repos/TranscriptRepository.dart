@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/service/MongoService.dart';
@@ -14,7 +13,7 @@ class TranscriptRepository {
   TranscriptRepository({
     OpenAIService? openAIService,
     MongoService? mongoService,
-  })  : _openAIService = openAIService ?? OpenAIService(dotenv.env['OPENAI_API_KEY'] ?? ""),
+  })  : _openAIService = openAIService ?? OpenAIService(),
         _mongoService = mongoService ?? MongoService();
 
 

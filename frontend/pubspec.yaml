@@ -1,5 +1,5 @@
 name: frontend
-description: "Frontend for reco."
+description: "RECO - Your smart study Planner"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -44,6 +44,7 @@ dependencies:
   mongo_dart: ^0.10.5
   logger: ^2.6.2
   shared_preferences: ^2.5.4
+  dart_openai: ^6.1.1
 
 dev_dependencies:
   flutter_test:

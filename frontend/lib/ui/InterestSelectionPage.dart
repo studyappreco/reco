@@ -110,7 +110,20 @@ class _InterestChip extends StatelessWidget {
 }
 
 class InterestSelectionViewmodel extends ChangeNotifier {
-  final List<String> _allInterests = <String>["Machine Learning", "Blockchain", "5G/6G Networks", "Artificial Intelligence", "Probability"];
+  final List<String> _allInterests = <String> [
+    "Machine Learning & Statictics",
+    "Cybersecurity",
+    "Cloud Computing",
+    "Data Science",
+    "Blockchain",
+    "Computer Networks",
+    "Robotics & Automation",
+    "Software Architecture",
+    "Human-Computer Interaction",
+    "Embedded Systems",
+    "Algorithms & Theory",
+    "Web Development", "Probability"
+  ];
   final List<String> _selectedInterests = <String>[];
 
   List<String> get allInterests => _allInterests;
