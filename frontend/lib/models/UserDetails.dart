@@ -3,7 +3,7 @@ class UserDetails {
   final String username;
   final String programLiteral;
   final List<String> interests;
-  final List<String> plannedModuleNrs;
+  final Map<String, List<dynamic>> plannedModuleNrs;
   final List<String> favoritedModuleNrs;
 
   UserDetails({
@@ -21,7 +21,7 @@ class UserDetails {
       username: json['username'] ?? '',
       programLiteral: json['programLiteral'] ?? "ISM", // TODO: change
       interests: List<String>.from(json['interests'] ?? []),
-      plannedModuleNrs: List<String>.from(json['planned_modules'] ?? []),
+      plannedModuleNrs: Map<String, List<dynamic>>.from(json['planned_modules'] ?? []),
       favoritedModuleNrs: List<String>.from(json['favorited_modules'] ?? []),
     );
   }

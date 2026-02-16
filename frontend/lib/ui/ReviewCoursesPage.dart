@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:frontend/main.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseOverview.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ class ReviewCoursesPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ChangeNotifierProvider<ReviewCoursesPageViewmodel>(
-      create: (_) => ReviewCoursesPageViewmodel(),
+      create: (_) => ReviewCoursesPageViewmodel(context.read()),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -284,7 +284,9 @@ class Grade extends StatelessWidget {
 }
 
 class ReviewCoursesPageViewmodel extends ChangeNotifier {
-  ReviewCoursesPageViewmodel() {
+  ClientSession clientSession;
+
+  ReviewCoursesPageViewmodel(this.clientSession) {
   _init();
   }
 
@@ -302,7 +304,7 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
   _loading = true;
   final repo = TranscriptRepository();
   final userRepo = UserRepository();
-  final userId = clientSession.session?.userId;
+  final userId = clientSession.getUserID();
   if (userId == null) {
   _loading = false;
   notifyListeners();

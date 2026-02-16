@@ -25,7 +25,7 @@ void main() async {
       });
 
       var userID = "test-user-notify";
-      var programLiteral = "ISM";
+      var programLiteral = "ISM_M";
       final pdfFile = File(getTranscriptPath('transcript_ISM_master.pdf'));
 
       // Start processing (don't await yet)
@@ -61,7 +61,7 @@ void main() async {
       final processor = TranscriptProcessor();
 
       var userID = "test-user";
-      var programLiteral = "ISM";
+      var programLiteral = "ISM_M";
       final pdfFile = File(getTranscriptPath('transcript_ISM_master.pdf'));
 
       var trans = await repo.getTranscript(userID);

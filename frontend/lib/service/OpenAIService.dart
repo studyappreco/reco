@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/models/TranscriptDocument.dart';
 import '../models/Module.dart';
@@ -111,7 +112,7 @@ For the output on how to call the TranscriptNodes per category:
 
 String getProgramPrompt(String programLiteral) {
   return switch (programLiteral) {
-    'ISM' => _ismPrompt,
+    'ISM_M' => _ismPrompt,
     'CS_M' => _csMasterPrompt,
     'CS_B' => _csBachelorPrompt,
     _ => throw ArgumentError('Unknown program: $programLiteral'),

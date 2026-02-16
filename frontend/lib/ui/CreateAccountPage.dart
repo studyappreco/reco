@@ -105,7 +105,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Alert'),
-              content: Text('Creating'),
+              content: Text(e.toString()),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -130,10 +130,9 @@ class CreateAccountFormState extends State<CreateAccountForm> {
         mainAxisAlignment: .spaceBetween,
         children: [
           Expanded(
-            child:
-              Form(
-                key: _formKey,
-                child: Center(
+            child: Form(
+              key: _formKey,
+              child: Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -30,16 +30,16 @@ import 'package:frontend/ui/GiveFeedback.dart';
 
 
 // Use these instances globally
-final clientSession = ClientSession();
-final transcriptProcessor = TranscriptProcessor();
+final _clientSession = ClientSession();
+final _transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: clientSession),
-        ChangeNotifierProvider.value(value: transcriptProcessor),
+        ChangeNotifierProvider.value(value: _clientSession),
+        ChangeNotifierProvider.value(value: _transcriptProcessor),
       ],
       child: MyApp(),
     ),
@@ -65,11 +65,11 @@ class MyApp extends StatelessWidget {
 
 final router = GoRouter(
   initialLocation: '/home',
-  refreshListenable: clientSession,
+  refreshListenable: _clientSession,
 
   redirect: (context, state) async {
-    final loggedIn = clientSession.isLoggedIn;
-    final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
+    final loggedIn = _clientSession.isLoggedIn;
+    final onAuthFlow = state.uri.path.startsWith('/sign-in') ||
                        state.uri.path.startsWith('/register') ||
                        state.uri.path.startsWith('/onboarding');
 
@@ -130,6 +130,10 @@ final router = GoRouter(
           path: '/home',
           builder: (context, state) => HomePage(),
           routes: [
+            GoRoute(
+              path: 'upload-transcript',
+              builder: (context, state) => UploadTranscriptPage(),
+            ),
             GoRoute(
               path: 'course-details',
               builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
@@ -225,39 +229,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final ClientSession clientSession = context.read();
+
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
             ElevatedButton(
@@ -372,7 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 debugPrint("starting");
                 final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
                 var repo = TranscriptRepository();
-                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM");
+                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM_M");
                 if (res != null) {
                   debugPrint(res.toString());
                 } else {

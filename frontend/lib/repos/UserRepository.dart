@@ -40,6 +40,10 @@ class UserRepository {
     await _mongoService.createUserDetails(userID, username);
   }
 
+  Future<void> setProgramLiteral(String userId, String literal) async {
+    await _mongoService.setProgramLiteral(userId, literal);
+  }
+
 
   Future<List<String>> getInterests(String userID) async {
     return await _mongoService.getUserInterests(userID);

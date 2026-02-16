@@ -1,6 +1,11 @@
+import 'package:frontend/models/TranscriptDocument.dart';
+import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
 
 class CSMTranscript extends Transcript {
+
+  @override
+  String get literal => "CS_M";
 
   @override
   int get programCredits => 120;
@@ -28,4 +33,27 @@ class CSMTranscript extends Transcript {
     "distributed_systems_and_networks": "Distributed Systems and Networks",
     "free_electives": "Free Electives"
   };
+
+  @override
+  UserTranscript createEmptyUserTranscript(String userID) {
+    return UserTranscript(
+      userID: userID,
+      transcript: TranscriptDocument(
+        children: [
+          TranscriptNode(
+            name: "compulsory_electives",
+            children: [
+              TranscriptNode(name: "data_and_software_engineering"),
+              TranscriptNode(name: "embedded_systems_and_computer_architectures"),
+              TranscriptNode(name: "foundations_of_computing"),
+              TranscriptNode(name: "cognitive_systems"),
+              TranscriptNode(name: "digital_media_and_human_computer_interaction"),
+              TranscriptNode(name: "distributed_systems_and_networks")
+            ]
+          ),
+          TranscriptNode(name: "free_electives")
+        ]
+      )
+    );
+  }
 }

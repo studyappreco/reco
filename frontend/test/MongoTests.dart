@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
+import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/repos/CSBTranscript.dart';
 import 'package:frontend/repos/CSMTranscript.dart';
 import 'package:frontend/repos/ISMTranscript.dart';
@@ -22,33 +23,31 @@ void main() {
     test('should insert a simple UserTranscript', () async {
       final mongoService = MongoService();
 
-      // Create a simple transcript with one category and one course
-      final simpleTranscript = TranscriptDocument(
-        children: [
-          TranscriptNode(
-            name: 'Compulsory Modules',
-            courses: [
-              TranscriptCourse(
-                id: 'CS101',
-                courseName: 'Introduction to Programming',
-                ects: 6,
-                grade: 1.3,
-                examDate: '2024-01-15',
-              ),
-            ],
-          ),
-        ],
-      );
-
       const testUserId = 'test_user_123';
-      const testProgram = 'Computer Science B.Sc.';
+      // Create a simple transcript with one category and one course
+      final simpleTranscript =
+      UserTranscript(
+        userID: testUserId,
+        transcript: TranscriptDocument(
+          children: [
+            TranscriptNode(
+              name: 'Compulsory Modules',
+              courses: [
+                TranscriptCourse(
+                  id: 'CS101',
+                  courseName: 'Introduction to Programming',
+                  ects: 6,
+                  grade: 1.3,
+                  examDate: '2024-01-15',
+                ),
+              ],
+            ),
+          ],
+        )
+      );
 
       // Upload the transcript
-      await mongoService.uploadTranscript(
-        testUserId,
-        simpleTranscript,
-        testProgram,
-      );
+      await mongoService.uploadTranscript(simpleTranscript);
 
       // Verify it was inserted by fetching it back
       final retrieved = await mongoService.getTranscript(testUserId);

@@ -7,6 +7,8 @@ import '../models/TranscriptDocument.dart';
 import '../models/UserTrancript.dart';
 
 abstract class Transcript {
+  String get literal;
+
   int get programCredits;
 
   // important: have to match with the prompt
@@ -16,7 +18,7 @@ abstract class Transcript {
   Map<String, String> get categoriesForDashboard;
 
   List<OverviewCategory> getOverviewCategories(UserTranscript ismTranscript) {
-    List<OverviewCategory> dashBoardcategories = [];
+    List<OverviewCategory> dashboardCategories = [];
 
     categoriesForDashboard.forEach((key, val) {
       TranscriptNode? found = findNodeByName(key, ismTranscript);
@@ -44,7 +46,7 @@ abstract class Transcript {
           debugPrint("$key, $val, $earnedEcts, $requiredEcts");
         }
         double progress = requiredEcts > 0 ? (earnedEcts / requiredEcts).clamp(0.0, 1.0) : 0.0;
-        dashBoardcategories.add(OverviewCategory(
+        dashboardCategories.add(OverviewCategory(
           id: key,
           name: val,
           progress: progress,
@@ -54,7 +56,7 @@ abstract class Transcript {
         ));
       }
     });
-    return dashBoardcategories;
+    return dashboardCategories;
   }
 
 
@@ -72,17 +74,31 @@ abstract class Transcript {
       categories: categories,
     );
   }
+
+  UserTranscript createEmptyUserTranscript(String userID);
 }
 
 DashboardDTO? userTranscriptToDashboardDTO(UserTranscript? userTranscript, String? programLiteral) {
   if (userTranscript == null || programLiteral == null) return null;
   switch (programLiteral) {
-    case "ISM":
+    case "ISM_M":
       return ISMTranscript().createDashboardDTO(userTranscript);
     case "CS_B":
       return CSBTranscript().createDashboardDTO(userTranscript);
     case "CS_M":
       return CSMTranscript().createDashboardDTO(userTranscript);
+  }
+  return null;
+}
+
+UserTranscript? createEmptyUserTranscript(String userId, String? programLiteral) {
+  switch (programLiteral) {
+    case "ISM_M":
+      return ISMTranscript().createEmptyUserTranscript(userId);
+    case "CS_B":
+      return CSBTranscript().createEmptyUserTranscript(userId);
+    case "CS_M":
+      return CSMTranscript().createEmptyUserTranscript(userId);
   }
   return null;
 }

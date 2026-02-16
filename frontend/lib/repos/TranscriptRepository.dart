@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
+import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/utils/RecoLog.dart';
@@ -28,7 +29,11 @@ class TranscriptRepository {
       final transcript = await _openAIService.parseTranscriptPdf(pdfFile, programLiteral);
       if (transcript != null) {
         // Store in MongoDB
-        await _mongoService.uploadTranscript(userID, transcript, programLiteral);
+        final userTranscript = UserTranscript(
+          userID: userID,
+          transcript: transcript
+        );
+        await _mongoService.uploadTranscript(userTranscript);
         return transcript;
       }
 
@@ -42,6 +47,19 @@ class TranscriptRepository {
     } on Exception catch (e) {
       debugPrint('Failed to upload/parse transcript: $e');
       return null;
+    }
+  }
+
+  Future<void> uploadEmptyTranscript(String userID, String? programLiteral) async {
+    try {
+      // Parse the PDF using OpenAI
+      final transcript = createEmptyUserTranscript(userID, programLiteral);
+      if (transcript != null) {
+        // Store in MongoDB
+        await _mongoService.uploadTranscript(transcript);
+      }
+    } on Exception catch (e) {
+      debugPrint('Failed to upload/parse transcript: $e');
     }
   }
 
@@ -75,7 +93,6 @@ class TranscriptRepository {
   }) async {
     try {
       UserTranscript? userTranscript = await _mongoService.getTranscript(userID);
-      // TODO proposal: even if the user has not uploaded a transcript, the empty list should already be in the database so that there are no problems here
       if(userTranscript == null){
         RecoLog.warning("UserTranscript is null");
         return false;
