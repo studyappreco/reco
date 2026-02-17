@@ -119,50 +119,49 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
           Padding(
             padding: EdgeInsets.fromLTRB(24, 20, 10, 20),
             child: Row(
-              mainAxisAlignment: .spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlueLight,
-                          borderRadius: BorderRadius.circular(14),
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlueLight,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: .center,
+                      crossAxisAlignment: .center,
+                      children: [
+                        SvgPicture.asset(
+                          "assets/icons/book-open.svg",
+                          colorFilter: ColorFilter.mode(AppColors.primaryBlue, BlendMode.srcIn),
+                          width: 24,
+                          height: 24,
                         ),
-                        child: Column(
-                          mainAxisAlignment: .center,
-                          crossAxisAlignment: .center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/icons/book-open.svg",
-                              colorFilter: ColorFilter.mode(AppColors.primaryBlue, BlendMode.srcIn),
-                              width: 24,
-                              height: 24,
-                            ),
-                          ],
-                        )
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.category.name,
-                            style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
-                          ),
-                          Text(
-                            "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
-                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                      ],
+                    )
+                  ),
                 ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.category.name,
+                          style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
+                        ),
+                        Text(
+                          "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
+                          style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 IconButton(
                   onPressed: () => setState(() {
                     expanded = !expanded;
@@ -224,7 +223,6 @@ class CourseCategoryCardCourseItem extends StatelessWidget {
         mainAxisAlignment: .spaceBetween,
         children: [
           Expanded(
-            flex: 8,
             child: Column(
               crossAxisAlignment: .start,
               children: [
@@ -239,12 +237,12 @@ class CourseCategoryCardCourseItem extends StatelessWidget {
               ],
             )
           ),
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
             child: Grade(
               grade: course.grade.toStringAsFixed(1),
-              color: Colors.green
-            )
+              color: Colors.green,
+            ),
           )
         ],
       )
