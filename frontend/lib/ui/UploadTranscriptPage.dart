@@ -89,51 +89,6 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     }
   }
 
-  /*Future<void> _onContinue() async {
-    if (session == null) {
-      await _uploadTranscriptFromRegister();
-    } else {
-      _uploadTranscriptFromHome();
-    }
-
-    final userId = session == null ? clientSession.newUser?.$id : clientSession.getUserID();
-    if (userId == null) return;
-
-    String? literal = _selectedLiteral;
-    if (session != null) {
-      final userRepository = UserRepository();
-      literal = (await userRepository.getUserDetails(userId))?.programLiteral;
-    }
-
-    if (_selectedFilePath == null || literal == null) return;
-
-    final email = clientSession.newUser?.email;
-    final password = clientSession.newUserPassword;
-    final newCredentialsEmpty = email == null || password == null;
-    if (session == null && newCredentialsEmpty) return;
-
-    // Parse and upload transcript
-    final processor = context.read<TranscriptProcessor>();
-    processor.processTranscript(
-      pdfFile: File(_selectedFilePath!),
-      userID: userId,
-      programLiteral: literal,
-    );
-
-    if (session == null && email != null && password != null) {
-      // Create session with new user if this page is called from the register flow
-      Client? client = BackendClient.getBackendClient();
-      if (client == null) throw Exception("Backend client could not be initialized");
-      Account account = Account(client);
-
-      Session newSession = await account.createEmailPasswordSession(email: email, password: password);
-      clientSession.setUserSession(newSession);
-      clientSession.resetNewUser();
-    } else {
-      context.go("/home");
-    }
-  }*/
-
   Future<void> _uploadTranscriptFromRegister() async {
     final userId = clientSession.newUser?.$id;
     final email = clientSession.newUser?.email;
@@ -161,7 +116,7 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     final userId = clientSession.getUserID();
     if (userId == null) return;
 
-    final userRepository = UserRepository();
+    final userRepository = context.read<UserRepository>();
     final literal = (await userRepository.getUserDetails(userId))?.programLiteral;
     if (_selectedFilePath == null || literal == null || !mounted) return;
 
