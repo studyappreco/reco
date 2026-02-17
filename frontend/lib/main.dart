@@ -5,12 +5,14 @@ import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/PlannerPage.dart';
 import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
+import 'package:frontend/ui/widgets/test_page_widgets/test_TranscriptWidgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
@@ -19,13 +21,14 @@ import 'package:frontend/ui/SignInPage.dart';
 import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
+import 'package:frontend/ui/FavoritesPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
-
+import 'package:frontend/ui/FeedbackDetailPage.dart';
 
 // Use these instances globally
 final clientSession = ClientSession();
@@ -33,6 +36,8 @@ final transcriptProcessor = TranscriptProcessor();
 
 void main() async {
   await dotenv.load(fileName: ".env");
+  OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+  OpenAI.requestsTimeOut = const Duration(minutes: 3);
   runApp(
     MultiProvider(
       providers: [
@@ -187,11 +192,18 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/favourites',
-          builder: (context, state) => Center(child: Text("The FavouritesPage will be added here later")),
+          builder: (context, state) => FavoritesPage(),
         ),
         GoRoute(
           path: '/feedback',
           builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+        ),
+        GoRoute(
+          path: '/feedback-detail',
+          builder: (context, state) {
+            final courseName = state.extra as String? ?? 'Course';
+            return FeedbackDetailPage(courseName: courseName);
+          },
         ),
         GoRoute(
           path: '/demo',
@@ -388,6 +400,17 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("Parse transcript"),
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TranscriptProcessingTestScreen()),
+                );
+              },
+              child: const Text("TranscriptProcessingTestScreen"),
+            ),
+
             
           ],
         ),

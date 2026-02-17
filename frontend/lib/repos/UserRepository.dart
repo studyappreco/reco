@@ -1,4 +1,5 @@
 import 'package:frontend/models/Module.dart';
+import 'package:frontend/models/UserDetails.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 
@@ -46,6 +47,10 @@ class UserRepository {
 
   Future<String?> getUsername(String userID) async {
     return await _mongoService.getUsername(userID);
+  }
+
+  Future<UserDetails?> getUserDetails(String userID) async {
+    return await _mongoService.getUserDetails(userID);
   }
 
   Future<bool> markModuleAsCompleted({

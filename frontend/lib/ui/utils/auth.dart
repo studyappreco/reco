@@ -2,7 +2,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mongo_dart/mongo_dart.dart';
+import 'package:mongo_dart/mongo_dart.dart' hide Log;
 
 final PROJECT_ID = dotenv.env['PROJECT_ID'];
 final MONGO_URI = dotenv.env['MONGO_URI'];
@@ -35,22 +35,45 @@ class DbCLient {
 
   static Db? mongoDB;
 
-  static Future<Db?> getMongoDBClient () async {
+  static Future<Db?> getMongoDBClient() async {
     if (mongoDB != null) {
-      return mongoDB;
-    } else {
-      try{
-        // Parse URI and insert database name before query parameters
+      if (mongoDB!.isConnected) {
+        return mongoDB;
+      }
+      print("Connection stale retrying");
+      await _closeConnection();
+    }
+    return await _createConnection();
+  }
+
+  static Future<void> _closeConnection() async {
+    try {
+      await mongoDB?.close();
+    } catch (e) {
+      debugPrint('[DbClient] Error closing stale connection: $e');
+    } finally {
+      mongoDB = null;
+    }
+  }
+
+  static Future<Db?> _createConnection({int maxRetries = 5}) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
         final uri = Uri.parse(MONGO_URI!);
         final dbUri = uri.replace(path: '/$_databaseName').toString();
         mongoDB = await Db.create(dbUri);
-        await mongoDB?.open();
-        return mongoDB;
+        await mongoDB?.open(secure: true);
+        if (mongoDB?.isConnected == true) {
+          debugPrint('[DbClient] MongoDB connected successfully');
+          return mongoDB;
+        }
+        await _closeConnection();
       } on Exception catch (e) {
-        debugPrint(e.toString());
-        return null;
+        debugPrint("failure when debugging the when trying to open the connection");
       }
+      await Future.delayed(Duration(milliseconds: 500 * attempt));
     }
+    return null;
   }
 }
 

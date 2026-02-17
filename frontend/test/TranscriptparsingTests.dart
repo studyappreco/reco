@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,8 +16,14 @@ String getTranscriptPath(String filename) {
 void main() async {
   await dotenv.load(fileName: ".env");
   final repo = TranscriptRepository();
+  setUpAll(() async {
+    await dotenv.load(fileName: '.env');
+    OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+    OpenAI.requestsTimeOut = const Duration(minutes: 3);
+  });
 
   group('Parse ISM transcript', () {
+
     test('returns TranscriptDocument and correct ECTS', () async {
       debugPrint("starting on ISM test");
       final pdfFile = File(getTranscriptPath('transcript_ISM_master.pdf'));
@@ -28,7 +35,7 @@ void main() async {
       debugPrint('ISM Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "ISM", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 51);
@@ -47,7 +54,7 @@ void main() async {
       debugPrint('CS Master Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_M", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 24);
@@ -66,7 +73,7 @@ void main() async {
       debugPrint('CS Bachelor Transcript Response:');
       debugPrint(transcript.toJson().toString());
 
-      final userTranscript = UserTranscript(userID: "test-user", programLiteral: "CS_B", transcript: transcript);
+      final userTranscript = UserTranscript(userID: "test-user", transcript: transcript);
       final totalEcts = calculateTotalEarnedECTS(userTranscript);
       debugPrint('Total ECTS: $totalEcts');
       expect(totalEcts, 123);

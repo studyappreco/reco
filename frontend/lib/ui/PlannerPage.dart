@@ -7,9 +7,8 @@ import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart'; 
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
-import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart'; 
-import 'package:frontend/ui/widgets/AdaptiveSearchfield.dart';
-import 'package:frontend/utils/logger.dart';
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessage.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
@@ -27,9 +26,7 @@ class PlannerPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: AdaptiveSearchField(
-            onChanged: (str) {},
-          ),
+          title: Text("Planner"),
         ),
         backgroundColor: colorScheme.surface,
         body: Consumer<PlannerPageViewmodel>(
@@ -383,8 +380,9 @@ class PlannerPageViewmodel extends ChangeNotifier {
       if(userID.isEmpty) return;
 
       final userTranscript = await _transcriptRepo.getTranscript(userID);
+      final userDetails = await _userRepo.getUserDetails(userID);
       if(userTranscript != null){
-        final dashboardDTO = userTranscriptToDashboardDTO(userTranscript);
+        final dashboardDTO = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
         if(dashboardDTO != null){
           earnedCredits = dashboardDTO.earnedCredits;
           earnedModulesCount = dashboardDTO.completedCoursesCount;
@@ -396,13 +394,14 @@ class PlannerPageViewmodel extends ChangeNotifier {
       final currentIDs = plannedmodule['current']!;
       final nextIDs = plannedmodule['next']!;
 
-      final allModules = await _courseRepo.fetchModules(userID: userID);
+      final allPlannedIDs = [...currentIDs, ...nextIDs];
+      final List<Module> allPlannedModules = await _courseRepo.getModulesByModuleNrs(allPlannedIDs, userID);
 
-      plannedModulesCurrent = allModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
-      plannedModulesNext = allModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
+      plannedModulesCurrent = allPlannedModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
+      plannedModulesNext = allPlannedModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
 
     } catch (e, s) {
-      Log.error("Error loading Planner Data", e, s);
+      RecoLog.error("Error loading Planner Data", e, s);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -575,7 +574,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
       );
 
     } else {
-      Log.error("Could not save to transcript");
+      RecoLog.error("Could not save to transcript");
       isLoading = false;
       notifyListeners();
       
