@@ -312,35 +312,33 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
                 ],
               ),
             ),
-            Expanded(
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: .end,
-                  crossAxisAlignment: .center,
-                  children: [
-                    AdaptiveButton(
-                      onPressed: _selectedFilePath != null && _errorMessage == null && !_isPicking
-                        ? _onContinue
-                        : null,
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Center(child: Text("Continue"))
-                      )
-                    ),
-                    if (session == null)
-                    Row(
-                      mainAxisAlignment: .center,
-                      children: [
-                        Text("Don't have a transcript yet?"),
-                        TextButton(
-                          onPressed: _onSkip,
-                          child: Text("Skip")
-                        )
-                      ],
+            SizedBox(
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: .end,
+                crossAxisAlignment: .center,
+                children: [
+                  AdaptiveButton(
+                    onPressed: _selectedFilePath != null && _errorMessage == null && !_isPicking
+                      ? _onContinue
+                      : null,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Center(child: Text("Continue"))
                     )
-                  ],
-                )
+                  ),
+                  if (session == null)
+                  Row(
+                    mainAxisAlignment: .center,
+                    children: [
+                      Text("Don't have a transcript yet?"),
+                      TextButton(
+                        onPressed: _onSkip,
+                        child: Text("Skip")
+                      )
+                    ],
+                  )
+                ],
               )
             )
           ]
