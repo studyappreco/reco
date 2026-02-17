@@ -38,25 +38,23 @@ class InterestSelectionPage extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.all(25),
               child: AdaptiveButton(
-                child: Text("Continue"),
-                onPressed: () async {
-                  if (enabled) {
-                    final repo = UserRepository();
-                    final session = context.read<ClientSession>();
-                    final userId = session.newUser?.$id ?? session.getUserID();
-                    if (userId != null) {
-                      try {
-                        await repo.updateInterests(userId, vm.selectedInterests);
-                      } catch (e) {
-                        debugPrint('Failed to save interests: $e');
-                      }
-                    } else {
-                      debugPrint('No userId available to save interests');
+                onPressed: enabled ? () async {
+                  final repo = UserRepository();
+                  final session = context.read<ClientSession>();
+                  final userId = session.newUser?.$id ?? session.getUserID();
+                  if (userId != null) {
+                    try {
+                      await repo.updateInterests(userId, vm.selectedInterests);
+                    } catch (e) {
+                      debugPrint('Failed to save interests: $e');
                     }
-                    if (!context.mounted) return;
-                    context.go('/register/specify-degree/interests/upload-transcript');
+                  } else {
+                    debugPrint('No userId available to save interests');
                   }
-                }
+                  if (!context.mounted) return;
+                  context.go('/register/specify-degree/interests/upload-transcript');
+                } : null,
+                child: Text("Continue")
               )
             );
           },

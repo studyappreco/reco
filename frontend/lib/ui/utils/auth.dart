@@ -101,6 +101,7 @@ class ClientSession extends ChangeNotifier {
   Session? _session;
   User? _newUser;
   String? _newUserPassword;
+  String? _newUserLiteral;
 
   ClientSession() {
     _initUserSession();
@@ -138,11 +139,20 @@ class ClientSession extends ChangeNotifier {
   void setNewUser(User user, String password) {
     _newUser = user;
     _newUserPassword = password;
+    notifyListeners();
   }
 
   void resetNewUser() {
     _newUser = null;
     _newUserPassword = null;
+    notifyListeners();
+  }
+
+  String? get newUserLiteral => _newUserLiteral;
+
+  void setNewUserLiteral(String? literal) {
+    _newUserLiteral = literal;
+    notifyListeners();
   }
 
   String? getUserID(){

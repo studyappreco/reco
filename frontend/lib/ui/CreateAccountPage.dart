@@ -105,7 +105,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Alert'),
-              content: Text('Creating'),
+              content: Text(e.toString()),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -130,39 +130,36 @@ class CreateAccountFormState extends State<CreateAccountForm> {
         mainAxisAlignment: .spaceBetween,
         children: [
           Expanded(
-            child:
-              Form(
-                key: _formKey,
-                child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 350,
-                        child: ValidatedTextField(focusNode: null,
-                            validator: nameValidator,
-                            labelText: "User Name", controller: nameController),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: 350,
-                        child: ValidatedTextField(focusNode: null,
-                            validator: emailValidator,
-                            labelText: "example@gmail.com", controller: emailController),
-                      ),
-                      const SizedBox(height: 25),
-                      SizedBox(
-                        width: 350,
-                        child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: 350,
-                        child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
-                    ],
-                  ),
-                )
+            child: Form(
+              key: _formKey,
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 350,
+                      child: ValidatedTextField(focusNode: null,
+                          validator: nameValidator,
+                          labelText: "User Name", controller: nameController),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 350,
+                      child: ValidatedTextField(focusNode: null,
+                          validator: emailValidator,
+                          labelText: "example@gmail.com", controller: emailController),
+                    ),
+                    const SizedBox(height: 25),
+                    SizedBox(
+                      width: 350,
+                      child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 350,
+                      child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
+                  ],
+                ),
               ),
             ),
           ),

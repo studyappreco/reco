@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/utils/RecoLog.dart';
+import 'package:frontend/models/TranscriptDocument.dart';
 import '../models/Module.dart';
 import 'package:frontend/service/prompts.dart';
 import 'package:frontend/ui/utils/mapping.dart';

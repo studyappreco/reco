@@ -40,28 +40,17 @@ class MongoService {
     return UserTranscript.fromJson(doc);
   }
 
-  Future<void> uploadTranscript(
-    String userID,
-    TranscriptDocument transcript,
-    String programLiteral,
-  ) async {
+  Future<void> uploadTranscript(UserTranscript transcript) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
 
-    final userTranscript = UserTranscript(
-      userID: userID,
-      transcript: transcript,
-    );
-    await collection.insertOne(userTranscript.toJson());
+    await collection.insertOne(transcript.toJson());
   }
 
-  Future<void> updateTranscript(
-    String userID,
-    TranscriptDocument transcript,
-  ) async {
+  Future<void> updateTranscript(String userID, TranscriptDocument transcript) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
-
+    
     await collection.update(
       where.eq('userID', userID),
       modify.set('transcript', transcript.toJson()),
@@ -276,7 +265,8 @@ class MongoService {
             .setOnInsert('username', username)
             .setOnInsert('interests', [])
             .setOnInsert('planned_modules', {'current': [], 'next': []})
-            .setOnInsert('favorited_modules', []),
+            .setOnInsert('favorited_modules', [])
+            .setOnInsert('programLiteral', ""),
         upsert: true,
       );
     } catch (e, s) {
@@ -285,9 +275,23 @@ class MongoService {
     }
   }
 
-  Future<Map<String, List<String>>> getPlannedModulesStruct(
-    String userID,
-  ) async {
+  Future<void> setProgramLiteral(String userID, String literal) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set('programLiteral', literal),
+        upsert: true,
+      );
+    } catch (e, s) {
+      RecoLog.error("Error setting program literal for user $userID", e, s);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, List<String>>> getPlannedModulesStruct(String userID) async {
     try {
       final db = await _getDb();
       final doc = await db
