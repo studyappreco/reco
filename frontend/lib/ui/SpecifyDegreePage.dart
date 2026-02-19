@@ -26,7 +26,7 @@ class _SpecifyDegreePageState extends State<SpecifyDegreePage> {
   String? fieldOfStudy;
 
   Future<void> onContinue() async {
-    final userRepo = UserRepository();
+    final userRepo = context.read<UserRepository>();
     final clientSession = context.read<ClientSession>();
     final userId = clientSession.newUser?.$id;
     if (userId == null) return;

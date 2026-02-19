@@ -1,7 +1,12 @@
 import 'dart:io';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/Recommendation.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/service/MongoService.dart';
+import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -29,11 +34,6 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
 
-
-// Use these instances globally
-final _clientSession = ClientSession();
-final _transcriptProcessor = TranscriptProcessor();
-
 void main() async {
   await dotenv.load(fileName: ".env");
   OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
@@ -41,8 +41,22 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: _clientSession),
-        ChangeNotifierProvider.value(value: _transcriptProcessor),
+        Provider(create: (context) => OpenAIService()),
+        Provider(create: (context) => MongoService()),
+        Provider(create: (context) => SharedPreferencesService()),
+        Provider(create: (context) => TranscriptRepository(openAIService: context.read(), mongoService: context.read())),
+        Provider(create: (context) => CourseSearchRepo(mongoService: context.read())),
+        Provider(create: (context) => UserRepository(mongoService: context.read(), transcriptRepo: context.read())),
+        Provider(
+          create: (context) => Recommendation(
+            openAIService: context.read(),
+            mongoService: context.read(),
+            courseRepo: context.read(),
+            userRepo: context.read()
+          )
+        ),
+        ChangeNotifierProvider(create: (context) => TranscriptProcessor(repository: context.read())),
+        ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())),
       ],
       child: MyApp(),
     ),
@@ -61,155 +75,157 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       // themeMode: ThemeMode.system, // = Switches automatically depending on cell phone settings
       themeMode: ThemeMode.light, //  = Always forces light mode
-      routerConfig: router,
+      routerConfig: createRouter(context.read()),
     );
   }
 }
 
-final router = GoRouter(
-  initialLocation: '/home',
-  refreshListenable: _clientSession,
+GoRouter createRouter(ClientSession clientSession) {
+  return GoRouter(
+    initialLocation: '/home',
+    refreshListenable: clientSession,
 
-  redirect: (context, state) async {
-    final loggedIn = _clientSession.isLoggedIn;
-    final onAuthFlow = state.uri.path.startsWith('/sign-in') ||
-                       state.uri.path.startsWith('/register') ||
-                       state.uri.path.startsWith('/onboarding');
+    redirect: (context, state) async {
+      final loggedIn = clientSession.isLoggedIn;
+      final onAuthFlow = state.uri.path.startsWith('/sign-in') ||
+          state.uri.path.startsWith('/register') ||
+          state.uri.path.startsWith('/onboarding');
 
-    final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
+      final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
 
-    if (!loggedIn && !onAuthFlow && isFirstAppStart) {
-      return '/onboarding';
-    }
-    if (!loggedIn && !onAuthFlow) {
-      return '/sign-in';
-    }
+      if (!loggedIn && !onAuthFlow && isFirstAppStart) {
+        return '/onboarding';
+      }
+      if (!loggedIn && !onAuthFlow) {
+        return '/sign-in';
+      }
 
-    if (loggedIn && onAuthFlow) {
-      return '/home';
-    }
+      if (loggedIn && onAuthFlow) {
+        return '/home';
+      }
 
-    return null;
-  },
+      return null;
+    },
 
-  routes: [
-    GoRoute(
-      path: '/onboarding',
-      builder: (context, state) => OnboardingPage(),
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => CreateAccountForm(),
-      routes: [
-        GoRoute(
-          path: 'specify-degree',
-          builder: (context, state) => SpecifyDegreePage(),
+    routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => OnboardingPage(),
+      ),
+      GoRoute(
+          path: '/register',
+          builder: (context, state) => CreateAccountForm(),
           routes: [
             GoRoute(
-              path: 'interests',
-              builder: (context, state) => InterestSelectionPage(),
+                path: 'specify-degree',
+                builder: (context, state) => SpecifyDegreePage(),
+                routes: [
+                  GoRoute(
+                      path: 'interests',
+                      builder: (context, state) => InterestSelectionPage(),
+                      routes: [
+                        GoRoute(
+                          path: 'upload-transcript',
+                          builder: (context, state) => UploadTranscriptPage(),
+                        ),
+                      ]
+                  ),
+                ]
+            ),
+          ]
+      ),
+      GoRoute(
+          path: '/sign-in',
+          builder: (context, state) => SignInPageForm()
+      ),
+
+      ShellRoute(
+        builder: (context, state, child) {
+          return NavigationWrapper(child: child);
+        },
+        routes: [
+          GoRoute(
+              path: '/home',
+              builder: (context, state) => HomePage(),
               routes: [
                 GoRoute(
                   path: 'upload-transcript',
                   builder: (context, state) => UploadTranscriptPage(),
                 ),
+                GoRoute(
+                  path: 'course-details',
+                  builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                    final moduleNr = state.extra as String;
+                    return CourseDetailsPage(moduleNr: moduleNr);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'give-feedback',
+                      builder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>?;
+                        return GiveFeedbackPage(
+                          title: extra?["title"] ?? "",
+                          credits: extra?["credits"] ?? "",
+                          moduleNr: extra?["moduleNr"] ?? "",
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ]
-            ),
-          ]
-        ),
-      ]
-    ),
-    GoRoute(
-      path: '/sign-in',
-      builder: (context, state) => SignInPageForm()
-    ),
-
-    ShellRoute(
-      builder: (context, state, child) {
-        return NavigationWrapper(child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => HomePage(),
-          routes: [
-            GoRoute(
-              path: 'upload-transcript',
-              builder: (context, state) => UploadTranscriptPage(),
-            ),
-            GoRoute(
-              path: 'course-details',
-              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+          ),
+          GoRoute(
+            path: '/review-courses',
+            builder: (context, state) => ReviewCoursesPage(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => SearchPage(),
+            routes: [
+              GoRoute(
+                path: 'course-details',
+                builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
-              },
-              routes: [
-                GoRoute(
-                  path: 'give-feedback',
-                  builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    return GiveFeedbackPage(
-                      title: extra?["title"] ?? "",
-                      credits: extra?["credits"] ?? "",
-                      moduleNr: extra?["moduleNr"] ?? "",
-                    );
-                  },
-                ),
-              ],
-            ),
-          ]
-        ),
-        GoRoute(
-          path: '/review-courses',
-          builder: (context, state) => ReviewCoursesPage(),
-        ),
-        GoRoute(
-          path: '/search',
-          builder: (context, state) => SearchPage(),
-          routes: [
-            GoRoute(
-              path: 'course-details',
-              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
-                  final moduleNr = state.extra as String;
-                  return CourseDetailsPage(moduleNr: moduleNr);
-              },
-              routes: [
-                GoRoute(
-                  path: 'give-feedback',
-                  builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    return GiveFeedbackPage(
-                      title: extra?["title"] ?? "",
-                      credits: extra?["credits"] ?? "",
-                      moduleNr: extra?["moduleNr"] ?? "",
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
+                },
+                routes: [
+                  GoRoute(
+                    path: 'give-feedback',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return GiveFeedbackPage(
+                        title: extra?["title"] ?? "",
+                        credits: extra?["credits"] ?? "",
+                        moduleNr: extra?["moduleNr"] ?? "",
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
 
-        GoRoute(
-          path: '/planner',
-          builder: (context, state) => PlannerPage(),
-        ),
-        GoRoute(
-          path: '/favourites',
-          builder: (context, state) => FavoritesPage(),
-        ),
-        GoRoute(
-          path: '/feedback',
-          builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
-        ),
-        GoRoute(
-          path: '/demo',
-          builder: (context, state) => MyHomePage(title: "Demo Home Page"),
-        ),
-      ],
-    ),
-  ],
-);
+          GoRoute(
+            path: '/planner',
+            builder: (context, state) => PlannerPage(),
+          ),
+          GoRoute(
+            path: '/favourites',
+            builder: (context, state) => FavoritesPage(),
+          ),
+          GoRoute(
+            path: '/feedback',
+            builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+          ),
+          GoRoute(
+            path: '/demo',
+            builder: (context, state) => MyHomePage(title: "Demo Home Page"),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -354,7 +370,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 debugPrint("starting");
                 final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
-                var repo = TranscriptRepository();
+                var repo = context.read<TranscriptRepository>();
                 var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM_M");
                 if (res != null) {
                   debugPrint(res.toString());
@@ -374,8 +390,6 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("TranscriptProcessingTestScreen"),
             ),
-
-            
           ],
         ),
       ),

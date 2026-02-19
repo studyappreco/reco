@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
     final clientSession = context.read<ClientSession>();
 
     return ChangeNotifierProvider<HomePageViewmodel>(
-      create: (_) => HomePageViewmodel(clientSession, context.read()),
+      create: (_) => HomePageViewmodel(context.read(), context.read(), clientSession, context.read()),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -250,10 +250,14 @@ enum TranscriptAvailability {
 }
 
 class HomePageViewmodel extends ChangeNotifier {
-  ClientSession clientSession;
-  TranscriptProcessor transcriptProcessor;
+  final TranscriptRepository transcriptRepo;
+  final UserRepository userRepo;
+  final ClientSession clientSession;
+  final TranscriptProcessor transcriptProcessor;
 
   HomePageViewmodel(
+    this.transcriptRepo,
+    this.userRepo,
     this.clientSession,
     this.transcriptProcessor
   ) {
@@ -283,7 +287,7 @@ class HomePageViewmodel extends ChangeNotifier {
     } else if (transcriptProcessor.state == TranscriptProcessingState.completed) {
       _transcriptAvailability = .undefined;
       transcriptProcessor.removeListener(_listen);
-      _loadTranscript();
+      _loadTranscript(false);
     } else if (transcriptProcessor.state == TranscriptProcessingState.failed) {
       _transcriptAvailability = .undefined;
       transcriptProcessor.removeListener(_listen);
@@ -302,7 +306,6 @@ class HomePageViewmodel extends ChangeNotifier {
       return;
     }
 
-    final userRepo = UserRepository();
     final username = await userRepo.getUsername(_userId!);
     if (username != null) {
       _username = username;
@@ -317,16 +320,15 @@ class HomePageViewmodel extends ChangeNotifier {
       transcriptProcessor.addListener(_listen);
       notifyListeners();
     } else {
-      _loadTranscript();
+      _loadTranscript(false);
     }
   }
 
-  Future<void> _loadTranscript() async {
+  Future<void> _loadTranscript(bool forceRefresh) async {
     _loading = true;
     notifyListeners();
 
-    final repo = TranscriptRepository();
-    final userTranscript = await repo.getTranscript(_userId!);
+    final userTranscript = await transcriptRepo.getTranscript(userID: _userId!, forceRefresh: forceRefresh);
     final dto = userTranscriptToDashboardDTO(userTranscript, _userDetails?.programLiteral);
     if (dto == null) {
       _loading = false;
@@ -349,9 +351,8 @@ class HomePageViewmodel extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
-    final repo = TranscriptRepository();
-    await repo.uploadEmptyTranscript(_userId!, _userDetails?.programLiteral);
-    await _loadTranscript();
+    await transcriptRepo.uploadEmptyTranscript(_userId!, _userDetails?.programLiteral);
+    await _loadTranscript(false);
     _loading = false;
   }
 }

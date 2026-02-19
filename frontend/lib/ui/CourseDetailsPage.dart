@@ -26,7 +26,7 @@ class CourseDetailsPage extends StatelessWidget {
     final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<CourseDetailsPageViewmodel>(
-      create: (_) => CourseDetailsPageViewmodel(moduleNr, userID),
+      create: (_) => CourseDetailsPageViewmodel(context.read(), context.read(), moduleNr, userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -377,15 +377,21 @@ class DetailCard extends StatelessWidget {
 }
 
 class CourseDetailsPageViewmodel extends ChangeNotifier {
+  final UserRepository userRepo;
+  final CourseSearchRepo courseRepo;
   final String moduleNr;
   final String userID;
 
   Module? module;
   bool isLoading = true;
   String? errorMessage;
-  final UserRepository _userRepo = UserRepository();
 
-  CourseDetailsPageViewmodel(this.moduleNr, this.userID){
+  CourseDetailsPageViewmodel(
+    this.userRepo,
+    this.courseRepo,
+    this.moduleNr,
+    this.userID
+  ){
     _loadModule();
   }
   
@@ -404,7 +410,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
 
     try{
-      module = await CourseSearchRepo().getModuleByNumber(moduleNr, userID);
+      module = await courseRepo.getModuleByNumber(moduleNr, userID);
       if(module == null){
         RecoLog.warning("Module $moduleNr not found");
         errorMessage = "Module with ID $moduleNr not found.";
@@ -444,7 +450,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       module!.isPlanned = false;
       notifyListeners(); 
       try {
-        await _userRepo.removePlannedModule(userID, moduleNr);
+        await userRepo.removePlannedModule(userID, moduleNr);
         RecoLog.info("Planned status removed from DB");
         
 
@@ -497,7 +503,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     module!.isPlanned = true;
     notifyListeners();
     try {
-      await _userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
+      await userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
       RecoLog.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
       
 
@@ -537,7 +543,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _userRepo.toggleFavoriteModule(userID, moduleNr);
+      await userRepo.toggleFavoriteModule(userID, moduleNr);
       RecoLog.info("Favorite status updated in DB");
       
 

@@ -2,12 +2,21 @@ import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/models/Module.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/Recommendation.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/utils/RecoLog.dart';
 
 void main() {
+  final openAIService = OpenAIService();
+  final mongoService = MongoService();
+  final transcriptRepo = TranscriptRepository(openAIService: openAIService, mongoService: mongoService);
+  final courseSearchRepo = CourseSearchRepo(mongoService: mongoService);
+  final userRepo = UserRepository(mongoService: mongoService, transcriptRepo: transcriptRepo);
+
   group('Test candidate generation', () {
     setUpAll(() async {
       await dotenv.load(fileName: '.env');
@@ -17,7 +26,12 @@ void main() {
 
     test("Test ISM Master Transcript 1", () async {
       String userID = "695f8904bcac7f16a725";
-      var rec = Recommendation();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
       RecoLog.info(candidates);
@@ -25,7 +39,12 @@ void main() {
 
     test("Test CS Master Transcript 1", () async {
       String userID = "696fc7786cc80f940621";
-      var rec = Recommendation();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
       RecoLog.info(candidates);
@@ -33,7 +52,12 @@ void main() {
 
     test("Test ISM Master Transcript 2", () async {
       String userID = "697fcca16cb5002817b1";
-      var rec = Recommendation();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
       RecoLog.info(candidates);
@@ -41,7 +65,12 @@ void main() {
 
     test("Test CS bachelor transcript", () async {
       String userID = "6967699402af64b787c3";
-      var rec = Recommendation();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
       RecoLog.info(candidates);
@@ -242,7 +271,12 @@ void main() {
 
     test("generate candidates for user", () async {
       String userID = ""; // Fill in userID
-      var rec = Recommendation();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
       var candidates = await rec.candicate_generation(userID);
 
       print("Generated ${candidates?.length} candidates");
@@ -262,8 +296,12 @@ void main() {
 
     test("rank candidates for user", () async {
       String userID = "";
-      var rec = Recommendation();
-      var openAIService = OpenAIService();
+      var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo
+      );
 
       var candidates = await rec.candicate_generation(userID);
       expect(candidates, isNotNull);
