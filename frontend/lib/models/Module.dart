@@ -96,7 +96,18 @@ class Module {
     double? calculatedRating;
     if(parsedFeedbackDetails.isNotEmpty){
       double sum = parsedFeedbackDetails.fold(0, (p, c) => p + c.rating);
-      calculatedRating = sum / parsedFeedbackDetails.length;
+      double average = sum / parsedFeedbackDetails.length;
+      
+      double base = average.floorToDouble(); 
+      double decimals = average - base; 
+      
+      if(decimals < 0.25){
+        calculatedRating = base;
+      } else if (decimals >= 0.75) {
+        calculatedRating = base + 1.0;
+      } else {
+        calculatedRating = base + 0.5;
+      }
     }
 
     String moduleNr = map['number']?.toString() ?? "N/A";

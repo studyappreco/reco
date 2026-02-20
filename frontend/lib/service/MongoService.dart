@@ -73,10 +73,10 @@ class MongoService {
       final pipeline = [
         {
           '\$lookup': {
-            'from': 'feedbacks',          
-            'localField': 'feedbacks',    
-            'foreignField': '_id',
-            'as': 'feedbackDetails'       
+            'from': 'feedbacks',
+            'localField': 'number',
+            'foreignField': 'module_nr',
+            'as': 'feedbackDetails'
           }
         }
       ];
@@ -108,10 +108,10 @@ class MongoService {
         },
         {
           '\$lookup': {
-            'from': 'feedbacks',          
-            'localField': 'feedbacks',    
-            'foreignField': '_id',
-            'as': 'feedbackDetails'       
+            'from': 'feedbacks',
+            'localField': 'number',
+            'foreignField': 'module_nr',
+            'as': 'feedbackDetails'
           }
         }
       ];
@@ -166,10 +166,10 @@ class MongoService {
         },
         {
           '\$lookup': {
-            'from': 'feedbacks',          
-            'localField': 'feedbacks',    
-            'foreignField': '_id',
-            'as': 'feedbackDetails'       
+            'from': 'feedbacks',
+            'localField': 'number',
+            'foreignField': 'module_nr',
+            'as': 'feedbackDetails'
           }
         }
       ];
@@ -469,14 +469,8 @@ class MongoService {
           'created_at': formattedDate,
         };
 
-        final result = await feedbacksCollection.insertOne(feedbackDoc);
-        final feedbackId = result.id; 
+        await feedbacksCollection.insertOne(feedbackDoc);
 
-        // updating the list in the module
-        await modulesCollection.updateOne(
-          where.eq('number', parsedModuleNr),
-          modify.push('feedbacks', feedbackId), 
-        );
         RecoLog.info("New feedback saved and linked to module $moduleNr");
       }
 
@@ -491,7 +485,6 @@ class MongoService {
     try {
       final db = await _getDb();
       final feedbacksCollection = db.collection(_feedbacksCollection);
-      final modulesCollection = db.collection(_coursesCollection);
 
       final parsedModuleNr = int.tryParse(moduleNr) ?? moduleNr;
       final existingFeedback = await feedbacksCollection.findOne(
@@ -500,12 +493,6 @@ class MongoService {
 
       if(existingFeedback != null){
         final feedbackId = existingFeedback['_id']; 
-
-        // first remove the ID from the module
-        await modulesCollection.updateOne(
-          where.eq('number', parsedModuleNr),
-          modify.pull('feedbacks', feedbackId), 
-        );
 
         // deleting the document itself
         await feedbacksCollection.deleteOne(where.id(feedbackId));
