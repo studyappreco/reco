@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/PlannerPage.dart';
@@ -35,6 +35,8 @@ final _clientSession = ClientSession();
 final _transcriptProcessor = TranscriptProcessor();
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   await dotenv.load(fileName: ".env");
   OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
   OpenAI.requestsTimeOut = const Duration(minutes: 3);
