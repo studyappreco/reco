@@ -25,8 +25,7 @@ class Module {
   final int ratingCount;
   final List<ChipType> tags;
 
-  final List<String> feedbackIds;
-  final List<ModuleFeedback> feedbackDetails;
+  final List<ModuleFeedback> feedbacks;
 
   bool isFavorite;
   bool isPlanned;
@@ -56,8 +55,7 @@ class Module {
     this.rating,
     this.ratingCount = 0,
     required this.tags,
-    this.feedbackIds = const [],
-    this.feedbackDetails = const [],
+    this.feedbacks = const [],
     this.isFavorite = false,
     this.isPlanned = false,
     this.learnContent,
@@ -80,23 +78,18 @@ class Module {
         return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
     }
 
-    List<String> parsedFeedbackIds = [];
+    List<ModuleFeedback> parsedFeedbacks = [];
     if(map['feedbacks'] != null){
-      parsedFeedbackIds = List<String>.from(map['feedbacks'].map((x) => x.toString()));
-    }
-
-    List<ModuleFeedback> parsedFeedbackDetails = [];
-    if(map['feedbackDetails'] != null){
-      parsedFeedbackDetails = (map['feedbackDetails'] as List)
+      parsedFeedbacks = (map['feedbacks'] as List)
           .map((f) => ModuleFeedback.fromMap(f))
           .toList();
     }
 
-    int calculatedRatingCount = parsedFeedbackDetails.length;
+    int calculatedRatingCount = parsedFeedbacks.length;
     double? calculatedRating;
-    if(parsedFeedbackDetails.isNotEmpty){
-      double sum = parsedFeedbackDetails.fold(0, (p, c) => p + c.rating);
-      double average = sum / parsedFeedbackDetails.length;
+    if(parsedFeedbacks.isNotEmpty){
+      double sum = parsedFeedbacks.fold(0, (p, c) => p + c.rating);
+      double average = sum / parsedFeedbacks.length;
       
       double base = average.floorToDouble(); 
       double decimals = average - base; 
@@ -134,8 +127,7 @@ class Module {
 
       tags: parsedTags,
 
-      feedbackIds: parsedFeedbackIds,
-      feedbackDetails: parsedFeedbackDetails,
+      feedbacks: parsedFeedbacks,
 
       passRate: "X%", // Static placeholder
       students: 0,     // Static placeholder

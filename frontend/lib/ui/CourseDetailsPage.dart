@@ -61,7 +61,7 @@ class CourseDetailsPage extends StatelessWidget {
               );
             }
 
-            final userFeedbacks = vm.module!.feedbackDetails.where((r) => r.userId == userID);
+            final userFeedbacks = vm.module!.feedbacks.where((r) => r.userId == userID);
             final existingFeedback = userFeedbacks.isNotEmpty ? userFeedbacks.first : null;
             final hasReviewed = existingFeedback != null;
 

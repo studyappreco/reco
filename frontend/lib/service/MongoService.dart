@@ -76,7 +76,7 @@ class MongoService {
             'from': 'feedbacks',
             'localField': 'number',
             'foreignField': 'module_nr',
-            'as': 'feedbackDetails'
+            'as': 'feedbacks'
           }
         }
       ];
@@ -111,7 +111,7 @@ class MongoService {
             'from': 'feedbacks',
             'localField': 'number',
             'foreignField': 'module_nr',
-            'as': 'feedbackDetails'
+            'as': 'feedbacks'
           }
         }
       ];
@@ -169,7 +169,7 @@ class MongoService {
             'from': 'feedbacks',
             'localField': 'number',
             'foreignField': 'module_nr',
-            'as': 'feedbackDetails'
+            'as': 'feedbacks'
           }
         }
       ];
@@ -438,7 +438,6 @@ class MongoService {
     try {
       final db = await _getDb();
       final feedbacksCollection = db.collection(_feedbacksCollection);
-      final modulesCollection = db.collection(_coursesCollection);
       
       DateTime now = DateTime.now();
       String formattedDate = "${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year}";
