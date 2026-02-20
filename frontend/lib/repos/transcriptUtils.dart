@@ -63,6 +63,7 @@ abstract class Transcript {
   DashboardDTO createDashboardDTO(UserTranscript transcript) {
     final gpa = calculateGPA(transcript);
     final categories = getOverviewCategories(transcript);
+    categories.sort((c1, c2) => c2.progress.compareTo(c1.progress));
     final earnedECTS = calculateTotalEarnedECTS(transcript);
     final completedCourses = calculateTotalCompletedCourses(transcript);
 
