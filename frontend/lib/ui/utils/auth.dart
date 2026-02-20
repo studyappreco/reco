@@ -1,7 +1,9 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
-import 'package:mongo_dart/mongo_dart.dart' hide Log;
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 const PROJECT_ID = String.fromEnvironment('PROJECT_ID');
 const MONGO_URI = String.fromEnvironment('MONGO_URI');
@@ -57,7 +59,7 @@ class DbCLient {
   static Future<Db?> _createConnection({int maxRetries = 5}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        final uri = Uri.parse(MONGO_URI!);
+        final uri = Uri.parse(MONGO_URI);
         final dbUri = uri.replace(path: '/$_databaseName').toString();
         mongoDB = await Db.create(dbUri);
         await mongoDB?.open(secure: true);
@@ -96,12 +98,15 @@ String? passwordValidator(String? value) {
 }
 
 class ClientSession extends ChangeNotifier {
+  final TranscriptRepository transcriptRepo;
+  final CourseSearchRepo courseRepo;
+
   Session? _session;
   User? _newUser;
   String? _newUserPassword;
   String? _newUserLiteral;
 
-  ClientSession() {
+  ClientSession(this.transcriptRepo, this.courseRepo) {
     _initUserSession();
   }
 
@@ -113,6 +118,10 @@ class ClientSession extends ChangeNotifier {
       _session = await account.getSession(sessionId: 'current');
     } catch (e) {
       _session = null;
+    }
+    if (_session != null) {
+      transcriptRepo.getTranscript(userID: _session!.userId);
+      courseRepo.fetchModules(userID: _session!.userId);
     }
     notifyListeners();
   }

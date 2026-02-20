@@ -39,7 +39,7 @@ class InterestSelectionPage extends StatelessWidget {
               padding: const EdgeInsets.all(25),
               child: AdaptiveButton(
                 onPressed: enabled ? () async {
-                  final repo = UserRepository();
+                  final repo = context.read<UserRepository>();
                   final session = context.read<ClientSession>();
                   final userId = session.newUser?.$id ?? session.getUserID();
                   if (userId != null) {

@@ -8,15 +8,15 @@ import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/utils/RecoLog.dart';
 
 class TranscriptRepository {
-  final OpenAIService _openAIService;
-  final MongoService _mongoService;
+  final OpenAIService openAIService;
+  final MongoService mongoService;
 
   TranscriptRepository({
-    OpenAIService? openAIService,
-    MongoService? mongoService,
-  })  : _openAIService = openAIService ?? OpenAIService(),
-        _mongoService = mongoService ?? MongoService();
+    required this.openAIService,
+    required this.mongoService
+  });
 
+  static UserTranscript? _userTranscript = null;
 
   Future<TranscriptDocument?> uploadAndParseTranscript({
     required File pdfFile,
@@ -25,14 +25,15 @@ class TranscriptRepository {
   }) async {
     try {
       // Parse the PDF using OpenAI
-      final transcript = await _openAIService.parseTranscriptPdf(pdfFile, programLiteral);
+      final transcript = await openAIService.parseTranscriptPdf(pdfFile, programLiteral);
       if (transcript != null) {
         // Store in MongoDB
         final userTranscript = UserTranscript(
           userID: userID,
           transcript: transcript
         );
-        await _mongoService.uploadTranscript(userTranscript);
+        _userTranscript = userTranscript;
+        await mongoService.uploadTranscript(userTranscript);
         return transcript;
       }
 
@@ -55,16 +56,26 @@ class TranscriptRepository {
       final transcript = createEmptyUserTranscript(userID, programLiteral);
       if (transcript != null) {
         // Store in MongoDB
-        await _mongoService.uploadTranscript(transcript);
+        _userTranscript = transcript;
+        await mongoService.uploadTranscript(transcript);
       }
     } on Exception catch (e) {
       debugPrint('Failed to upload/parse transcript: $e');
     }
   }
 
-  Future<UserTranscript?> getTranscript(String userID) async {
+  Future<UserTranscript?> getTranscript({
+    required String userID,
+    bool forceRefresh = false
+  }) async {
+    if (_userTranscript != null && !forceRefresh) {
+      return _userTranscript;
+    }
+
     try {
-      return await _mongoService.getTranscript(userID);
+      final transcript = await mongoService.getTranscript(userID);
+      _userTranscript = transcript;
+      return transcript;
     } on Exception catch (e) {
       debugPrint('Failed to get transcript: $e');
       return null;
@@ -73,7 +84,8 @@ class TranscriptRepository {
 
   Future<bool> deleteTranscript(String userID) async {
     try {
-      await _mongoService.deleteTranscript(userID);
+      await mongoService.deleteTranscript(userID);
+      _userTranscript = null;
       return true;
     } on Exception catch (e) {
       debugPrint('Failed to delete transcript: $e');
@@ -89,9 +101,12 @@ class TranscriptRepository {
     required int ects,
     required String targetCategoryName,
     required String examDate,
+    bool forceRefresh = false,
   }) async {
     try {
-      UserTranscript? userTranscript = await _mongoService.getTranscript(userID);
+      final userTranscript = (forceRefresh || _userTranscript == null)
+        ? await mongoService.getTranscript(userID)
+        : _userTranscript;
       if(userTranscript == null){
         RecoLog.warning("UserTranscript is null");
         return false;
@@ -127,7 +142,8 @@ class TranscriptRepository {
       }
 
       if(added){
-        await _mongoService.updateTranscript(userID, userTranscript.transcript);
+        await mongoService.updateTranscript(userID, userTranscript.transcript);
+        getTranscript(userID: userID, forceRefresh: true);
         RecoLog.info("Added $courseName to transcript under $targetCategoryName");
         return true;
       } else {
@@ -151,13 +167,12 @@ enum TranscriptProcessingState {
 }
 
 class TranscriptProcessor extends ChangeNotifier {
-  final TranscriptRepository _repository;
+  final TranscriptRepository repository;
 
   TranscriptProcessingState _state = TranscriptProcessingState.idle;
   String? _errorMessage;
 
-  TranscriptProcessor({TranscriptRepository? repository})
-      : _repository = repository ?? TranscriptRepository();
+  TranscriptProcessor({required this.repository});
 
   TranscriptProcessingState get state => _state;
   String? get errorMessage => _errorMessage;
@@ -173,7 +188,7 @@ class TranscriptProcessor extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final transcript = await _repository.uploadAndParseTranscript(
+      final transcript = await repository.uploadAndParseTranscript(
         pdfFile: pdfFile,
         userID: userID,
         programLiteral: programLiteral,

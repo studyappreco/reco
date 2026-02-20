@@ -51,7 +51,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       Client? client = BackendClient.getBackendClient();
       if (client == null) throw Exception("Backend client could not be initialized");
       Account account = Account(client);
-      final userRepo = UserRepository();
+      final userRepo = context.read<UserRepository>();
 
       String userName = nameController.text;
       String userPassword = passwordController.text;

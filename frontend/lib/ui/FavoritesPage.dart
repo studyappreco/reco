@@ -20,7 +20,7 @@ class FavoritesPage extends StatelessWidget {
     final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<FavoritesPageViewmodel>(
-      create: (_) => FavoritesPageViewmodel(userID),
+      create: (_) => FavoritesPageViewmodel(context.read(), context.read(), userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -311,14 +311,14 @@ class _FavoriteModuleCard extends StatelessWidget {
 }
 
 class FavoritesPageViewmodel extends ChangeNotifier {
+  final CourseSearchRepo courseRepo;
+  final UserRepository userRepo;
   final String userID;
-  final CourseSearchRepo _courseRepo = CourseSearchRepo();
-  final UserRepository _userRepo = UserRepository();
 
   List<Module> favoriteModules = [];
   bool isLoading = true;
 
-  FavoritesPageViewmodel(this.userID) {
+  FavoritesPageViewmodel(this.courseRepo, this.userRepo, this.userID) {
     loadFavorites();
   }
 
@@ -333,8 +333,8 @@ class FavoritesPageViewmodel extends ChangeNotifier {
     }
 
     try {
-      final favoriteIDs = await _userRepo.getFavoriteModuleNrs(userID);
-      favoriteModules = await _courseRepo.getModulesByModuleNrs(favoriteIDs, userID);
+      final favoriteIDs = await userRepo.getFavoriteModuleNrs(userID);
+      favoriteModules = await courseRepo.getModulesByModuleNrs(favoriteIDs, userID);
       RecoLog.info("Loaded ${favoriteModules.length} favorites");
     } catch (e, s) {
       RecoLog.error("Error loading favorites", e, s);
@@ -354,7 +354,7 @@ class FavoritesPageViewmodel extends ChangeNotifier {
 
     // DB Update
     try {
-      await _userRepo.toggleFavoriteModule(userID, module.moduleNr);
+      await userRepo.toggleFavoriteModule(userID, module.moduleNr);
     } catch (e, s) {
       RecoLog.error("Error removing favorite", e, s);
       

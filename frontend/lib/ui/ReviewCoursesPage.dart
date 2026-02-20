@@ -19,7 +19,7 @@ class ReviewCoursesPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ChangeNotifierProvider<ReviewCoursesPageViewmodel>(
-      create: (_) => ReviewCoursesPageViewmodel(context.read()),
+      create: (_) => ReviewCoursesPageViewmodel(context.read(), context.read(), context.read()),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -282,9 +282,15 @@ class Grade extends StatelessWidget {
 }
 
 class ReviewCoursesPageViewmodel extends ChangeNotifier {
+  final TranscriptRepository transcriptRepo;
+  final UserRepository userRepo;
   ClientSession clientSession;
 
-  ReviewCoursesPageViewmodel(this.clientSession) {
+  ReviewCoursesPageViewmodel(
+    this.transcriptRepo,
+    this.userRepo,
+    this.clientSession
+  ) {
   _init();
   }
 
@@ -300,8 +306,6 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
 
   Future<void> _init() async {
   _loading = true;
-  final repo = TranscriptRepository();
-  final userRepo = UserRepository();
   final userId = clientSession.getUserID();
   if (userId == null) {
   _loading = false;
@@ -309,7 +313,7 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
   return;
   }
 
-  final userTranscript = await repo.getTranscript(userId);
+  final userTranscript = await transcriptRepo.getTranscript(userID: userId, forceRefresh: false);
   final userDetails = await userRepo.getUserDetails(userId);
   final dto = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
   if (dto == null) {

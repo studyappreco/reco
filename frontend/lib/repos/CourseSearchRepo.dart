@@ -11,7 +11,9 @@ const mapping_literal_largeword = {
 };
 
 class CourseSearchRepo {
-  final MongoService _mongoService = MongoService();
+  final MongoService mongoService;
+
+  CourseSearchRepo({required this.mongoService});
   static List<Module> _allModules = [];
 
   Future<Module?> getModuleByNumber(String moduleNr, String userID) async {
@@ -31,9 +33,9 @@ class CourseSearchRepo {
     // database search for the module
     try {
       // getting the module and the list of planned and favorite modules
-      final jsonmodule = await _mongoService.getModuleByNumber(moduleNr);
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final jsonmodule = await mongoService.getModuleByNumber(moduleNr);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       if (jsonmodule == null) {
         RecoLog.warning("Module $moduleNr not found in Database");
@@ -58,9 +60,9 @@ class CourseSearchRepo {
     if (moduleNrs.isEmpty) return [];
 
     try {
-      final jsonList = await _mongoService.getModulesByModuleNrs(moduleNrs);
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final jsonList = await mongoService.getModulesByModuleNrs(moduleNrs);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       return jsonList.map((json) {
         return Module.fromMap(
@@ -84,7 +86,7 @@ class CourseSearchRepo {
       // first, we fetch all modules if we don't already have them or if forcerefersh == true
       if (_allModules.isEmpty || forceRefresh) {
         RecoLog.info("Fetching raw modules from DB...");
-        final List<Map<String, dynamic>> jsonmodules = await _mongoService
+        final List<Map<String, dynamic>> jsonmodules = await mongoService
             .getAllModules();
 
         // creating the module list without the user specific data (favorite, planned)
@@ -94,8 +96,8 @@ class CourseSearchRepo {
       }
 
       // always retrieve the user specific data (favorites, planned) fresh from the database
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       // updating the module list with user-specific data
       for (var module in _allModules) {
@@ -286,7 +288,7 @@ class CourseSearchRepo {
   }) async {
     if (availableModuleIds.isEmpty || userEmbedding.isEmpty) return [];
 
-    return await _mongoService.vectorSearchCourses(
+    return await mongoService.vectorSearchCourses(
       queryVector: userEmbedding,
       candidateModules: availableModuleIds,
     );
