@@ -1,6 +1,7 @@
 import 'package:frontend/theme/colors.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:frontend/ui/widgets/Chip.dart';
+import 'package:frontend/models/Feedback.dart';
 
 // Model representing a university module
 // It combines official data (from Moses), recommendation metrics and user-specific states
@@ -23,6 +24,9 @@ class Module {
   final double? rating;
   final int ratingCount;
   final List<ChipType> tags;
+
+  final List<String> feedbackIds;
+  final List<ModuleFeedback> feedbackDetails;
 
   bool isFavorite;
   bool isPlanned;
@@ -52,6 +56,8 @@ class Module {
     this.rating,
     this.ratingCount = 0,
     required this.tags,
+    this.feedbackIds = const [],
+    this.feedbackDetails = const [],
     this.isFavorite = false,
     this.isPlanned = false,
     this.learnContent,
@@ -72,6 +78,25 @@ class Module {
     if(map['keywords'] != null){
       parsedTags = (map['keywords'] as List).map((tag){
         return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
+    }
+
+    List<String> parsedFeedbackIds = [];
+    if(map['feedbacks'] != null){
+      parsedFeedbackIds = List<String>.from(map['feedbacks'].map((x) => x.toString()));
+    }
+
+    List<ModuleFeedback> parsedFeedbackDetails = [];
+    if(map['feedbackDetails'] != null){
+      parsedFeedbackDetails = (map['feedbackDetails'] as List)
+          .map((f) => ModuleFeedback.fromMap(f))
+          .toList();
+    }
+
+    int calculatedRatingCount = parsedFeedbackDetails.length;
+    double? calculatedRating;
+    if(parsedFeedbackDetails.isNotEmpty){
+      double sum = parsedFeedbackDetails.fold(0, (p, c) => p + c.rating);
+      calculatedRating = sum / parsedFeedbackDetails.length;
     }
 
     String moduleNr = map['number']?.toString() ?? "N/A";
@@ -98,6 +123,9 @@ class Module {
 
       tags: parsedTags,
 
+      feedbackIds: parsedFeedbackIds,
+      feedbackDetails: parsedFeedbackDetails,
+
       passRate: "X%", // Static placeholder
       students: 0,     // Static placeholder
       duration: "X",  // Static placeholder
@@ -106,9 +134,9 @@ class Module {
       matchPercentage: 0, // Static placeholder
       matchBasis: null, // Static placeholder
 
-      // Community Ratings (Future Work)
-      rating: null, // Static placeholder
-      ratingCount: 0, // Static placeholder
+      // Community Ratings
+      rating: calculatedRating, 
+      ratingCount: calculatedRatingCount,
 
       // account-specific data
       isFavorite: userFavorites.contains(moduleNr),

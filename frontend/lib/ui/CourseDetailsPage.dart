@@ -60,6 +60,11 @@ class CourseDetailsPage extends StatelessWidget {
                 ),
               );
             }
+
+            final userFeedbacks = vm.module!.feedbackDetails.where((r) => r.userId == userID);
+            final existingFeedback = userFeedbacks.isNotEmpty ? userFeedbacks.first : null;
+            final hasReviewed = existingFeedback != null;
+
             // Display data
             return Padding(
               padding: EdgeInsets.all(24),
@@ -167,7 +172,7 @@ class CourseDetailsPage extends StatelessWidget {
                                   color: Colors.amberAccent,
                                 ),
                                 Text(
-                                  vm.module!.rating != null ? vm.module!.rating.toString() : "-",
+                                  vm.module!.rating != null ? vm.module!.rating!.toStringAsFixed(1) : "-",
                                   style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
                                 ),
                               ],
@@ -265,17 +270,22 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => context.push(
-                                    '${GoRouterState.of(context).uri.path}/give-feedback',
-                                    extra: {
-                                      'title': vm.module!.title,
-                                      'credits': vm.module!.credits,
-                                      'moduleNr': vm.module!.moduleNr,
-                                    },
-                                  ),
+                                  onPressed: () async {
+                                    await context.push(
+                                      '${GoRouterState.of(context).uri.path}/give-feedback',
+                                      extra: {
+                                        'title': vm.module!.title,
+                                        'credits': vm.module!.credits,
+                                        'moduleNr': vm.module!.moduleNr,
+                                        'initialRating': existingFeedback?.rating,
+                                        'initialComment': existingFeedback?.feedbackText, 
+                                      },
+                                    );
+                                    vm._loadModule(forceRefresh: true); 
+                                  },
                                   child: Center(
                                     child: Text(
-                                      "+ Give Feedback",
+                                      hasReviewed ? "Edit Feedback" : "+ Give Feedback",
                                       style: textTheme.bodyMedium?.copyWith(color: Colors.white),
                                       textAlign: TextAlign.center,
                                     ),
@@ -395,7 +405,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     _loadModule();
   }
   
-  Future<void> _loadModule() async{
+  Future<void> _loadModule({bool forceRefresh = false}) async{
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -410,7 +420,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
 
     try{
-      module = await courseRepo.getModuleByNumber(moduleNr, userID);
+      module = await courseRepo.getModuleByNumber(moduleNr, userID, forceRefresh: forceRefresh);
       if(module == null){
         RecoLog.warning("Module $moduleNr not found");
         errorMessage = "Module with ID $moduleNr not found.";

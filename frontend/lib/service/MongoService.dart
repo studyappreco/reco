@@ -21,6 +21,7 @@ class MongoService {
   static const String _transcriptsCollection = 'transcripts';
   static const String _coursesCollection = 'courses_info';
   static const String _userDetailsCollection = 'user_details';
+  static const String _feedbacksCollection = 'feedbacks';
 
   Future<Db> _getDb() async {
     final db = await DbCLient.getMongoDBClient();
@@ -69,8 +70,19 @@ class MongoService {
       final db = await _getDb();
       final collection = db.collection(_coursesCollection);
 
+      final pipeline = [
+        {
+          '\$lookup': {
+            'from': 'feedbacks',          
+            'localField': 'feedbacks',    
+            'foreignField': '_id',
+            'as': 'feedbackDetails'       
+          }
+        }
+      ];
+
       final List<Map<String, dynamic>> jsonList = await collection
-          .find()
+          .aggregateToStream(pipeline)
           .toList();
 
       RecoLog.info("Loaded ${jsonList.length} courses from DB");
@@ -88,14 +100,30 @@ class MongoService {
       final collection = db.collection(_coursesCollection);
       final queryParam = int.tryParse(moduleNr) ?? moduleNr;
 
-      final doc = await collection.findOne(where.eq('number', queryParam));
+      final pipeline = [
+        {
+          '\$match': {
+            'number': queryParam
+          }
+        },
+        {
+          '\$lookup': {
+            'from': 'feedbacks',          
+            'localField': 'feedbacks',    
+            'foreignField': '_id',
+            'as': 'feedbackDetails'       
+          }
+        }
+      ];
 
-      if (doc == null) {
+      final result = await collection.aggregateToStream(pipeline).toList();
+
+      if(result.isEmpty){
         RecoLog.warning("Module search: Module '$moduleNr' not found in DB");
         return null;
       }
 
-      return doc;
+      return result.first;
     } catch (e, s) {
       RecoLog.error("Error loading module $moduleNr", e, s);
       return null;
@@ -130,8 +158,24 @@ class MongoService {
         queryParams.add(int.tryParse(nr) ?? nr);
       }
 
+      final pipeline = [
+        {
+          '\$match': {
+            'number': {'\$in': queryParams} 
+          }
+        },
+        {
+          '\$lookup': {
+            'from': 'feedbacks',          
+            'localField': 'feedbacks',    
+            'foreignField': '_id',
+            'as': 'feedbackDetails'       
+          }
+        }
+      ];
+
       final List<Map<String, dynamic>> jsonList = await collection
-          .find(where.oneFrom('number', queryParams))
+          .aggregateToStream(pipeline)
           .toList();
 
       RecoLog.info("Loaded ${jsonList.length} modules from DB");
@@ -389,6 +433,93 @@ class MongoService {
       RecoLog.error("Error removing planned module", e, s);
     }
   }
+
+  Future<bool> submitFeedback(String moduleNr, String userId, int rating, String feedbackText) async {
+    try {
+      final db = await _getDb();
+      final feedbacksCollection = db.collection(_feedbacksCollection);
+      final modulesCollection = db.collection(_coursesCollection);
+      
+      DateTime now = DateTime.now();
+      String formattedDate = "${now.day.toString().padLeft(2, '0')}.${now.month.toString().padLeft(2, '0')}.${now.year}";
+      final parsedModuleNr = int.tryParse(moduleNr) ?? moduleNr;
+
+      final existingFeedback = await feedbacksCollection.findOne(
+        where.eq('module_nr', parsedModuleNr).eq('userId', userId) 
+      );
+
+      if(existingFeedback != null){
+        // update the feedback if there was already one
+        await feedbacksCollection.updateOne(
+          where.id(existingFeedback['_id']),
+          modify
+            .set('feedbackText', feedbackText) 
+            .set('rating', rating)
+            .set('created_at', formattedDate)
+        );
+        RecoLog.info("Existing feedback updated for module $moduleNr");
+        
+      } else {
+        // creating a new one
+        final feedbackDoc = {
+          'module_nr': parsedModuleNr,
+          'userId': userId,
+          'feedbackText': feedbackText, 
+          'rating': rating,
+          'created_at': formattedDate,
+        };
+
+        final result = await feedbacksCollection.insertOne(feedbackDoc);
+        final feedbackId = result.id; 
+
+        // updating the list in the module
+        await modulesCollection.updateOne(
+          where.eq('number', parsedModuleNr),
+          modify.push('feedbacks', feedbackId), 
+        );
+        RecoLog.info("New feedback saved and linked to module $moduleNr");
+      }
+
+      return true;
+    } catch (e, s) {
+      RecoLog.error("Error submitting feedback", e, s);
+      return false;
+    }
+  }
+
+  Future<bool> deleteFeedback(String moduleNr, String userId) async {
+    try {
+      final db = await _getDb();
+      final feedbacksCollection = db.collection(_feedbacksCollection);
+      final modulesCollection = db.collection(_coursesCollection);
+
+      final parsedModuleNr = int.tryParse(moduleNr) ?? moduleNr;
+      final existingFeedback = await feedbacksCollection.findOne(
+        where.eq('module_nr', parsedModuleNr).eq('userId', userId) 
+      );
+
+      if(existingFeedback != null){
+        final feedbackId = existingFeedback['_id']; 
+
+        // first remove the ID from the module
+        await modulesCollection.updateOne(
+          where.eq('number', parsedModuleNr),
+          modify.pull('feedbacks', feedbackId), 
+        );
+
+        // deleting the document itself
+        await feedbacksCollection.deleteOne(where.id(feedbackId));
+        
+        RecoLog.info("Feedback deleted for module $moduleNr");
+        return true;
+      }
+      return false; 
+    } catch (e, s) {
+      RecoLog.error("Error deleting feedback", e, s);
+      return false;
+    }
+  }
+
 
   Future<List<String>> vectorSearchCourses({
     required List<double> queryVector,
