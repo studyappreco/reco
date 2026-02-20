@@ -1,11 +1,10 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mongo_dart/mongo_dart.dart' hide Log;
 
-final PROJECT_ID = dotenv.env['PROJECT_ID'];
-final MONGO_URI = dotenv.env['MONGO_URI'];
+const PROJECT_ID = String.fromEnvironment('PROJECT_ID');
+const MONGO_URI = String.fromEnvironment('MONGO_URI');
 const CUSTOM_ENDPOINT = "https://apps-tub.de/v1";
 
 
@@ -18,8 +17,7 @@ class BackendClient {
         return backendClient;
     } else {
       try{
-        backendClient = Client().
-        setProject(PROJECT_ID!).setEndpoint(CUSTOM_ENDPOINT);
+        backendClient = Client().setProject(PROJECT_ID).setEndpoint(CUSTOM_ENDPOINT);
         return backendClient;
       } on Exception {
         return null;
