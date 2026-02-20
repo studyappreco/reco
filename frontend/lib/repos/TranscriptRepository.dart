@@ -30,6 +30,7 @@ class TranscriptRepository {
         // Store in MongoDB
         final userTranscript = UserTranscript(
           userID: userID,
+          programLiteral: programLiteral,
           transcript: transcript
         );
         _userTranscript = userTranscript;

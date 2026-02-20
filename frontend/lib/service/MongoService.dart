@@ -6,6 +6,8 @@ import 'package:frontend/ui/utils/auth.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'package:frontend/utils/RecoLog.dart';
 
+import '../models/Module.dart';
+
 const VECTOR_INDEX_NAME = "vector_index_including_filter";
 const SEARCH_INDEX_Name = "course_search_index";
 
@@ -47,10 +49,13 @@ class MongoService {
     await collection.insertOne(transcript.toJson());
   }
 
-  Future<void> updateTranscript(String userID, TranscriptDocument transcript) async {
+  Future<void> updateTranscript(
+    String userID,
+    TranscriptDocument transcript,
+  ) async {
     final db = await _getDb();
     final collection = db.collection(_transcriptsCollection);
-    
+
     await collection.update(
       where.eq('userID', userID),
       modify.set('transcript', transcript.toJson()),
@@ -291,7 +296,9 @@ class MongoService {
     }
   }
 
-  Future<Map<String, List<String>>> getPlannedModulesStruct(String userID) async {
+  Future<Map<String, List<String>>> getPlannedModulesStruct(
+    String userID,
+  ) async {
     try {
       final db = await _getDb();
       final doc = await db
@@ -448,12 +455,11 @@ class MongoService {
       ];
 
       final results = await collection.aggregateToStream(pipeline).toList();
-      print(results);
       if (results.isNotEmpty) {
         matchedModuleNrs.add(results.first['number'].toString());
       }
     }
-
+    RecoLog.info(matchedModuleNrs.toString());
     return matchedModuleNrs;
   }
 
@@ -472,5 +478,36 @@ class MongoService {
       RecoLog.error("Error updating ranked candidates for user $userID", e, s);
       rethrow;
     }
+  }
+
+  Future<List<Module>> getModulesById(
+    List<String> recommendedModuleNrs,
+    String userID,
+  ) async {
+    if (recommendedModuleNrs.isEmpty) return [];
+
+    final db = await _getDb();
+    final collection = db.collection(_coursesCollection);
+
+    final List<dynamic> queryParams = recommendedModuleNrs
+        .map((nr) => int.tryParse(nr) ?? nr)
+        .toList();
+
+    final jsonList = await collection
+        .find(where.oneFrom('number', queryParams))
+        .toList();
+
+    final favorites = await getFavoriteModuleNrs(userID);
+    final planned = await getAllPlannedModuleNrs(userID);
+
+    return jsonList
+        .map(
+          (json) => Module.fromMap(
+            json,
+            userFavorites: favorites,
+            userPlanned: planned,
+          ),
+        )
+        .toList();
   }
 }

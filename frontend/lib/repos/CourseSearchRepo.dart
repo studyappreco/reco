@@ -266,16 +266,12 @@ class CourseSearchRepo {
     String programLiteral,
     String userID,
   ) async {
-    var longStupoName = mapping_literal_largeword[programLiteral];
     if (_allModules.isEmpty) {
       await fetchModules(userID: userID);
     }
     final modulesForStupo = _allModules
-        .where(
-          (module) => module.assignedDegrees.any(
-            (degree) => degree['program'] == longStupoName,
-          ),
-        ).map((x) => x.id)
+        .where((module) => module.paths.containsKey(programLiteral))
+        .map((x) => x.moduleNr)
         .toList();
     RecoLog.info("Found ${modulesForStupo.length} modules for $programLiteral");
     return modulesForStupo;

@@ -21,7 +21,7 @@ class UserDetails {
     return UserDetails(
       userID: json['userID'] ?? '',
       username: json['username'] ?? '',
-      programLiteral: json['programLiteral'] ?? "ISM", // TODO: change
+      programLiteral: json['programLiteral'] ?? "ISM",
       interests: List<String>.from(json['interests'] ?? []),
       plannedModuleNrs: Map<String, List<dynamic>>.from(json['planned_modules'] ?? []),
       favoritedModuleNrs: List<String>.from(json['favorited_modules'] ?? []),

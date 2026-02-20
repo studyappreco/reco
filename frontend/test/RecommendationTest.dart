@@ -270,7 +270,7 @@ void main() {
     });
 
     test("generate candidates for user", () async {
-      String userID = ""; // Fill in userID
+      String userID = "696fc7786cc80f940621";
       var rec = Recommendation(
           openAIService: openAIService,
           mongoService: mongoService,
@@ -295,7 +295,7 @@ void main() {
     });
 
     test("rank candidates for user", () async {
-      String userID = "";
+      String userID = "696fc7786cc80f940621";
       var rec = Recommendation(
           openAIService: openAIService,
           mongoService: mongoService,
@@ -326,6 +326,54 @@ void main() {
 
       expect(rankedCandidates, isNotNull);
       expect(rankedCandidates!.isNotEmpty, isTrue);
+    });
+  });
+
+  group("Test getRecommendedModules API", () {
+    setUpAll(() async {
+      await dotenv.load(fileName: '.env');
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+      OpenAI.requestsTimeOut = const Duration(minutes: 3);
+    });
+
+    test("get recommended modules for user with existing recommendations", () async {
+      String userID = "696fc7786cc80f940621";
+      var rec = Recommendation(
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
+      );
+
+      var modules = await rec.getRecommendedModules(userID);
+
+      print("Got ${modules?.length} recommended modules");
+      if (modules != null) {
+        for (var m in modules) {
+          print("- ${m.moduleNr}: ${m.title}");
+        }
+      }
+
+      expect(modules, isNotNull);
+    });
+
+    test("get recommended modules for user without recommendations", () async {
+      String userID = "697fcca16cb5002817b1";
+      var rec = Recommendation(
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
+      );
+
+      var modules = await rec.getRecommendedModules(userID);
+
+      print("Got ${modules?.length} recommended modules");
+      if (modules != null) {
+        for (var m in modules) {
+          print("- ${m.moduleNr}: ${m.title}");
+        }
+      }
     });
   });
 }

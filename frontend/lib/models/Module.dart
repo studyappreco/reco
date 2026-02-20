@@ -16,7 +16,7 @@ class Module {
   final String term;
   final int? version;
   
-  final List<dynamic> assignedDegrees;
+  final Map<String, dynamic> paths;
    
   final String? matchBasis;
   final int matchPercentage;
@@ -45,7 +45,7 @@ class Module {
     this.responsible = "Unknown",
     this.language = "Unknown",
     this.term = "",
-    this.assignedDegrees = const [],
+    this.paths = const <String, dynamic>{},
     this.version,
     this.matchBasis,
     required this.matchPercentage,
@@ -89,8 +89,10 @@ class Module {
       responsible: map['responsible'] ?? "N/A",
       language: map['language'] ?? "N/A",
       term: map['term'] ?? "",
-      
-      assignedDegrees: map['assigned_degrees'] ?? [],
+
+      paths: map['paths'] is Map<String, dynamic>
+          ? map['paths'] as Map<String, dynamic>
+          : <String, dynamic>{},
 
       learnContent: map['learn_content'],
       learnResult: map['learn_outcomes'],
