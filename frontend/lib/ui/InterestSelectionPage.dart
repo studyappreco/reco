@@ -15,7 +15,7 @@ class InterestSelectionPage extends StatelessWidget {
     return ChangeNotifierProvider<InterestSelectionViewmodel>(
       create: (_) => InterestSelectionViewmodel(),
       child: Scaffold(
-        appBar: AppBar(title: const Text("Select at least 3 intressts")),
+        appBar: AppBar(title: const Text("Select at least 3 interests")),
         body: Consumer<InterestSelectionViewmodel>(
           builder: (context, vm, child) {
             return Wrap(
