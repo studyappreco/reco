@@ -15,7 +15,7 @@ class InterestSelectionPage extends StatelessWidget {
     return ChangeNotifierProvider<InterestSelectionViewmodel>(
       create: (_) => InterestSelectionViewmodel(),
       child: Scaffold(
-        appBar: AppBar(title: const Text("Please select your areas of Interest in your degree")),
+        appBar: AppBar(title: const Text("Select at least 3 interests")),
         body: Consumer<InterestSelectionViewmodel>(
           builder: (context, vm, child) {
             return Wrap(
@@ -112,15 +112,22 @@ class InterestSelectionViewmodel extends ChangeNotifier {
     "Machine Learning & Statictics",
     "Cybersecurity",
     "Cloud Computing",
-    "Data Science",
-    "Blockchain",
+    "Blockchain", "NLP",
     "Computer Networks",
     "Robotics & Automation",
     "Software Architecture",
     "Human-Computer Interaction",
     "Embedded Systems",
     "Algorithms & Theory",
-    "Web Development", "Probability"
+    "Distributed Systems Engineering", "Probability",
+    "High-Performance Computing", "Data Science",
+    "Parallel Programming Models", "Quantum Computing",
+    "Explainable & Trustworthy AI", "Web Development",
+    "Computational Neuroscience", "Autonomous Systems",
+    "Computer Vision Systems", "IoT Systems",
+    "Optimization & Operations Research", 
+    "Advanced Database Systems", "Edge Computing",
+    "DevOps & Infrastructure Automation",
   ];
   final List<String> _selectedInterests = <String>[];
 
