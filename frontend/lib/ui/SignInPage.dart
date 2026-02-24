@@ -56,7 +56,7 @@ class SignInPageState extends State<SignInPageForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.standardWhitebackground,
-      appBar: AppBar(title: const Text("Welcome, Sign in tp Reco")),
+      appBar: AppBar(title: const Text("Welcome, Sign in to Reco")),
       body: Column(
         mainAxisAlignment: .spaceBetween,
         children: [
@@ -64,22 +64,27 @@ class SignInPageState extends State<SignInPageForm> {
             child: Form(
               key: _formKey,
               child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 350,
-                      child: ValidatedTextField(focusNode: null,
-                          validator: emailValidator,
-                          labelText: "example@gmail.com", controller: emailController),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 350,
+                          child: ValidatedTextField(focusNode: null,
+                            validator: emailValidator,
+                            labelText: "example@gmail.com", controller: emailController),
+                        ),
+                        const SizedBox(height: 25),
+                        SizedBox(
+                          width: 350,
+                          child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
+                      ],
                     ),
-                    const SizedBox(height: 25),
-                    SizedBox(
-                        width: 350,
-                        child: PasswordField(controller: passwordController, label: "Password", hint: "Enter your password")),
-                  ],
-                ),
+                  )
+                )
               )
             ),
           ),
