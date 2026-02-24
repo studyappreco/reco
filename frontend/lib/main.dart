@@ -8,6 +8,7 @@ import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
+import 'package:frontend/theme/colors.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
@@ -57,7 +58,7 @@ void main() async {
           )
         ),
         ChangeNotifierProvider(create: (context) => TranscriptProcessor(repository: context.read())),
-        ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())),
+        ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())..init()),
       ],
       child: MyApp(),
     ),
@@ -67,10 +68,33 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    final loading = context.watch<ClientSession>().loading;
+
+    return loading ? MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Reco Demo',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      // themeMode: ThemeMode.system, // = Switches automatically depending on cell phone settings
+      themeMode: ThemeMode.light, //  = Always forces light mode
+      home: Scaffold(
+        backgroundColor: AppColors.standardWhitebackground,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: .center,
+            children: [
+              Image.asset(
+                "assets/images/reco_logo_transparent_bg.png",
+                fit: BoxFit.contain,
+              ),
+              CircularProgressIndicator()
+            ]
+          )
+        ),
+      )
+    ) : MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Reco Demo',
       theme: AppTheme.lightTheme,
@@ -84,7 +108,7 @@ class MyApp extends StatelessWidget {
 
 GoRouter createRouter(ClientSession clientSession) {
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/sign-in',
     refreshListenable: clientSession,
 
     redirect: (context, state) async {
@@ -102,7 +126,7 @@ GoRouter createRouter(ClientSession clientSession) {
         return '/sign-in';
       }
 
-      if (loggedIn && onAuthFlow) {
+      if (loggedIn && onAuthFlow && !clientSession.loading) {
         return '/home';
       }
 

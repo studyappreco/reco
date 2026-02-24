@@ -101,16 +101,18 @@ class ClientSession extends ChangeNotifier {
   final TranscriptRepository transcriptRepo;
   final CourseSearchRepo courseRepo;
 
+  bool _loading = true;
   Session? _session;
   User? _newUser;
   String? _newUserPassword;
   String? _newUserLiteral;
 
-  ClientSession(this.transcriptRepo, this.courseRepo) {
-    _initUserSession();
-  }
+  ClientSession(this.transcriptRepo, this.courseRepo) { }
 
-  Future<void> _initUserSession() async {
+  Future<void> init() async {
+    _loading = true;
+    notifyListeners();
+
     try {
       Client? client = BackendClient.getBackendClient();
       if (client == null) throw Exception("Backend client could not be initialized");
@@ -118,13 +120,18 @@ class ClientSession extends ChangeNotifier {
       _session = await account.getSession(sessionId: 'current');
     } catch (e) {
       _session = null;
+      _loading = false;
+      notifyListeners();
     }
     if (_session != null) {
-      transcriptRepo.getTranscript(userID: _session!.userId);
       courseRepo.fetchModules(userID: _session!.userId);
+      await transcriptRepo.getTranscript(userID: _session!.userId);
     }
+    _loading = false;
     notifyListeners();
   }
+
+  bool get loading => _loading;
 
   Session? get session => _session;
 

@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
     final clientSession = context.read<ClientSession>();
 
     return ChangeNotifierProvider<HomePageViewmodel>(
-      create: (_) => HomePageViewmodel(context.read(), context.read(), clientSession, context.read()),
+      create: (_) => HomePageViewmodel(context.read(), context.read(), clientSession, context.read())..init(),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -260,9 +260,7 @@ class HomePageViewmodel extends ChangeNotifier {
     this.userRepo,
     this.clientSession,
     this.transcriptProcessor
-  ) {
-    _init();
-  }
+  );
 
   bool _loading = false;
   TranscriptAvailability _transcriptAvailability = .undefined;
@@ -295,7 +293,7 @@ class HomePageViewmodel extends ChangeNotifier {
     }
   }
 
-  Future<void> _init() async {
+  Future<void> init() async {
     _loading = true;
     notifyListeners();
 
