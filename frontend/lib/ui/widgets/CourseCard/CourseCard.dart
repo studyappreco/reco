@@ -8,31 +8,27 @@ class CourseCard extends StatelessWidget {
   final String title;
   final String moduleNr;
   final String credits;
-  final String category;
-  final String? matchBasis; 
   final List<ChipType> tags;
   final double? rating;
-  final int matchPercentage;
-  
+
   final bool isFavorite;
-  final bool isPlanned; 
+  final bool isPlanned;
+  final bool isRecommended;
 
   final VoidCallback onCardTap;
   final VoidCallback onFavoriteTap;
-  final VoidCallback onPlanTap; 
+  final VoidCallback onPlanTap;
 
   const CourseCard({
     super.key,
     required this.title,
     required this.moduleNr,
     required this.credits,
-    required this.category,
-    this.matchBasis,
     required this.tags,
     this.rating,
-    required this.matchPercentage,
     required this.isFavorite,
     required this.isPlanned,
+    required this.isRecommended,
     required this.onCardTap,
     required this.onFavoriteTap,
     required this.onPlanTap,
@@ -57,7 +53,6 @@ class CourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // Top
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,16 +64,24 @@ class CourseCard extends StatelessWidget {
                         children: [
                           RichText(
                             text: TextSpan(
-                              style: textTheme.titleMedium?.copyWith(color: isDarkMode ? Colors.white : AppColors.textMain, fontWeight: FontWeight.bold),
+                              style: textTheme.titleMedium?.copyWith(
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : AppColors.textMain,
+                                fontWeight: FontWeight.bold,
+                              ),
                               children: [
                                 TextSpan(text: title),
                                 TextSpan(text: ' ($moduleNr)'),
-                                TextSpan(text: ' • $credits ECTS', style: textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                                TextSpan(
+                                  text: ' • $credits ECTS',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          Text(category, style: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
                         ],
                       ),
                     ),
@@ -97,17 +100,18 @@ class CourseCard extends StatelessWidget {
                             selectedIcon: Icons.favorite,
                             activeColor: AppColors.pink,
                             activeBackgroundColor: AppColors.pinkLight,
-                            inactiveColor: AppColors.pink, 
+                            inactiveColor: AppColors.pink,
                           ),
-                          
-                          SizedBox(width: 8), 
+
+                          SizedBox(width: 8),
 
                           // Plan Button
                           AnimatedIconButton(
                             isSelected: isPlanned,
                             onTap: onPlanTap,
                             svgAsset: 'assets/icons/book-open.svg',
-                            selectedSvgAsset: 'assets/icons/book-open-filled.svg',
+                            selectedSvgAsset:
+                                'assets/icons/book-open-filled.svg',
                             activeColor: AppColors.primaryBlue,
                             activeBackgroundColor: AppColors.primaryBlueLight,
                             inactiveColor: AppColors.primaryBlue,
@@ -129,7 +133,10 @@ class CourseCard extends StatelessWidget {
                         for (var tag in tags.take(3))
                           ChipWidget(label: tag.label, color: tag.color),
                         if (tags.length > 3)
-                          ChipWidget(label: "+${tags.length - 3}", color: Colors.blueGrey)
+                          ChipWidget(
+                            label: "+${tags.length - 3}",
+                            color: Colors.blueGrey,
+                          ),
                       ],
                     ),
                   ),
@@ -145,50 +152,29 @@ class CourseCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star, color: AppColors.star, size: 25),
+                          const Icon(
+                            Icons.star,
+                            color: AppColors.star,
+                            size: 25,
+                          ),
                           Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: Text(
                               hasRating ? rating.toString() : '-',
                               style: textTheme.titleMedium?.copyWith(
-                                color: isDarkMode ? Colors.white : AppColors.textMain,
+                                color: isDarkMode
+                                    ? Colors.white
+                                    : AppColors.textMain,
                               ),
                             ),
                           ),
                         ],
                       ),
-
-                      // Match Rechts
-                      Flexible(
-                        child: Wrap(
-                          alignment: WrapAlignment.end,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 8.0,
-                          runSpacing: 4.0,
-                          children: [
-                            if (matchBasis != null)
-                              Text.rich(
-                                TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'Based on your $matchBasis ',
-                                      style: textTheme.labelSmall?.copyWith(color: AppColors.green),
-                                    ),
-                                    const WidgetSpan(
-                                      alignment: PlaceholderAlignment.middle,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(left: 2.0),
-                                        child: Icon(Icons.check_box, color: AppColors.matchGreen, size: 18),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                textAlign: TextAlign.right,
-                              ),
-                            ChipWidget(label: "$matchPercentage% match", color: Colors.green),
-                          ],
+                      if (isRecommended)
+                        ChipWidget(
+                          label: "Recommended for you",
+                          color: Colors.green,
                         ),
-                      ),
                     ],
                   ),
                 ),

@@ -17,15 +17,13 @@ class Module {
   final int? version;
   
   final Map<String, dynamic> paths;
-   
-  final String? matchBasis;
-  final int matchPercentage;
   final double? rating;
   final int ratingCount;
   final List<ChipType> tags;
 
   bool isFavorite;
   bool isPlanned;
+  bool isRecommended;
 
   final String? learnContent;
   final String? learnResult;
@@ -47,8 +45,7 @@ class Module {
     this.term = "",
     this.paths = const <String, dynamic>{},
     this.version,
-    this.matchBasis,
-    required this.matchPercentage,
+   this.isRecommended = false,
     this.rating,
     this.ratingCount = 0,
     required this.tags,
@@ -71,7 +68,7 @@ class Module {
     List<ChipType> parsedTags = [];
     if(map['keywords'] != null){
       parsedTags = (map['keywords'] as List).map((tag){
-        return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
+        return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();
     }
 
     String moduleNr = map['number']?.toString() ?? "N/A";
@@ -104,10 +101,6 @@ class Module {
       students: 0,     // Static placeholder
       duration: "X",  // Static placeholder
 
-      // Data from the recommendation system
-      matchPercentage: 0, // Static placeholder
-      matchBasis: null, // Static placeholder
-
       // Community Ratings (Future Work)
       rating: null, // Static placeholder
       ratingCount: 0, // Static placeholder
@@ -115,6 +108,7 @@ class Module {
       // account-specific data
       isFavorite: userFavorites.contains(moduleNr),
       isPlanned: userPlanned.contains(moduleNr),
+      isRecommended: map['is_recommended'] ?? false,
     );
   }
 }

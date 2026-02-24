@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
@@ -36,16 +38,56 @@ class DbCLient {
   static const String _databaseName = 'reco_db';
 
   static Db? mongoDB;
+  static Completer<Db?>? _connectionCompleter;
 
   static Future<Db?> getMongoDBClient() async {
-    if (mongoDB != null) {
-      if (mongoDB!.isConnected) {
-        return mongoDB;
-      }
-      print("Connection stale retrying");
-      await _closeConnection();
+    // Fast path: already connected AND healthy
+    if (mongoDB != null && await _isConnectionHealthy()) {
+      return mongoDB;
     }
-    return await _createConnection();
+
+    // If a connection attempt is already in progress, wait for it
+    if (_connectionCompleter != null) {
+      return _connectionCompleter!.future;
+    }
+
+    // Start a new connection attempt
+    _connectionCompleter = Completer<Db?>();
+
+    try {
+      if (mongoDB != null) {
+        debugPrint('[DbClient] Connection stale, retrying');
+        await _closeConnection();
+      }
+      final db = await _createConnection();
+      _connectionCompleter!.complete(db);
+      return db;
+    } catch (e) {
+      _connectionCompleter!.completeError(e);
+      return null;
+    } finally {
+      _connectionCompleter = null;
+    }
+  }
+
+  /// Health check - verify connection exists and is marked as connected.
+  /// Note: We avoid running a ping command here because it can trigger
+  /// reconnection logic while other operations are in-flight.
+  static Future<bool> _isConnectionHealthy() async {
+    return mongoDB != null && mongoDB!.isConnected;
+  }
+
+  /// Public method to verify/restore connection (useful for app lifecycle)
+  static Future<void> ensureConnected() async {
+    if (!await _isConnectionHealthy()) {
+      await _closeConnection();
+      await getMongoDBClient();
+    }
+  }
+
+  /// Public method to close connection (useful for app termination/background)
+  static Future<void> closeConnection() async {
+    await _closeConnection();
   }
 
   static Future<void> _closeConnection() async {
@@ -71,7 +113,7 @@ class DbCLient {
         }
         await _closeConnection();
       } on Exception catch (e) {
-        debugPrint("failure when debugging the when trying to open the connection");
+        debugPrint('[DbClient] Connection attempt $attempt failed: $e');
       }
       await Future.delayed(Duration(milliseconds: 500 * attempt));
     }
@@ -122,8 +164,8 @@ class ClientSession extends ChangeNotifier {
       _session = null;
     }
     if (_session != null) {
-      transcriptRepo.getTranscript(userID: _session!.userId);
-      courseRepo.fetchModules(userID: _session!.userId);
+      await transcriptRepo.getTranscript(userID: _session!.userId);
+      await courseRepo.fetchModules(userID: _session!.userId);
     }
     notifyListeners();
   }

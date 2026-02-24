@@ -124,11 +124,16 @@ String createCandidateRankingPrompt(
   List<Module> candidates,
   int k,
 ) {
-  final modulesFormatted = candidates.map((m) => '''
+  final modulesFormatted = candidates
+      .map(
+        (m) =>
+            '''
 - ${m.title} (${m.moduleNr})
   ECTS: ${m.credits}
   Content: ${m.learnContent ?? 'N/A'}
-  Learning Outcomes: ${m.learnResult ?? 'N/A'}''').join('\n');
+  Learning Outcomes: ${m.learnResult ?? 'N/A'}''',
+      )
+      .join('\n');
 
   return """
 You are a university course recommendation system.
@@ -152,6 +157,7 @@ Recommend the top $k courses that best match this student's profile based on:
 2. Their stated interests
 3. Logical course progression
 
-Return ONLY the module numbers of your top $k recommendations, one per line.
+Return ONLY the module numbers of your top $k recommendations.
+Rank them. Return the stringhest match and after sort them in decreasing manner.
 """;
 }
