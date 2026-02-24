@@ -119,7 +119,7 @@ GoRouter createRouter(ClientSession clientSession) {
 
       final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
 
-      if (!loggedIn && !onAuthFlow && isFirstAppStart) {
+      if (isFirstAppStart) {
         return '/onboarding';
       }
       if (!loggedIn && !onAuthFlow) {
