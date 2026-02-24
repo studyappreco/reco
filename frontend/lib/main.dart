@@ -193,6 +193,8 @@ GoRouter createRouter(ClientSession clientSession) {
                           title: extra?["title"] ?? "",
                           credits: extra?["credits"] ?? "",
                           moduleNr: extra?["moduleNr"] ?? "",
+                          initialRating: extra?["initialRating"],
+                          initialComment: extra?["initialComment"]
                         );
                       },
                     ),
@@ -223,6 +225,8 @@ GoRouter createRouter(ClientSession clientSession) {
                         title: extra?["title"] ?? "",
                         credits: extra?["credits"] ?? "",
                         moduleNr: extra?["moduleNr"] ?? "",
+                        initialRating: extra?["initialRating"],
+                        initialComment: extra?["initialComment"]
                       );
                     },
                   ),

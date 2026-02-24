@@ -67,6 +67,7 @@ class PlannerPage extends StatelessWidget {
                       modules: vm.plannedModulesCurrent,
                       onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
                       onRemoveModule: (mod) => vm.removeModule(context, mod),
+                      addButtonOnTop: true,
                     ),
 
                     SemesterSection(
@@ -77,6 +78,7 @@ class PlannerPage extends StatelessWidget {
                         modules: vm.plannedModulesNext,
                         onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
                         onRemoveModule: (mod) => vm.removeModule(context, mod),
+                        showAddButton: false,
                     ),
                   ]
                 )
@@ -149,6 +151,8 @@ class SemesterSection extends StatefulWidget {
   final List<Module> modules;
   final Function(Module) onFinishModule;
   final Function(Module) onRemoveModule;
+  final bool showAddButton;
+  final bool addButtonOnTop;
 
   const SemesterSection({
     super.key,
@@ -158,7 +162,9 @@ class SemesterSection extends StatefulWidget {
     this.expanded,
     required this.modules,
     required this.onFinishModule,
-    required this.onRemoveModule
+    required this.onRemoveModule,
+    this.showAddButton = true,
+    this.addButtonOnTop = false
     });
 
   @override
@@ -176,6 +182,31 @@ class _SemesterSectionState extends State<SemesterSection> {
     return Column(
       spacing: 20,
       children: [
+        if (widget.showAddButton && widget.addButtonOnTop)
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.go('/search'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: colorScheme.surfaceContainerHighest,
+                      width: 3
+                      ),
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.textMain,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: .circular(13)
+                      )
+                  ),
+                  child: Text(
+                    "+ Add Module",
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+                    ),
+                )
+              )
+            ],
+          ),
         GestureDetector(
           onTap: () => setState(() => expanded = !expanded),
           child: Row(
@@ -241,30 +272,31 @@ class _SemesterSectionState extends State<SemesterSection> {
                   child: Text("No courses planned in this section."),
                 ),
               
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => context.go('/search'),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: colorScheme.surfaceContainerHighest,
-                          width: 3
-                          ),
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.textMain,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: .circular(13)
-                          )
-                      ),
-                      child: Text(
-                        "+ Add Module",
-                        style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+              if (widget.showAddButton && !widget.addButtonOnTop)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => context.go('/search'),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: colorScheme.surfaceContainerHighest,
+                            width: 3
+                            ),
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.textMain,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: .circular(13)
+                            )
                         ),
+                        child: Text(
+                          "+ Add Module",
+                          style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+                          ),
+                      )
                     )
-                  )
-                ],
-              )
+                  ],
+                )
             ]
           )
       ],
@@ -566,6 +598,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
     );
 
     if(success){
+      await userRepo.removePlannedModule(userID, module.moduleNr);
       await _loadData();
       
       if (!context.mounted) return;
