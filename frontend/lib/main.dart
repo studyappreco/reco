@@ -27,6 +27,7 @@ import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
 import 'package:frontend/ui/FavoritesPage.dart';
+import 'package:frontend/ui/FeedbackPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
@@ -219,7 +220,31 @@ GoRouter createRouter(ClientSession clientSession) {
           ),
           GoRoute(
             path: '/feedback',
-            builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+            builder: (context, state) => FeedbackPage(),
+            routes: [
+              GoRoute(
+                path: 'course-details',
+                builder: (context, state) {  
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'give-feedback',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return GiveFeedbackPage(
+                        title: extra?["title"] ?? "",
+                        credits: extra?["credits"] ?? "",
+                        moduleNr: extra?["moduleNr"] ?? "",
+                        initialRating: extra?["initialRating"],
+                        initialComment: extra?["initialComment"]
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ]
           ),
           GoRoute(
             path: '/demo',
