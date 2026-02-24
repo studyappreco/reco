@@ -31,7 +31,11 @@ class _SpecifyDegreePageState extends State<SpecifyDegreePage> {
     final userId = clientSession.newUser?.$id;
     if (userId == null) return;
 
-    final literal = "${fieldOfStudy}_$degreeType";
+    //final literal = "${fieldOfStudy}_$degreeType";
+    final literal = fieldOfStudy == "CS"
+        ? (degreeType == "B" ? "CS_B" : "CS_M")
+        : "ISM";
+
     await userRepo.setProgramLiteral(userId, literal);
     clientSession.setNewUserLiteral(literal);
 
