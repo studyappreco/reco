@@ -113,13 +113,18 @@ class CourseSearchRepo {
       }
 
       // always retrieve the user specific data (favorites, planned) fresh from the database
+      // Note: Sequential calls to avoid concurrent MongoDB operations on single connection
       final favorites = await mongoService.getFavoriteModuleNrs(userID);
       final planned = await mongoService.getAllPlannedModuleNrs(userID);
+      final recommended = await mongoService.getRecommendedModules(userID);
+
+      final recommendedList = recommended ?? [];
 
       // updating the module list with user-specific data
       for (var module in _allModules) {
         module.isFavorite = favorites.contains(module.moduleNr);
         module.isPlanned = planned.contains(module.moduleNr);
+        module.isRecommended = recommendedList.contains(module.moduleNr);
       }
 
       RecoLog.info("Modules loaded: ${_allModules.length}");
@@ -253,11 +258,6 @@ class CourseSearchRepo {
 
     // Sorting RecoLogic (https://stackoverflow.com/questions/53547997/sort-a-list-of-objects-in-flutter-dart-by-property-value)
     switch (sortOption) {
-      case SortOption.bestMatch:
-        filteredList.sort(
-          (a, b) => b.matchPercentage.compareTo(a.matchPercentage),
-        );
-        break;
       case SortOption.ratingHigh:
         filteredList.sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0));
         break;
@@ -283,16 +283,12 @@ class CourseSearchRepo {
     String programLiteral,
     String userID,
   ) async {
-    var longStupoName = mapping_literal_largeword[programLiteral];
     if (_allModules.isEmpty) {
       await fetchModules(userID: userID);
     }
     final modulesForStupo = _allModules
-        .where(
-          (module) => module.assignedDegrees.any(
-            (degree) => degree['program'] == longStupoName,
-          ),
-        ).map((x) => x.id)
+        .where((module) => module.paths.containsKey(programLiteral))
+        .map((x) => x.moduleNr)
         .toList();
     RecoLog.info("Found ${modulesForStupo.length} modules for $programLiteral");
     return modulesForStupo;

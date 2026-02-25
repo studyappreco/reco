@@ -108,7 +108,9 @@ class CourseDetailsPage extends StatelessWidget {
                                   mainAxisAlignment: .spaceBetween,
                                   children: [
                                     Flexible(
-                                      child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
+                                      child: vm.module!.isRecommended
+                                        ? ChipWidget(label: "Recommended for you", color: Colors.green)
+                                        : SizedBox.shrink(),
                                     ),
                                     AnimatedIconButton(
                                       isSelected: vm.module!.isFavorite,

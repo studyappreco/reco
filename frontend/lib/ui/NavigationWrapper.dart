@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/NavigationBar.dart';
 import 'package:go_router/go_router.dart';
-// import 'SearchPage.dart';
-// import 'PlannerPage.dart';
-// import 'FavoritesPage.dart';
-// import 'FeedbackPage.dart';
 
 class NavigationWrapper extends StatelessWidget {
   final Widget child;

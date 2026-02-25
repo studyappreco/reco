@@ -27,7 +27,7 @@ class Recommendation {
       return null;
     }
     var allCourseIds = await courseRepo.getAllCoursesForStupo(
-      userDetails.programLiteral,
+      transcript.programLiteral,
       userID,
     );
     RecoLog.info("Starting with ${allCourseIds.length} courses in Stupo");
@@ -40,8 +40,6 @@ class Recommendation {
         .toList();
     RecoLog.info("After filtering taken: ${candidates.length} candidates");
     candidates = checkCategoriesSpace(candidates);
-    RecoLog.info("After category filter: ${candidates.length} candidates");
-
     return candidates;
   }
 
@@ -80,6 +78,32 @@ class Recommendation {
     RecoLog.info("Stored ${rankedModuleNrs.length} ranked candidates for user");
 
     return rankedModuleNrs;
+  }
+
+  Future<List<Module>?> getRecommendedModules(String userID) async {
+    var details = await mongoService.getUserDetails(userID);
+    if (details == null) return null;
+
+    // If we already have recommendations, return them
+    if (details.recommendedModules.isNotEmpty) {
+      return await mongoService.getModulesById(details.recommendedModules, userID);
+    }
+
+    // Otherwise generate and rank new recommendations
+    var candidates = await candicate_generation(userID);
+    if (candidates == null || candidates.isEmpty) return null;
+
+    var embedding = await openAIService.embedUserdetails(
+      details.interests,
+      details.programLiteral,
+    );
+    if (embedding == null) return null;
+
+    var rankedModuleNrs = await candidate_ranking(userID, candidates, embedding);
+    if (rankedModuleNrs == null || rankedModuleNrs.isEmpty) return null;
+
+    // Fetch and return the ranked modules
+    return await courseRepo.getModulesByModuleNrs(rankedModuleNrs, userID);
   }
 
   List<String> checkCategoriesSpace(List<String> input) {

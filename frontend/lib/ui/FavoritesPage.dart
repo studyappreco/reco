@@ -275,7 +275,8 @@ class _FavoriteModuleCard extends StatelessWidget {
                             ],
                           ),
 
-                          ChipWidget(label: "${module.matchPercentage}% match", color: Colors.green),
+                          if (module.isRecommended)
+                            ChipWidget(label: "Recommended for you", color: Colors.green),
                         ],
                       )
                     ],

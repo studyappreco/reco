@@ -28,6 +28,7 @@ void main() {
       final simpleTranscript =
       UserTranscript(
         userID: testUserId,
+          programLiteral: "ISM",
         transcript: TranscriptDocument(
           children: [
             TranscriptNode(

@@ -17,10 +17,7 @@ class Module {
   final String term;
   final int? version;
   
-  final List<dynamic> assignedDegrees;
-   
-  final String? matchBasis;
-  final int matchPercentage;
+  final Map<String, dynamic> paths;
   final double? rating;
   final int ratingCount;
   final List<ChipType> tags;
@@ -29,6 +26,7 @@ class Module {
 
   bool isFavorite;
   bool isPlanned;
+  bool isRecommended;
 
   final String? learnContent;
   final String? learnResult;
@@ -48,10 +46,9 @@ class Module {
     this.responsible = "Unknown",
     this.language = "Unknown",
     this.term = "",
-    this.assignedDegrees = const [],
+    this.paths = const <String, dynamic>{},
     this.version,
-    this.matchBasis,
-    required this.matchPercentage,
+   this.isRecommended = false,
     this.rating,
     this.ratingCount = 0,
     required this.tags,
@@ -75,7 +72,7 @@ class Module {
     List<ChipType> parsedTags = [];
     if(map['keywords'] != null){
       parsedTags = (map['keywords'] as List).map((tag){
-        return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();  //TODO The colors should come from DB (future work, is not very important at the moment)
+        return ChipType(tag.toString(), AppColors.primaryBlue);}).toList();
     }
 
     List<ModuleFeedback> parsedFeedbacks = [];
@@ -118,8 +115,10 @@ class Module {
       responsible: map['responsible'] ?? "N/A",
       language: map['language'] ?? "N/A",
       term: map['term'] ?? "",
-      
-      assignedDegrees: map['assigned_degrees'] ?? [],
+
+      paths: map['paths'] is Map<String, dynamic>
+          ? map['paths'] as Map<String, dynamic>
+          : <String, dynamic>{},
 
       learnContent: map['learn_content'],
       learnResult: map['learn_outcomes'],
@@ -133,17 +132,14 @@ class Module {
       students: 0,     // Static placeholder
       duration: "X",  // Static placeholder
 
-      // Data from the recommendation system
-      matchPercentage: 0, // Static placeholder
-      matchBasis: null, // Static placeholder
-
-      // Community Ratings
-      rating: calculatedRating, 
-      ratingCount: calculatedRatingCount,
+      // Community Ratings (Future Work)
+      rating: null, // Static placeholder
+      ratingCount: 0, // Static placeholder
 
       // account-specific data
       isFavorite: userFavorites.contains(moduleNr),
       isPlanned: userPlanned.contains(moduleNr),
+      isRecommended: map['is_recommended'] ?? false,
     );
   }
 }

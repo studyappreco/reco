@@ -7,6 +7,7 @@ import 'package:frontend/repos/transcriptUtils.dart';
 
 final UserTranscript transcriptWithCourses = UserTranscript(
   userID: 'test-user-1',
+  programLiteral: "ISM",
   transcript: TranscriptDocument(
     children: [
       TranscriptNode(
@@ -43,6 +44,7 @@ final UserTranscript transcriptWithCourses = UserTranscript(
 
 final UserTranscript emptyTranscript = UserTranscript(
   userID: 'test-user-2',
+  programLiteral: "ISM",
   transcript: TranscriptDocument(
     children: [
       TranscriptNode(name: 'compulsory_electives', courses: [], children: []),
