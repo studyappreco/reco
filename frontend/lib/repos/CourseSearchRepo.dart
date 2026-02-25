@@ -16,14 +16,21 @@ class CourseSearchRepo {
   CourseSearchRepo({required this.mongoService});
   static List<Module> _allModules = [];
 
-  Future<Module?> getModuleByNumber(String moduleNr, String userID) async {
+  Future<Module?> getModuleByNumber(String moduleNr, String userID, {bool forceRefresh = false}) async {
     // First check all modules to see if we already have the module in our list => saves database calls
-    if (_allModules.isNotEmpty) {
+    if(!forceRefresh && _allModules.isNotEmpty){
       try {
         final moduleFromCache = _allModules.firstWhere(
           (m) => m.moduleNr == moduleNr,
         );
         RecoLog.info("Module $moduleNr found in cache");
+
+        // Update the favorite/planned states of the cache object, as these may change during use
+        final favorites = await mongoService.getFavoriteModuleNrs(userID);
+        final planned = await mongoService.getAllPlannedModuleNrs(userID);
+        moduleFromCache.isFavorite = favorites.contains(moduleNr);
+        moduleFromCache.isPlanned = planned.contains(moduleNr);
+
         return moduleFromCache;
       } catch (e) {
         RecoLog.info("Module $moduleNr not in cache. Fetching from DB...");
@@ -42,11 +49,21 @@ class CourseSearchRepo {
         return null;
       }
 
-      return Module.fromMap(
+      final fetchedModule = Module.fromMap(
         jsonmodule,
         userFavorites: favorites,
         userPlanned: planned,
       );
+
+      // Add/update the module in the cache
+      final index = _allModules.indexWhere((m) => m.moduleNr == moduleNr);
+      if (index != -1) {
+        _allModules[index] = fetchedModule;
+      } else {
+        _allModules.add(fetchedModule);
+      }
+
+      return fetchedModule;
     } catch (e, s) {
       RecoLog.error("Repository Error fetching module $moduleNr", e, s);
       rethrow;

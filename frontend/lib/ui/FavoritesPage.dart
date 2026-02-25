@@ -124,7 +124,10 @@ class FavoritesPage extends StatelessWidget {
                                   key: ValueKey(module.moduleNr),
                                   module: module,
                                   onRemove: () => vm.removeFavorite(context, module),
-                                  onTap: () => context.go('/search/course-details', extra: module.moduleNr),
+                                  onTap: () async {
+                                    await context.push('/search/course-details', extra: module.moduleNr);
+                                    vm.loadFavorites();
+                                  },
                                 );
                               },
                             ),
