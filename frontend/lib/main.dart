@@ -34,6 +34,7 @@ import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
+import 'package:frontend/ui/FeedbackDetailPage.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -247,6 +248,13 @@ GoRouter createRouter(ClientSession clientSession) {
             ]
           ),
           GoRoute(
+            path: '/feedback-detail',
+            builder: (context, state) {
+              final courseName = state.extra as String? ?? 'Course';
+              return FeedbackDetailPage(courseName: courseName);
+            },
+          ),
+          GoRoute(
             path: '/demo',
             builder: (context, state) => MyHomePage(title: "Demo Home Page"),
           ),
@@ -288,6 +296,15 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OnboardingPage()),
+                            );
+                          }, 
+                          child: const Text("Onboarding Flow"),
+                        ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
