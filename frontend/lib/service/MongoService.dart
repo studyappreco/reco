@@ -375,10 +375,10 @@ class MongoService {
       final doc = await db
           .collection(_userDetailsCollection)
           .findOne(where.eq('userID', userID));
-      if (doc == null) return null;
-      return doc['recommended_modules'] as List<String>;
+      if (doc == null || doc['recommended_modules'] == null) return null;
+      return List<String>.from(doc['recommended_modules']);
     } catch (e, s) {
-      RecoLog.error("Error fetching username for user $userID", e, s);
+      RecoLog.error("Error fetching recommended modules for user $userID", e, s);
       return null;
     }
   }

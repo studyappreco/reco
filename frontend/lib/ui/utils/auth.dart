@@ -6,24 +6,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:mongo_dart/mongo_dart.dart' hide Log;
 
 final PROJECT_ID = dotenv.env['PROJECT_ID'];
 final MONGO_URI = dotenv.env['MONGO_URI'];
 const CUSTOM_ENDPOINT = "https://apps-tub.de/v1";
-
+const DATABASE_NAME = "reco_db";
 
 class BackendClient {
-
   static Client? backendClient;
 
   static Client? getBackendClient() {
     if (backendClient != null) {
-        return backendClient;
+      return backendClient;
     } else {
-      try{
-        backendClient = Client().
-        setProject(PROJECT_ID!).setEndpoint(CUSTOM_ENDPOINT);
+      try {
+        backendClient = Client()
+            .setProject(PROJECT_ID!)
+            .setEndpoint(CUSTOM_ENDPOINT);
         return backendClient;
       } on Exception {
         return null;
@@ -32,62 +33,20 @@ class BackendClient {
   }
 }
 
-// should be singleton instance. Each client should have its own connection pool as described in this mongoDB documentation
-// https://www.mongodb.com/docs/manual/administration/connection-pool-overview/#use-an-instance-of-your-driver-s-mongoclient-object
 class DbCLient {
   static const String _databaseName = 'reco_db';
 
   static Db? mongoDB;
-  static Completer<Db?>? _connectionCompleter;
 
   static Future<Db?> getMongoDBClient() async {
-    // Fast path: already connected AND healthy
-    if (mongoDB != null && await _isConnectionHealthy()) {
-      return mongoDB;
-    }
-
-    // If a connection attempt is already in progress, wait for it
-    if (_connectionCompleter != null) {
-      return _connectionCompleter!.future;
-    }
-
-    // Start a new connection attempt
-    _connectionCompleter = Completer<Db?>();
-
-    try {
-      if (mongoDB != null) {
-        debugPrint('[DbClient] Connection stale, retrying');
-        await _closeConnection();
+    if (mongoDB != null) {
+      if (mongoDB!.isConnected) {
+        return mongoDB;
       }
-      final db = await _createConnection();
-      _connectionCompleter!.complete(db);
-      return db;
-    } catch (e) {
-      _connectionCompleter!.completeError(e);
-      return null;
-    } finally {
-      _connectionCompleter = null;
-    }
-  }
-
-  /// Health check - verify connection exists and is marked as connected.
-  /// Note: We avoid running a ping command here because it can trigger
-  /// reconnection logic while other operations are in-flight.
-  static Future<bool> _isConnectionHealthy() async {
-    return mongoDB != null && mongoDB!.isConnected;
-  }
-
-  /// Public method to verify/restore connection (useful for app lifecycle)
-  static Future<void> ensureConnected() async {
-    if (!await _isConnectionHealthy()) {
+      print("Connection stale retrying");
       await _closeConnection();
-      await getMongoDBClient();
     }
-  }
-
-  /// Public method to close connection (useful for app termination/background)
-  static Future<void> closeConnection() async {
-    await _closeConnection();
+    return await _createConnection();
   }
 
   static Future<void> _closeConnection() async {
@@ -113,7 +72,7 @@ class DbCLient {
         }
         await _closeConnection();
       } on Exception catch (e) {
-        debugPrint('[DbClient] Connection attempt $attempt failed: $e');
+        debugPrint("failure when debugging the when trying to open the connection");
       }
       await Future.delayed(Duration(milliseconds: 500 * attempt));
     }
@@ -157,7 +116,8 @@ class ClientSession extends ChangeNotifier {
   Future<void> _initUserSession() async {
     try {
       Client? client = BackendClient.getBackendClient();
-      if (client == null) throw Exception("Backend client could not be initialized");
+      if (client == null)
+        throw Exception("Backend client could not be initialized");
       Account account = Account(client);
       _session = await account.getSession(sessionId: 'current');
     } catch (e) {
@@ -206,8 +166,7 @@ class ClientSession extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? getUserID(){
+  String? getUserID() {
     return _session?.userId;
   }
-
 }
