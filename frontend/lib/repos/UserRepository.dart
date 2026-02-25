@@ -86,8 +86,8 @@ class UserRepository {
     return success;
   }
 
-  Future<bool> submitFeedback({required String moduleNr, required String userId, required int rating, required String feedbackText}) async {
-    return await mongoService.submitFeedback(moduleNr, userId, rating, feedbackText);
+  Future<bool> submitFeedback({required String moduleNr, required String userId, required String userName, required int rating, required String feedbackText}) async {
+    return await mongoService.submitFeedback(moduleNr, userId, userName, rating, feedbackText);
   }
 
   Future<bool> deleteFeedback(String moduleNr, String userId) async {

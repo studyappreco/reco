@@ -174,6 +174,16 @@ GoRouter createRouter(ClientSession clientSession) {
                         );
                       },
                     ),
+                    GoRoute(
+                      path: 'feedback-detail',
+                      builder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>?;
+                        return FeedbackDetailPage(
+                          moduleNr: extra?['moduleNr'] ?? '', 
+                          moduleTitle: extra?['moduleTitle'],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ]
@@ -203,6 +213,16 @@ GoRouter createRouter(ClientSession clientSession) {
                         moduleNr: extra?["moduleNr"] ?? "",
                         initialRating: extra?["initialRating"],
                         initialComment: extra?["initialComment"]
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: 'feedback-detail',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return FeedbackDetailPage(
+                        moduleNr: extra?['moduleNr'] ?? '', 
+                        moduleTitle: extra?['moduleTitle'],
                       );
                     },
                   ),
@@ -243,16 +263,19 @@ GoRouter createRouter(ClientSession clientSession) {
                       );
                     },
                   ),
+                  GoRoute(
+                    path: 'feedback-detail',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return FeedbackDetailPage(
+                        moduleNr: extra?['moduleNr'] ?? '', 
+                        moduleTitle: extra?['moduleTitle'],
+                      );
+                    },
+                  ),
                 ],
               ),
             ]
-          ),
-          GoRoute(
-            path: '/feedback-detail',
-            builder: (context, state) {
-              final courseName = state.extra as String? ?? 'Course';
-              return FeedbackDetailPage(courseName: courseName);
-            },
           ),
           GoRoute(
             path: '/demo',
@@ -296,15 +319,15 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => OnboardingPage()),
-                            );
-                          }, 
-                          child: const Text("Onboarding Flow"),
-                        ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => OnboardingPage()),
+                );
+              }, 
+              child: const Text("Onboarding Flow"),
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
