@@ -2,12 +2,14 @@ import 'package:frontend/models/Module.dart';
 import 'package:frontend/models/UserDetails.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/service/OpenAIService.dart';
 
 class UserRepository {
   final MongoService mongoService;
   final TranscriptRepository transcriptRepo;
+  final OpenAIService openAIService;
 
-  UserRepository({required this.mongoService, required this.transcriptRepo});
+  UserRepository({required this.mongoService, required this.transcriptRepo, required this.openAIService});
 
 
   Future<void> togglePlannedModule(String userID, String moduleNr, bool isCurrent) async {
@@ -45,6 +47,14 @@ class UserRepository {
 
   Future<void> setProgramLiteral(String userId, String literal) async {
     await mongoService.setProgramLiteral(userId, literal);
+  }
+
+  Future<void> setUserEmbedding(String userId, List<String> interests, String programLiteral) async {
+    var embedding = await openAIService.embedUserdetails(interests, programLiteral);
+    if (embedding == null) {
+      return;
+    }
+    await mongoService.setUserEmbedding(userId, embedding);
   }
 
 

@@ -10,7 +10,7 @@ import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart'; 
+import 'package:frontend/ui/widgets/StatusMessage/StatusMessageCard.dart';
 
 class UploadTranscriptPage extends StatefulWidget {
   const UploadTranscriptPage({super.key});
@@ -93,7 +93,12 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     final userId = clientSession.newUser?.$id;
     final email = clientSession.newUser?.email;
     final password = clientSession.newUserPassword;
-    if (userId == null || email == null || password == null || _selectedFilePath == null || _selectedLiteral == null) return;
+    if (userId == null ||
+        email == null ||
+        password == null ||
+        _selectedFilePath == null ||
+        _selectedLiteral == null)
+      return;
 
     final processor = context.read<TranscriptProcessor>();
     processor.processTranscript(
@@ -104,12 +109,17 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
 
     // Create session with new user
     Client? client = BackendClient.getBackendClient();
-    if (client == null) throw Exception("Backend client could not be initialized");
+    if (client == null)
+      throw Exception("Backend client could not be initialized");
     Account account = Account(client);
 
-    Session newSession = await account.createEmailPasswordSession(email: email, password: password);
+    Session newSession = await account.createEmailPasswordSession(
+      email: email,
+      password: password,
+    );
     clientSession.setUserSession(newSession);
     clientSession.resetNewUser();
+    await createUserEmbedding(_selectedLiteral);
   }
 
   Future<void> _uploadTranscriptFromHome() async {
@@ -117,7 +127,9 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     if (userId == null) return;
 
     final userRepository = context.read<UserRepository>();
-    final literal = (await userRepository.getUserDetails(userId))?.programLiteral;
+    final literal = (await userRepository.getUserDetails(
+      userId,
+    ))?.programLiteral;
     if (_selectedFilePath == null || literal == null || !mounted) return;
 
     final processor = context.read<TranscriptProcessor>();
@@ -128,6 +140,16 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
     );
 
     context.pop();
+  }
+
+  Future<void> createUserEmbedding(String literal) async {
+    final userId = clientSession.session?.userId ?? clientSession.newUser?.$id;
+    if (userId == null) return;
+
+    final userRepo = context.read<UserRepository>();
+    final interests = await userRepo.getInterests(userId);
+
+    await userRepo.setUserEmbedding(userId, interests, literal);
   }
 
   Future<void> _onSkip() async {
@@ -141,12 +163,17 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
 
     // Create session with new user
     Client? client = BackendClient.getBackendClient();
-    if (client == null) throw Exception("Backend client could not be initialized");
+    if (client == null)
+      throw Exception("Backend client could not be initialized");
     Account account = Account(client);
 
-    Session session = await account.createEmailPasswordSession(email: email, password: password);
+    Session session = await account.createEmailPasswordSession(
+      email: email,
+      password: password,
+    );
     clientSession.setUserSession(session);
     clientSession.resetNewUser();
+    await createUserEmbedding(_selectedLiteral);
   }
 
   @override
@@ -161,7 +188,9 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
         ),
         title: Text(
           'Upload Transcript',
-          style: theme.textTheme.titleLarge?.copyWith(color: AppColors.textMain),
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: AppColors.textMain,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -174,13 +203,14 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
           mainAxisAlignment: .spaceBetween,
           children: [
             /*Expanded(
-              child:*/ Text(
-                'Upload your transcript to automatically import completed courses',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              )
-            /*)*/,
+              child:*/
+            Text(
+              'Upload your transcript to automatically import completed courses',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            /*)*/
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +245,10 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
                     onTap: _isPicking ? null : _pickTranscript,
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 32,
+                        horizontal: 16,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
@@ -274,31 +307,31 @@ class _UploadTranscriptPageState extends State<UploadTranscriptPage> {
                 crossAxisAlignment: .center,
                 children: [
                   AdaptiveButton(
-                    onPressed: _selectedFilePath != null && _errorMessage == null && !_isPicking
-                      ? _onContinue
-                      : null,
+                    onPressed:
+                        _selectedFilePath != null &&
+                            _errorMessage == null &&
+                            !_isPicking
+                        ? _onContinue
+                        : null,
                     child: SizedBox(
                       width: double.infinity,
-                      child: Center(child: Text("Continue"))
-                    )
+                      child: Center(child: Text("Continue")),
+                    ),
                   ),
                   if (session == null)
-                  Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      Text("Don't have a transcript yet?"),
-                      TextButton(
-                        onPressed: _onSkip,
-                        child: Text("Skip")
-                      )
-                    ],
-                  )
+                    Row(
+                      mainAxisAlignment: .center,
+                      children: [
+                        Text("Don't have a transcript yet?"),
+                        TextButton(onPressed: _onSkip, child: Text("Skip")),
+                      ],
+                    ),
                 ],
-              )
-            )
-          ]
+              ),
+            ),
+          ],
         ),
-      )
+      ),
     );
   }
 }

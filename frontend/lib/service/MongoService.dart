@@ -494,6 +494,20 @@ class MongoService {
     }
   }
 
+  Future<void> setUserEmbedding(String userID, List<double> embedding) async {
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_userDetailsCollection);
+      await collection.update(
+        where.eq('userID', userID),
+        modify.set('embedding', embedding),
+      );
+    } catch (e, s) {
+      RecoLog.error("Error setting embedding for user $userID", e, s);
+      rethrow;
+    }
+  }
+
   Future<List<Module>> getModulesById(
     List<String> recommendedModuleNrs,
     String userID,

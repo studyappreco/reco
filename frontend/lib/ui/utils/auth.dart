@@ -65,14 +65,16 @@ class DbCLient {
         final uri = Uri.parse(MONGO_URI!);
         final dbUri = uri.replace(path: '/$_databaseName').toString();
         mongoDB = await Db.create(dbUri);
-        await mongoDB?.open(secure: true);
+        await mongoDB?.open(secure : true);
         if (mongoDB?.isConnected == true) {
           debugPrint('[DbClient] MongoDB connected successfully');
           return mongoDB;
         }
         await _closeConnection();
       } on Exception catch (e) {
-        debugPrint("failure when debugging the when trying to open the connection");
+        debugPrint(
+          "failure when debugging the when trying to open the connection",
+        );
       }
       await Future.delayed(Duration(milliseconds: 500 * attempt));
     }
