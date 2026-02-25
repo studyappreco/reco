@@ -38,9 +38,21 @@ class DbCLient {
 
   static Db? mongoDB;
 
+  /// Validates the connection by pinging the server.
+  /// Returns false if the connection is stale or closed server-side.
+  static Future<bool> _validateConnection() async {
+    if (mongoDB == null || !mongoDB!.isConnected) return false;
+    try {
+      await mongoDB!.runCommand({'ping': 1});
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<Db?> getMongoDBClient() async {
     if (mongoDB != null) {
-      if (mongoDB!.isConnected) {
+      if (await _validateConnection()) {
         return mongoDB;
       }
       print("Connection stale retrying");
