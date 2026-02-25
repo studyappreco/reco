@@ -11,17 +11,26 @@ const mapping_literal_largeword = {
 };
 
 class CourseSearchRepo {
-  final MongoService _mongoService = MongoService();
+  final MongoService mongoService;
+
+  CourseSearchRepo({required this.mongoService});
   static List<Module> _allModules = [];
 
-  Future<Module?> getModuleByNumber(String moduleNr, String userID) async {
+  Future<Module?> getModuleByNumber(String moduleNr, String userID, {bool forceRefresh = false}) async {
     // First check all modules to see if we already have the module in our list => saves database calls
-    if (_allModules.isNotEmpty) {
+    if(!forceRefresh && _allModules.isNotEmpty){
       try {
         final moduleFromCache = _allModules.firstWhere(
           (m) => m.moduleNr == moduleNr,
         );
         RecoLog.info("Module $moduleNr found in cache");
+
+        // Update the favorite/planned states of the cache object, as these may change during use
+        final favorites = await mongoService.getFavoriteModuleNrs(userID);
+        final planned = await mongoService.getAllPlannedModuleNrs(userID);
+        moduleFromCache.isFavorite = favorites.contains(moduleNr);
+        moduleFromCache.isPlanned = planned.contains(moduleNr);
+
         return moduleFromCache;
       } catch (e) {
         RecoLog.info("Module $moduleNr not in cache. Fetching from DB...");
@@ -31,20 +40,30 @@ class CourseSearchRepo {
     // database search for the module
     try {
       // getting the module and the list of planned and favorite modules
-      final jsonmodule = await _mongoService.getModuleByNumber(moduleNr);
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final jsonmodule = await mongoService.getModuleByNumber(moduleNr);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       if (jsonmodule == null) {
         RecoLog.warning("Module $moduleNr not found in Database");
         return null;
       }
 
-      return Module.fromMap(
+      final fetchedModule = Module.fromMap(
         jsonmodule,
         userFavorites: favorites,
         userPlanned: planned,
       );
+
+      // Add/update the module in the cache
+      final index = _allModules.indexWhere((m) => m.moduleNr == moduleNr);
+      if (index != -1) {
+        _allModules[index] = fetchedModule;
+      } else {
+        _allModules.add(fetchedModule);
+      }
+
+      return fetchedModule;
     } catch (e, s) {
       RecoLog.error("Repository Error fetching module $moduleNr", e, s);
       rethrow;
@@ -58,9 +77,9 @@ class CourseSearchRepo {
     if (moduleNrs.isEmpty) return [];
 
     try {
-      final jsonList = await _mongoService.getModulesByModuleNrs(moduleNrs);
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final jsonList = await mongoService.getModulesByModuleNrs(moduleNrs);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       return jsonList.map((json) {
         return Module.fromMap(
@@ -84,7 +103,7 @@ class CourseSearchRepo {
       // first, we fetch all modules if we don't already have them or if forcerefersh == true
       if (_allModules.isEmpty || forceRefresh) {
         RecoLog.info("Fetching raw modules from DB...");
-        final List<Map<String, dynamic>> jsonmodules = await _mongoService
+        final List<Map<String, dynamic>> jsonmodules = await mongoService
             .getAllModules();
 
         // creating the module list without the user specific data (favorite, planned)
@@ -94,8 +113,8 @@ class CourseSearchRepo {
       }
 
       // always retrieve the user specific data (favorites, planned) fresh from the database
-      final favorites = await _mongoService.getFavoriteModuleNrs(userID);
-      final planned = await _mongoService.getAllPlannedModuleNrs(userID);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
 
       // updating the module list with user-specific data
       for (var module in _allModules) {
@@ -286,7 +305,7 @@ class CourseSearchRepo {
   }) async {
     if (availableModuleIds.isEmpty || userEmbedding.isEmpty) return [];
 
-    return await _mongoService.vectorSearchCourses(
+    return await mongoService.vectorSearchCourses(
       queryVector: userEmbedding,
       candidateModules: availableModuleIds,
     );

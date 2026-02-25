@@ -51,7 +51,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
       Client? client = BackendClient.getBackendClient();
       if (client == null) throw Exception("Backend client could not be initialized");
       Account account = Account(client);
-      final userRepo = UserRepository();
+      final userRepo = context.read<UserRepository>();
 
       String userName = nameController.text;
       String userPassword = passwordController.text;
@@ -105,7 +105,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Alert'),
-              content: Text('Creating'),
+              content: Text(e.toString()),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -130,11 +130,10 @@ class CreateAccountFormState extends State<CreateAccountForm> {
         mainAxisAlignment: .spaceBetween,
         children: [
           Expanded(
-            child:
-              Form(
-                key: _formKey,
-                child: Center(
-                child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Center(
+                  child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -162,7 +161,7 @@ class CreateAccountFormState extends State<CreateAccountForm> {
                         child: PasswordField(controller: passwordControllerRepeat, label: "Repeat password", hint: "Repeat your password", validator: passwordValidatorRepeat)),
                     ],
                   ),
-                )
+                ),
               ),
             ),
           ),

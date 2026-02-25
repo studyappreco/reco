@@ -2,6 +2,8 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:mongo_dart/mongo_dart.dart' hide Log;
 
 final PROJECT_ID = dotenv.env['PROJECT_ID'];
@@ -98,11 +100,15 @@ String? passwordValidator(String? value) {
 }
 
 class ClientSession extends ChangeNotifier {
+  final TranscriptRepository transcriptRepo;
+  final CourseSearchRepo courseRepo;
+
   Session? _session;
   User? _newUser;
   String? _newUserPassword;
+  String? _newUserLiteral;
 
-  ClientSession() {
+  ClientSession(this.transcriptRepo, this.courseRepo) {
     _initUserSession();
   }
 
@@ -114,6 +120,10 @@ class ClientSession extends ChangeNotifier {
       _session = await account.getSession(sessionId: 'current');
     } catch (e) {
       _session = null;
+    }
+    if (_session != null) {
+      transcriptRepo.getTranscript(userID: _session!.userId);
+      courseRepo.fetchModules(userID: _session!.userId);
     }
     notifyListeners();
   }
@@ -138,11 +148,20 @@ class ClientSession extends ChangeNotifier {
   void setNewUser(User user, String password) {
     _newUser = user;
     _newUserPassword = password;
+    notifyListeners();
   }
 
   void resetNewUser() {
     _newUser = null;
     _newUserPassword = null;
+    notifyListeners();
+  }
+
+  String? get newUserLiteral => _newUserLiteral;
+
+  void setNewUserLiteral(String? literal) {
+    _newUserLiteral = literal;
+    notifyListeners();
   }
 
   String? getUserID(){

@@ -8,6 +8,8 @@ import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/models/UserTrancript.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
+import 'package:frontend/service/MongoService.dart';
+import 'package:frontend/service/OpenAIService.dart';
 
 String getTranscriptPath(String filename) {
   return '${Directory.current.path}/lib/transcripts/$filename';
@@ -15,7 +17,7 @@ String getTranscriptPath(String filename) {
 
 void main() async {
   await dotenv.load(fileName: ".env");
-  final repo = TranscriptRepository();
+  final repo = TranscriptRepository(openAIService: OpenAIService(), mongoService: MongoService());
   setUpAll(() async {
     await dotenv.load(fileName: '.env');
     OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;

@@ -4,53 +4,60 @@ import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 
 class UserRepository {
-  final MongoService _mongoService = MongoService();
-  final TranscriptRepository _transcriptRepo = TranscriptRepository();
+  final MongoService mongoService;
+  final TranscriptRepository transcriptRepo;
+
+  UserRepository({required this.mongoService, required this.transcriptRepo});
+
 
   Future<void> togglePlannedModule(String userID, String moduleNr, bool isCurrent) async {
     String category = isCurrent ? 'current' : 'next';
-    await _mongoService.toggleModuleState(userID, moduleNr, 'planned_modules', category: category);
+    await mongoService.toggleModuleState(userID, moduleNr, 'planned_modules', category: category);
   }
 
   Future<void> removePlannedModule(String userID, String moduleNr) async {
-    await _mongoService.removePlannedModule(userID, moduleNr);
+    await mongoService.removePlannedModule(userID, moduleNr);
   }
 
   Future<Map<String, List<String>>> getPlannedModulesStruct(String userID) async {
-    return await _mongoService.getPlannedModulesStruct(userID);
+    return await mongoService.getPlannedModulesStruct(userID);
   }
   
   Future<List<String>> getAllPlannedModuleNrs(String userID) async {
-    return await _mongoService.getAllPlannedModuleNrs(userID);
+    return await mongoService.getAllPlannedModuleNrs(userID);
   }
   
   Future<void> toggleFavoriteModule(String userID, String moduleNr) async {
-    await _mongoService.toggleModuleState(userID, moduleNr, 'favorited_modules');
+    await mongoService.toggleModuleState(userID, moduleNr, 'favorited_modules');
   }
 
   Future<List<String>> getFavoriteModuleNrs(String userID) async {
-    return await _mongoService.getFavoriteModuleNrs(userID);
+    return await mongoService.getFavoriteModuleNrs(userID);
   }
 
   Future<void> updateInterests(String userID, List<String> newInterests) async {
-    await _mongoService.updateUserInterests(userID, newInterests);
+    await mongoService.updateUserInterests(userID, newInterests);
   }
 
   Future<void> createUserDetails(String userID, String username) async {
-    await _mongoService.createUserDetails(userID, username);
+    await mongoService.createUserDetails(userID, username);
+  }
+
+  Future<void> setProgramLiteral(String userId, String literal) async {
+    await mongoService.setProgramLiteral(userId, literal);
   }
 
 
   Future<List<String>> getInterests(String userID) async {
-    return await _mongoService.getUserInterests(userID);
+    return await mongoService.getUserInterests(userID);
   }
 
   Future<String?> getUsername(String userID) async {
-    return await _mongoService.getUsername(userID);
+    return await mongoService.getUsername(userID);
   }
 
   Future<UserDetails?> getUserDetails(String userID) async {
-    return await _mongoService.getUserDetails(userID);
+    return await mongoService.getUserDetails(userID);
   }
 
   Future<bool> markModuleAsCompleted({
@@ -62,7 +69,7 @@ class UserRepository {
   }) async {
     
     // trying to save it in the transcript
-    bool success = await _transcriptRepo.addCompletedCourseToTranscript(
+    bool success = await transcriptRepo.addCompletedCourseToTranscript(
       userID: userID,
       courseName: module.title,
       moduleNr: module.moduleNr,
@@ -78,4 +85,13 @@ class UserRepository {
     }
     return success;
   }
+
+  Future<bool> submitFeedback({required String moduleNr, required String userId, required int rating, required String feedbackText}) async {
+    return await mongoService.submitFeedback(moduleNr, userId, rating, feedbackText);
+  }
+
+  Future<bool> deleteFeedback(String moduleNr, String userId) async {
+    return await mongoService.deleteFeedback(moduleNr, userId);
+  }
+
 }

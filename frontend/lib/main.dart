@@ -1,7 +1,12 @@
 import 'dart:io';
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/repos/Recommendation.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
+import 'package:frontend/repos/UserRepository.dart';
+import 'package:frontend/service/MongoService.dart';
+import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
 import 'package:frontend/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,6 +27,7 @@ import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
 import 'package:frontend/ui/FavoritesPage.dart';
+import 'package:frontend/ui/FeedbackPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
@@ -30,10 +36,6 @@ import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
 import 'package:frontend/ui/FeedbackDetailPage.dart';
 
-// Use these instances globally
-final clientSession = ClientSession();
-final transcriptProcessor = TranscriptProcessor();
-
 void main() async {
   await dotenv.load(fileName: ".env");
   OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
@@ -41,8 +43,22 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: clientSession),
-        ChangeNotifierProvider.value(value: transcriptProcessor),
+        Provider(create: (context) => OpenAIService()),
+        Provider(create: (context) => MongoService()),
+        Provider(create: (context) => SharedPreferencesService()),
+        Provider(create: (context) => TranscriptRepository(openAIService: context.read(), mongoService: context.read())),
+        Provider(create: (context) => CourseSearchRepo(mongoService: context.read())),
+        Provider(create: (context) => UserRepository(mongoService: context.read(), transcriptRepo: context.read())),
+        Provider(
+          create: (context) => Recommendation(
+            openAIService: context.read(),
+            mongoService: context.read(),
+            courseRepo: context.read(),
+            userRepo: context.read()
+          )
+        ),
+        ChangeNotifierProvider(create: (context) => TranscriptProcessor(repository: context.read())),
+        ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())),
       ],
       child: MyApp(),
     ),
@@ -61,158 +77,192 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       // themeMode: ThemeMode.system, // = Switches automatically depending on cell phone settings
       themeMode: ThemeMode.light, //  = Always forces light mode
-      routerConfig: router,
+      routerConfig: createRouter(context.read()),
     );
   }
 }
 
-final router = GoRouter(
-  initialLocation: '/home',
-  refreshListenable: clientSession,
+GoRouter createRouter(ClientSession clientSession) {
+  return GoRouter(
+    initialLocation: '/home',
+    refreshListenable: clientSession,
 
-  redirect: (context, state) async {
-    final loggedIn = clientSession.isLoggedIn;
-    final onAuthFlow = state.uri.path.startsWith('/sign-in') || 
-                       state.uri.path.startsWith('/register') ||
-                       state.uri.path.startsWith('/onboarding');
+    redirect: (context, state) async {
+      final loggedIn = clientSession.isLoggedIn;
+      final onAuthFlow = state.uri.path.startsWith('/sign-in') ||
+          state.uri.path.startsWith('/register') ||
+          state.uri.path.startsWith('/onboarding');
 
-    final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
+      final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
 
-    if (!loggedIn && !onAuthFlow && isFirstAppStart) {
-      return '/onboarding';
-    }
-    if (!loggedIn && !onAuthFlow) {
-      return '/sign-in';
-    }
+      if (!loggedIn && !onAuthFlow && isFirstAppStart) {
+        return '/onboarding';
+      }
+      if (!loggedIn && !onAuthFlow) {
+        return '/sign-in';
+      }
 
-    if (loggedIn && onAuthFlow) {
-      return '/home';
-    }
+      if (loggedIn && onAuthFlow) {
+        return '/home';
+      }
 
-    return null;
-  },
+      return null;
+    },
 
-  routes: [
-    GoRoute(
-      path: '/onboarding',
-      builder: (context, state) => OnboardingPage(),
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => CreateAccountForm(),
-      routes: [
-        GoRoute(
-          path: 'specify-degree',
-          builder: (context, state) => SpecifyDegreePage(),
+    routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => OnboardingPage(),
+      ),
+      GoRoute(
+          path: '/register',
+          builder: (context, state) => CreateAccountForm(),
           routes: [
             GoRoute(
-              path: 'interests',
-              builder: (context, state) => InterestSelectionPage(),
+                path: 'specify-degree',
+                builder: (context, state) => SpecifyDegreePage(),
+                routes: [
+                  GoRoute(
+                      path: 'interests',
+                      builder: (context, state) => InterestSelectionPage(),
+                      routes: [
+                        GoRoute(
+                          path: 'upload-transcript',
+                          builder: (context, state) => UploadTranscriptPage(),
+                        ),
+                      ]
+                  ),
+                ]
+            ),
+          ]
+      ),
+      GoRoute(
+          path: '/sign-in',
+          builder: (context, state) => SignInPageForm()
+      ),
+
+      ShellRoute(
+        builder: (context, state, child) {
+          return NavigationWrapper(child: child);
+        },
+        routes: [
+          GoRoute(
+              path: '/home',
+              builder: (context, state) => HomePage(),
               routes: [
                 GoRoute(
                   path: 'upload-transcript',
                   builder: (context, state) => UploadTranscriptPage(),
                 ),
+                GoRoute(
+                  path: 'course-details',
+                  builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                    final moduleNr = state.extra as String;
+                    return CourseDetailsPage(moduleNr: moduleNr);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: 'give-feedback',
+                      builder: (context, state) {
+                        final extra = state.extra as Map<String, dynamic>?;
+                        return GiveFeedbackPage(
+                          title: extra?["title"] ?? "",
+                          credits: extra?["credits"] ?? "",
+                          moduleNr: extra?["moduleNr"] ?? "",
+                          initialRating: extra?["initialRating"],
+                          initialComment: extra?["initialComment"]
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ]
-            ),
-          ]
-        ),
-      ]
-    ),
-    GoRoute(
-      path: '/sign-in',
-      builder: (context, state) => SignInPageForm()
-    ),
-
-    ShellRoute(
-      builder: (context, state, child) {
-        return NavigationWrapper(child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => HomePage(),
-          routes: [
-            GoRoute(
-              path: 'course-details',
-              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+          ),
+          GoRoute(
+            path: '/review-courses',
+            builder: (context, state) => ReviewCoursesPage(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => SearchPage(),
+            routes: [
+              GoRoute(
+                path: 'course-details',
+                builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
-              },
-              routes: [
-                GoRoute(
-                  path: 'give-feedback',
-                  builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    return GiveFeedbackPage(
-                      title: extra?["title"] ?? "",
-                      credits: extra?["credits"] ?? "",
-                      moduleNr: extra?["moduleNr"] ?? "",
-                    );
-                  },
-                ),
-              ],
-            ),
-          ]
-        ),
-        GoRoute(
-          path: '/review-courses',
-          builder: (context, state) => ReviewCoursesPage(),
-        ),
-        GoRoute(
-          path: '/search',
-          builder: (context, state) => SearchPage(),
-          routes: [
-            GoRoute(
-              path: 'course-details',
-              builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                },
+                routes: [
+                  GoRoute(
+                    path: 'give-feedback',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return GiveFeedbackPage(
+                        title: extra?["title"] ?? "",
+                        credits: extra?["credits"] ?? "",
+                        moduleNr: extra?["moduleNr"] ?? "",
+                        initialRating: extra?["initialRating"],
+                        initialComment: extra?["initialComment"]
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          GoRoute(
+            path: '/planner',
+            builder: (context, state) => PlannerPage(),
+          ),
+          GoRoute(
+            path: '/favourites',
+            builder: (context, state) => FavoritesPage(),
+          ),
+          GoRoute(
+            path: '/feedback',
+            builder: (context, state) => FeedbackPage(),
+            routes: [
+              GoRoute(
+                path: 'course-details',
+                builder: (context, state) {  
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
-              },
-              routes: [
-                GoRoute(
-                  path: 'give-feedback',
-                  builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    return GiveFeedbackPage(
-                      title: extra?["title"] ?? "",
-                      credits: extra?["credits"] ?? "",
-                      moduleNr: extra?["moduleNr"] ?? "",
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-
-        GoRoute(
-          path: '/planner',
-          builder: (context, state) => PlannerPage(),
-        ),
-        GoRoute(
-          path: '/favourites',
-          builder: (context, state) => FavoritesPage(),
-        ),
-        GoRoute(
-          path: '/feedback',
-          builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
-        ),
-        GoRoute(
-          path: '/feedback-detail',
-          builder: (context, state) {
-            final courseName = state.extra as String? ?? 'Course';
-            return FeedbackDetailPage(courseName: courseName);
-          },
-        ),
-        GoRoute(
-          path: '/demo',
-          builder: (context, state) => MyHomePage(title: "Demo Home Page"),
-        ),
-      ],
-    ),
-  ],
-);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'give-feedback',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return GiveFeedbackPage(
+                        title: extra?["title"] ?? "",
+                        credits: extra?["credits"] ?? "",
+                        moduleNr: extra?["moduleNr"] ?? "",
+                        initialRating: extra?["initialRating"],
+                        initialComment: extra?["initialComment"]
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ]
+          ),
+          GoRoute(
+            path: '/feedback-detail',
+            builder: (context, state) {
+              final courseName = state.extra as String? ?? 'Course';
+              return FeedbackDetailPage(courseName: courseName);
+            },
+          ),
+          GoRoute(
+            path: '/demo',
+            builder: (context, state) => MyHomePage(title: "Demo Home Page"),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -235,39 +285,15 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final ClientSession clientSession = context.read();
+
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
                         ElevatedButton(
@@ -390,8 +416,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 debugPrint("starting");
                 final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
-                var repo = TranscriptRepository();
-                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM");
+                var repo = context.read<TranscriptRepository>();
+                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM_M");
                 if (res != null) {
                   debugPrint(res.toString());
                 } else {
@@ -410,8 +436,6 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("TranscriptProcessingTestScreen"),
             ),
-
-            
           ],
         ),
       ),

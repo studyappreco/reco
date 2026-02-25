@@ -22,7 +22,7 @@ class PlannerPage extends StatelessWidget {
     final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<PlannerPageViewmodel>(
-      create: (_) => PlannerPageViewmodel(userID),
+      create: (_) => PlannerPageViewmodel(context.read(), context.read(), context.read(), userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -67,6 +67,7 @@ class PlannerPage extends StatelessWidget {
                       modules: vm.plannedModulesCurrent,
                       onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
                       onRemoveModule: (mod) => vm.removeModule(context, mod),
+                      addButtonOnTop: true,
                     ),
 
                     SemesterSection(
@@ -77,6 +78,7 @@ class PlannerPage extends StatelessWidget {
                         modules: vm.plannedModulesNext,
                         onFinishModule: (mod) => vm.showaddModuleDialog(context, mod),
                         onRemoveModule: (mod) => vm.removeModule(context, mod),
+                        showAddButton: false,
                     ),
                   ]
                 )
@@ -149,6 +151,8 @@ class SemesterSection extends StatefulWidget {
   final List<Module> modules;
   final Function(Module) onFinishModule;
   final Function(Module) onRemoveModule;
+  final bool showAddButton;
+  final bool addButtonOnTop;
 
   const SemesterSection({
     super.key,
@@ -158,7 +162,9 @@ class SemesterSection extends StatefulWidget {
     this.expanded,
     required this.modules,
     required this.onFinishModule,
-    required this.onRemoveModule
+    required this.onRemoveModule,
+    this.showAddButton = true,
+    this.addButtonOnTop = false
     });
 
   @override
@@ -176,6 +182,31 @@ class _SemesterSectionState extends State<SemesterSection> {
     return Column(
       spacing: 20,
       children: [
+        if (widget.showAddButton && widget.addButtonOnTop)
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.go('/search'),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: colorScheme.surfaceContainerHighest,
+                      width: 3
+                      ),
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppColors.textMain,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: .circular(13)
+                      )
+                  ),
+                  child: Text(
+                    "+ Add Module",
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+                    ),
+                )
+              )
+            ],
+          ),
         GestureDetector(
           onTap: () => setState(() => expanded = !expanded),
           child: Row(
@@ -241,30 +272,31 @@ class _SemesterSectionState extends State<SemesterSection> {
                   child: Text("No courses planned in this section."),
                 ),
               
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => context.go('/search'),
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(
-                          color: colorScheme.surfaceContainerHighest,
-                          width: 3
-                          ),
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.textMain,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: .circular(13)
-                          )
-                      ),
-                      child: Text(
-                        "+ Add Module",
-                        style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+              if (widget.showAddButton && !widget.addButtonOnTop)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => context.go('/search'),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: colorScheme.surfaceContainerHighest,
+                            width: 3
+                            ),
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.textMain,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: .circular(13)
+                            )
                         ),
+                        child: Text(
+                          "+ Add Module",
+                          style: textTheme.titleMedium?.copyWith(color: AppColors.textMain)
+                          ),
+                      )
                     )
-                  )
-                ],
-              )
+                  ],
+                )
             ]
           )
       ],
@@ -340,10 +372,19 @@ class CourseItem extends StatelessWidget {
 }
 
 class PlannerPageViewmodel extends ChangeNotifier {
+  final TranscriptRepository transcriptRepo;
+  final UserRepository userRepo;
+  final CourseSearchRepo courseRepo;
   final String userID;
-  final TranscriptRepository _transcriptRepo = TranscriptRepository(); 
-  final UserRepository _userRepo = UserRepository();
-  final CourseSearchRepo _courseRepo = CourseSearchRepo();
+
+  PlannerPageViewmodel(
+    this.transcriptRepo,
+    this.userRepo,
+    this.courseRepo,
+    this.userID
+  ) {
+    _loadData();
+  }
 
   bool isLoading = true;
   int earnedCredits = 0;
@@ -368,10 +409,6 @@ class PlannerPageViewmodel extends ChangeNotifier {
     return sum;
   }
 
-  PlannerPageViewmodel(this.userID){
-    _loadData();
-  }
-
   Future<void> _loadData() async {
     isLoading = true;
     notifyListeners();
@@ -379,8 +416,8 @@ class PlannerPageViewmodel extends ChangeNotifier {
     try {
       if(userID.isEmpty) return;
 
-      final userTranscript = await _transcriptRepo.getTranscript(userID);
-      final userDetails = await _userRepo.getUserDetails(userID);
+      final userTranscript = await transcriptRepo.getTranscript(userID: userID, forceRefresh: false);
+      final userDetails = await userRepo.getUserDetails(userID);
       if(userTranscript != null){
         final dashboardDTO = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
         if(dashboardDTO != null){
@@ -390,12 +427,12 @@ class PlannerPageViewmodel extends ChangeNotifier {
         }
       }
 
-      final plannedmodule = await _userRepo.getPlannedModulesStruct(userID);
+      final plannedmodule = await userRepo.getPlannedModulesStruct(userID);
       final currentIDs = plannedmodule['current']!;
       final nextIDs = plannedmodule['next']!;
 
       final allPlannedIDs = [...currentIDs, ...nextIDs];
-      final List<Module> allPlannedModules = await _courseRepo.getModulesByModuleNrs(allPlannedIDs, userID);
+      final List<Module> allPlannedModules = await courseRepo.getModulesByModuleNrs(allPlannedIDs, userID);
 
       plannedModulesCurrent = allPlannedModules.where((m) => currentIDs.contains(m.moduleNr)).toList();
       plannedModulesNext = allPlannedModules.where((m) => nextIDs.contains(m.moduleNr)).toList();
@@ -409,7 +446,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
   }
 
   Future<void> removeModule(BuildContext context, Module module) async {
-    await _userRepo.removePlannedModule(userID, module.moduleNr);
+    await userRepo.removePlannedModule(userID, module.moduleNr);
     await _loadData(); 
     
     if (!context.mounted) return;
@@ -552,7 +589,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    bool success = await _userRepo.markModuleAsCompleted(
+    bool success = await userRepo.markModuleAsCompleted(
       userID: userID,
       module: module,
       grade: grade,
@@ -561,6 +598,7 @@ class PlannerPageViewmodel extends ChangeNotifier {
     );
 
     if(success){
+      await userRepo.removePlannedModule(userID, module.moduleNr);
       await _loadData();
       
       if (!context.mounted) return;

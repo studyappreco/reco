@@ -26,7 +26,7 @@ class CourseDetailsPage extends StatelessWidget {
     final String userID = context.read<ClientSession>().getUserID() ?? "";
 
     return ChangeNotifierProvider<CourseDetailsPageViewmodel>(
-      create: (_) => CourseDetailsPageViewmodel(moduleNr, userID),
+      create: (_) => CourseDetailsPageViewmodel(context.read(), context.read(), moduleNr, userID),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -60,6 +60,11 @@ class CourseDetailsPage extends StatelessWidget {
                 ),
               );
             }
+
+            final userFeedbacks = vm.module!.feedbacks.where((r) => r.userId == userID);
+            final existingFeedback = userFeedbacks.isNotEmpty ? userFeedbacks.first : null;
+            final hasReviewed = existingFeedback != null;
+
             // Display data
             return Padding(
               padding: EdgeInsets.all(24),
@@ -167,7 +172,7 @@ class CourseDetailsPage extends StatelessWidget {
                                   color: Colors.amberAccent,
                                 ),
                                 Text(
-                                  vm.module!.rating != null ? vm.module!.rating.toString() : "-",
+                                  vm.module!.rating != null ? vm.module!.rating!.toStringAsFixed(1) : "-",
                                   style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
                                 ),
                               ],
@@ -267,17 +272,22 @@ class CourseDetailsPage extends StatelessWidget {
                               ),
                               Expanded(
                                 child: AdaptiveButton(
-                                  onPressed: () => context.push(
-                                    '${GoRouterState.of(context).uri.path}/give-feedback',
-                                    extra: {
-                                      'title': vm.module!.title,
-                                      'credits': vm.module!.credits,
-                                      'moduleNr': vm.module!.moduleNr,
-                                    },
-                                  ),
+                                  onPressed: () async {
+                                    await context.push(
+                                      '${GoRouterState.of(context).uri.path}/give-feedback',
+                                      extra: {
+                                        'title': vm.module!.title,
+                                        'credits': vm.module!.credits,
+                                        'moduleNr': vm.module!.moduleNr,
+                                        'initialRating': existingFeedback?.rating,
+                                        'initialComment': existingFeedback?.feedbackText, 
+                                      },
+                                    );
+                                    vm._loadModule(forceRefresh: true); 
+                                  },
                                   child: Center(
                                     child: Text(
-                                      "+ Give Feedback",
+                                      hasReviewed ? "Edit Feedback" : "+ Give Feedback",
                                       style: textTheme.bodyMedium?.copyWith(color: Colors.white),
                                       textAlign: TextAlign.center,
                                     ),
@@ -379,19 +389,25 @@ class DetailCard extends StatelessWidget {
 }
 
 class CourseDetailsPageViewmodel extends ChangeNotifier {
+  final UserRepository userRepo;
+  final CourseSearchRepo courseRepo;
   final String moduleNr;
   final String userID;
 
   Module? module;
   bool isLoading = true;
   String? errorMessage;
-  final UserRepository _userRepo = UserRepository();
 
-  CourseDetailsPageViewmodel(this.moduleNr, this.userID){
+  CourseDetailsPageViewmodel(
+    this.userRepo,
+    this.courseRepo,
+    this.moduleNr,
+    this.userID
+  ){
     _loadModule();
   }
   
-  Future<void> _loadModule() async{
+  Future<void> _loadModule({bool forceRefresh = false}) async{
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -406,7 +422,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     }
 
     try{
-      module = await CourseSearchRepo().getModuleByNumber(moduleNr, userID);
+      module = await courseRepo.getModuleByNumber(moduleNr, userID, forceRefresh: forceRefresh);
       if(module == null){
         RecoLog.warning("Module $moduleNr not found");
         errorMessage = "Module with ID $moduleNr not found.";
@@ -446,7 +462,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
       module!.isPlanned = false;
       notifyListeners(); 
       try {
-        await _userRepo.removePlannedModule(userID, moduleNr);
+        await userRepo.removePlannedModule(userID, moduleNr);
         RecoLog.info("Planned status removed from DB");
         
 
@@ -499,7 +515,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     module!.isPlanned = true;
     notifyListeners();
     try {
-      await _userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
+      await userRepo.togglePlannedModule(userID, moduleNr, isCurrent);
       RecoLog.info("Planned status added to DB (${isCurrent ? 'Current' : 'Next'})");
       
 
@@ -539,7 +555,7 @@ class CourseDetailsPageViewmodel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _userRepo.toggleFavoriteModule(userID, moduleNr);
+      await userRepo.toggleFavoriteModule(userID, moduleNr);
       RecoLog.info("Favorite status updated in DB");
       
 

@@ -98,9 +98,11 @@ class PercentageBar extends StatelessWidget {
           mainAxisAlignment: .spaceBetween,
           crossAxisAlignment: .center,
           children: [
-            Text(
-              label,
-              style: textTheme.bodyMedium
+            Expanded(
+              child: Text(
+                label,
+                style: textTheme.bodyMedium
+              ),
             ),
             Text(
               "${(percentage * 100).round()}%",

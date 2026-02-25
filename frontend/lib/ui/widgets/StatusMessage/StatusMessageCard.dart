@@ -70,3 +70,44 @@ class StatusMessageCard extends StatelessWidget {
     );
   }
 }
+
+class StatusMessageCardPlaceholder extends StatelessWidget {
+
+  const StatusMessageCardPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+
+          Container(
+            margin: EdgeInsets.only(right: 18),
+            padding: EdgeInsets.all(4),
+            child: Text(""),
+          ),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title
+                Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Text(""),
+                ),
+                // Text
+                Text(""),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

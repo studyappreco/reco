@@ -43,10 +43,10 @@ class NavigationWrapper extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavBar(
+      bottomNavigationBar: pages.contains(location) ? NavBar(
         currentIndex: index,
         onDestinationSelected: onTabSelected,
-      ),
+      ) : null,
     );
   }
 }

@@ -23,7 +23,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final CourseSearchRepo _repository = CourseSearchRepo();
+  late final CourseSearchRepo _courseRepo = context.read();
+  late final UserRepository _userRepo = context.read();
+  
   List<Module> _filteredModules = []; 
   bool _isLoading = true;
 
@@ -74,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
 
     // DB update
     try {
-      await UserRepository().toggleFavoriteModule(userID, module.moduleNr);
+      await _userRepo.toggleFavoriteModule(userID, module.moduleNr);
     } catch (e, s) {
       RecoLog.error("Error saving favorite", e, s);
       
@@ -111,7 +113,7 @@ class _SearchPageState extends State<SearchPage> {
     if(module.isPlanned){
       setState(() => module.isPlanned = false);
       try {
-        await UserRepository().removePlannedModule(userID, module.moduleNr);
+        await _userRepo.removePlannedModule(userID, module.moduleNr);
 
       } catch (e, s) {
         RecoLog.error("Error removing planner", e, s);
@@ -164,7 +166,7 @@ class _SearchPageState extends State<SearchPage> {
     setState(() => module.isPlanned = true);
     
     try {
-      await UserRepository().togglePlannedModule(userID, module.moduleNr, isCurrent);
+      await _userRepo.togglePlannedModule(userID, module.moduleNr, isCurrent);
     } catch (e, s) {
       RecoLog.error("Planner save error", e, s);
       setState(() => module.isPlanned = false);
@@ -205,7 +207,7 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     try {
-      List<Module> modules = await _repository.fetchModules(forceRefresh: force, userID: userID);
+      List<Module> modules = await _courseRepo.fetchModules(forceRefresh: force, userID: userID);
 
       // Extract tags from the data
       Set<String> extractedTags = {};
@@ -249,7 +251,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void _applyFilters(){
     setState(() {
-      _filteredModules = _repository.filterModules(
+      _filteredModules = _courseRepo.filterModules(
         query: _searchQuery,
         selectedExamTypes: _selectedExamTypes,
         ectsRange: _ectsRange,

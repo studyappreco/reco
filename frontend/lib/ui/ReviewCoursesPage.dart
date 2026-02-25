@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:frontend/main.dart';
 import 'package:frontend/models/TranscriptDocument.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
+import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/AdaptiveButton.dart';
 import 'package:frontend/ui/widgets/CourseOverview.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ class ReviewCoursesPage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ChangeNotifierProvider<ReviewCoursesPageViewmodel>(
-      create: (_) => ReviewCoursesPageViewmodel(),
+      create: (_) => ReviewCoursesPageViewmodel(context.read(), context.read(), context.read()),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -119,50 +119,49 @@ class _CourseCategoryCardState extends State<CourseCategoryCard> {
           Padding(
             padding: EdgeInsets.fromLTRB(24, 20, 10, 20),
             child: Row(
-              mainAxisAlignment: .spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlueLight,
-                          borderRadius: BorderRadius.circular(14),
+                SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlueLight,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: .center,
+                      crossAxisAlignment: .center,
+                      children: [
+                        SvgPicture.asset(
+                          "assets/icons/book-open.svg",
+                          colorFilter: ColorFilter.mode(AppColors.primaryBlue, BlendMode.srcIn),
+                          width: 24,
+                          height: 24,
                         ),
-                        child: Column(
-                          mainAxisAlignment: .center,
-                          crossAxisAlignment: .center,
-                          children: [
-                            SvgPicture.asset(
-                              "assets/icons/book-open.svg",
-                              colorFilter: ColorFilter.mode(AppColors.primaryBlue, BlendMode.srcIn),
-                              width: 24,
-                              height: 24,
-                            ),
-                          ],
-                        )
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.category.name,
-                            style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
-                          ),
-                          Text(
-                            "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
-                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                      ],
+                    )
+                  ),
                 ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.category.name,
+                          style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
+                        ),
+                        Text(
+                          "${widget.category.courses.length} $coursesLabel \u2022 ${widget.category.earnedCredits}/${widget.category.requiredCredits} ECTS",
+                          style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 IconButton(
                   onPressed: () => setState(() {
                     expanded = !expanded;
@@ -224,7 +223,6 @@ class CourseCategoryCardCourseItem extends StatelessWidget {
         mainAxisAlignment: .spaceBetween,
         children: [
           Expanded(
-            flex: 8,
             child: Column(
               crossAxisAlignment: .start,
               children: [
@@ -239,12 +237,12 @@ class CourseCategoryCardCourseItem extends StatelessWidget {
               ],
             )
           ),
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
             child: Grade(
               grade: course.grade.toStringAsFixed(1),
-              color: Colors.green
-            )
+              color: Colors.green,
+            ),
           )
         ],
       )
@@ -284,7 +282,15 @@ class Grade extends StatelessWidget {
 }
 
 class ReviewCoursesPageViewmodel extends ChangeNotifier {
-  ReviewCoursesPageViewmodel() {
+  final TranscriptRepository transcriptRepo;
+  final UserRepository userRepo;
+  ClientSession clientSession;
+
+  ReviewCoursesPageViewmodel(
+    this.transcriptRepo,
+    this.userRepo,
+    this.clientSession
+  ) {
   _init();
   }
 
@@ -300,16 +306,14 @@ class ReviewCoursesPageViewmodel extends ChangeNotifier {
 
   Future<void> _init() async {
   _loading = true;
-  final repo = TranscriptRepository();
-  final userRepo = UserRepository();
-  final userId = clientSession.session?.userId;
+  final userId = clientSession.getUserID();
   if (userId == null) {
   _loading = false;
   notifyListeners();
   return;
   }
 
-  final userTranscript = await repo.getTranscript(userId);
+  final userTranscript = await transcriptRepo.getTranscript(userID: userId, forceRefresh: false);
   final userDetails = await userRepo.getUserDetails(userId);
   final dto = userTranscriptToDashboardDTO(userTranscript, userDetails?.programLiteral);
   if (dto == null) {

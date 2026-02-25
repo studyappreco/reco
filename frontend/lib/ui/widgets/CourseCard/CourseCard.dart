@@ -42,7 +42,6 @@ class CourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final textTheme = Theme.of(context).textTheme;
-    final hasRating = rating != null && rating! > 0;
 
     return Container(
       decoration: CourseCardStyles.getCardDecoration(isDarkMode: isDarkMode),
@@ -149,7 +148,7 @@ class CourseCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: Text(
-                              hasRating ? rating.toString() : '-',
+                              rating != null ? rating!.toStringAsFixed(1) : '-',
                               style: textTheme.titleMedium?.copyWith(
                                 color: isDarkMode ? Colors.white : AppColors.textMain,
                               ),
