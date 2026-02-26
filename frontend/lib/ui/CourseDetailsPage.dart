@@ -108,7 +108,9 @@ class CourseDetailsPage extends StatelessWidget {
                                   mainAxisAlignment: .spaceBetween,
                                   children: [
                                     Flexible(
-                                      child: ChipWidget(label: "Recommended for you - ${vm.module!.matchPercentage}% match", color: Colors.green),
+                                      child: vm.module!.isRecommended
+                                        ? ChipWidget(label: "Recommended for you", color: Colors.green)
+                                        : SizedBox.shrink(),
                                     ),
                                     AnimatedIconButton(
                                       isSelected: vm.module!.isFavorite,
@@ -178,57 +180,59 @@ class CourseDetailsPage extends StatelessWidget {
                               ],
                             ),
                             children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                                decoration: BoxDecoration(
-                                  border: BoxBorder.all(color: colorScheme.surfaceContainer, width: 1),
-                                  borderRadius: BorderRadius.circular(13),
-                                  color: Colors.white,
+                              GestureDetector(
+                                onTap: () => context.push('/feedback-detail', extra: vm.module!.title),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                                  decoration: BoxDecoration(
+                                    border: BoxBorder.all(color: colorScheme.surfaceContainer, width: 1),
+                                    borderRadius: BorderRadius.circular(13),
+                                    color: Colors.white,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 48,
+                                        height: 48,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primaryBlueLight,
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment: .center,
+                                            crossAxisAlignment: .center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                "assets/icons/speech-bubble-blue.svg",
+                                                width: 24,
+                                                height: 24,
+                                              ),
+                                            ],
+                                          )
+                                        ),
+                                      ),
+                                      Expanded( 
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 12),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "View all feedback",
+                                                style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
+                                              ),
+                                              Text(
+                                                "See what other students are saying",
+                                                style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                child:
-                                Row(
-                                  children: [
-                                    SizedBox(
-                                      width: 48,
-                                      height: 48,
-                                      child: DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryBlueLight,
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment: .center,
-                                          crossAxisAlignment: .center,
-                                          children: [
-                                            SvgPicture.asset(
-                                              "assets/icons/speech-bubble-blue.svg",
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                          ],
-                                        )
-                                      ),
-                                    ),
-                                    Expanded( 
-                                      child: Padding(
-                                        padding: EdgeInsets.only(left: 12),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "View all feedback",
-                                              style: textTheme.titleMedium?.copyWith(color: AppColors.textMain),
-                                            ),
-                                            Text(
-                                              "See what other students are saying",
-                                              style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                )
                               ),
                             ]
                           ),

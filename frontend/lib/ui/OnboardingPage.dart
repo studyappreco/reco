@@ -36,26 +36,30 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final pages = <_OnboardData>[
-      _OnboardData(
-        title: "Feeling a bit lost\nin your studies?",
-        subtitle:
-        "You're not alone. Let's build a personalized plan to help you stay on track and reach your goals.",
-        imageAsset: "assets/images/onboarding_1.png",
-        ctaText: null,
-      ),
-      _OnboardData(
-        title: "Not sure what\ncomes next?",
-        subtitle:
-        "RECO helps you understand your academic path and make confident decisions about your future semesters.",
-        imageAsset: "assets/images/onboarding_2.png",
-        footerLine: "Build by students for students!",
-        ctaText: null,
-      ),
+        _OnboardData(
+          title: "Feeling a bit lost\nin your studies?",
+          subtitle:
+          "You're not alone. Let's build a personalized plan to help you stay on track and reach your goals.",
+          imageAsset: "assets/images/onboarding_1.png",
+          imageHeight: 1000,
+
+          ctaText: null,
+        ),
+        _OnboardData(
+          title: "Not sure what\ncomes next?",
+          subtitle:
+          "RECO helps you understand your academic path and make confident decisions about your future semesters.",
+          imageAsset: "assets/images/onboarding_2.png",
+          imageHeight: 800,
+          footerLine: "Build by students for students!",
+          ctaText: null,
+        ),
       _OnboardData(
         title: "Everything about your\nstudies, in one place!",
         subtitle:
         "Track your GPA, follow your progress, plan semesters, and explore courses — all clearly organized.",
         imageAsset: "assets/images/onboarding_3.png",
+        imageHeight: 600,
         footerLine: "Review · Explore · Choose · Optimize",
         ctaText: null,
       ),
@@ -64,7 +68,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         subtitle:
         "With personalized insights and smart recommendations, RECO helps you stay on track and move forward faster.",
         imageAsset: "assets/images/onboarding_4.png",
-        footerLine: null,
+        imageHeight: 1500,
         ctaText: "Start Your Journey!",
       ),
     ];
@@ -100,26 +104,35 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ],
                   ),
 
-                  const SizedBox(height: 8),
-
-                  // ✅ Image sizing to match reference (bigger and higher)
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.40, // tweak 0.36–0.45
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: Image.asset(
-                        p.imageAsset,
-                        fit: BoxFit.contain,
+                  // Flexible image/circle stack for all pages
+                  Flexible(
+                    flex: 5,
+                    child: Center(
+                      child: Builder(
+                        builder: (context) {
+                          final isLast = i == pages.length - 1;
+                          final double outerCircle = isLast ? 320 : 240;
+                          final double innerCircle = isLast ? 230 : 170;
+                          final double imageHeight = p.imageHeight ?? (isLast ? 260 : 200);
+                          return Padding(
+                            padding: EdgeInsets.only(top: isLast ? 24 : 0),
+                            child: Image.asset(
+                              p.imageAsset,
+                              fit: BoxFit.contain,
+                              height: imageHeight,
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 10),
 
                   // Dots
                   _DotsIndicator(count: pages.length, index: _index),
 
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 18),
 
                   // Title
                   Text(
@@ -212,6 +225,7 @@ class _OnboardData {
   final String title;
   final String subtitle;
   final String imageAsset;
+  final double? imageHeight;
   final String? footerLine;
   final String? ctaText;
 
@@ -219,6 +233,7 @@ class _OnboardData {
     required this.title,
     required this.subtitle,
     required this.imageAsset,
+    this.imageHeight,
     this.footerLine,
     this.ctaText,
   });
@@ -229,6 +244,13 @@ class _DotsIndicator extends StatelessWidget {
   final int index;
 
   const _DotsIndicator({required this.count, required this.index});
+
+  static const List<Color> activeColors = [
+    Color(0xFFFFA76D), // orange (1st)
+    Color(0xFFFFD600), // yellow (2nd)
+    Color(0xFF4DD88A), // green (3rd)
+    Color(0xFF4DA3FF), // blue (4th)
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -242,7 +264,7 @@ class _DotsIndicator extends StatelessWidget {
           height: 6,
           width: active ? 18 : 6,
           decoration: BoxDecoration(
-            color: active ? const Color(0xFF1677FF) : const Color(0xFFD6D9E0),
+            color: active ? activeColors[i % activeColors.length] : const Color(0xFFD6D9E0),
             borderRadius: BorderRadius.circular(99),
           ),
         );

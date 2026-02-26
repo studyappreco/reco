@@ -73,10 +73,6 @@ final jsonSchema = {
 class OpenAIService {
   OpenAIService();
 
-  Future<List<Module>?> KnnQueryForCourses(String userID) async {
-    return null;
-  }
-
   Future<List<double>?> embedUserdetails(
     List<String> interests,
     String programLiteral,
@@ -93,7 +89,6 @@ class OpenAIService {
       model: EMBEDDING_MODEL,
       input: embedString,
     );
-
     return embedding.data.first.embeddings;
   }
 

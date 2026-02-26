@@ -13,9 +13,16 @@ import 'package:frontend/utils/RecoLog.dart';
 void main() {
   final openAIService = OpenAIService();
   final mongoService = MongoService();
-  final transcriptRepo = TranscriptRepository(openAIService: openAIService, mongoService: mongoService);
+  final transcriptRepo = TranscriptRepository(
+    openAIService: openAIService,
+    mongoService: mongoService,
+  );
   final courseSearchRepo = CourseSearchRepo(mongoService: mongoService);
-  final userRepo = UserRepository(mongoService: mongoService, transcriptRepo: transcriptRepo);
+  final userRepo = UserRepository(
+    mongoService: mongoService,
+    transcriptRepo: transcriptRepo,
+    openAIService: openAIService,
+  );
 
   group('Test candidate generation', () {
     setUpAll(() async {
@@ -27,10 +34,10 @@ void main() {
     test("Test ISM Master Transcript 1", () async {
       String userID = "695f8904bcac7f16a725";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -40,10 +47,10 @@ void main() {
     test("Test CS Master Transcript 1", () async {
       String userID = "696fc7786cc80f940621";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -53,10 +60,10 @@ void main() {
     test("Test ISM Master Transcript 2", () async {
       String userID = "697fcca16cb5002817b1";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -66,10 +73,10 @@ void main() {
     test("Test CS bachelor transcript", () async {
       String userID = "6967699402af64b787c3";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
       var candidates = await rec.candicate_generation(userID);
       RecoLog.info("Got ${candidates?.length} candidates");
@@ -193,7 +200,6 @@ void main() {
           moduleNr: "40001",
           credits: "6",
           examType: "Written Exam",
-          matchPercentage: 0,
           tags: [],
           learnContent:
               "Introduction to supervised and unsupervised learning algorithms",
@@ -206,7 +212,6 @@ void main() {
           moduleNr: "40002",
           credits: "6",
           examType: "Written Exam",
-          matchPercentage: 0,
           tags: [],
           learnContent: "Financial analysis and corporate valuation",
           learnResult: "Students understand corporate finance principles",
@@ -218,7 +223,6 @@ void main() {
           moduleNr: "40003",
           credits: "6",
           examType: "Portfolio Exam",
-          matchPercentage: 0,
           tags: [],
           learnContent: "Neural networks, CNNs, RNNs, and transformers",
           learnResult: "Students can build deep learning models",
@@ -230,7 +234,6 @@ void main() {
           moduleNr: "40004",
           credits: "6",
           examType: "Portfolio Exam",
-          matchPercentage: 0,
           tags: [],
           learnContent: "AWS, Azure, distributed systems in the cloud",
           learnResult: "Students can deploy cloud-native applications",
@@ -270,12 +273,12 @@ void main() {
     });
 
     test("generate candidates for user", () async {
-      String userID = ""; // Fill in userID
+      String userID = "696fc7786cc80f940621";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
       var candidates = await rec.candicate_generation(userID);
 
@@ -295,12 +298,12 @@ void main() {
     });
 
     test("rank candidates for user", () async {
-      String userID = "";
+      String userID = "696fc7786cc80f940621";
       var rec = Recommendation(
-          openAIService: openAIService,
-          mongoService: mongoService,
-          courseRepo: courseSearchRepo,
-          userRepo: userRepo
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
       );
 
       var candidates = await rec.candicate_generation(userID);
@@ -326,6 +329,57 @@ void main() {
 
       expect(rankedCandidates, isNotNull);
       expect(rankedCandidates!.isNotEmpty, isTrue);
+    });
+  });
+
+  group("Test getRecommendedModules API", () {
+    setUpAll(() async {
+      await dotenv.load(fileName: '.env');
+      OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+      OpenAI.requestsTimeOut = const Duration(minutes: 3);
+    });
+
+    test(
+      "get recommended modules for user with existing recommendations",
+      () async {
+        String userID = "696fc7786cc80f940621";
+        var rec = Recommendation(
+          openAIService: openAIService,
+          mongoService: mongoService,
+          courseRepo: courseSearchRepo,
+          userRepo: userRepo,
+        );
+
+        var modules = await rec.getRecommendedModules(userID);
+
+        print("Got ${modules?.length} recommended modules");
+        if (modules != null) {
+          for (var m in modules) {
+            print("- ${m.moduleNr}: ${m.title}");
+          }
+        }
+
+        expect(modules, isNotNull);
+      },
+    );
+
+    test("get recommended modules for user without recommendations", () async {
+      String userID = "697fcca16cb5002817b1";
+      var rec = Recommendation(
+        openAIService: openAIService,
+        mongoService: mongoService,
+        courseRepo: courseSearchRepo,
+        userRepo: userRepo,
+      );
+
+      var modules = await rec.getRecommendedModules(userID);
+
+      print("Got ${modules?.length} recommended modules");
+      if (modules != null) {
+        for (var m in modules) {
+          print("- ${m.moduleNr}: ${m.title}");
+        }
+      }
     });
   });
 }

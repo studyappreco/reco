@@ -1,6 +1,8 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/models/Module.dart';
 import 'package:frontend/models/UserDetails.dart';
+import 'package:frontend/repos/Recommendation.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
 import 'package:frontend/repos/transcriptUtils.dart';
 import 'package:frontend/repos/UserRepository.dart';
@@ -13,7 +15,6 @@ import 'package:frontend/ui/widgets/TranscriptProcessingCard.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/theme/colors.dart';
-import 'package:frontend/ui/widgets/Chip.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -25,7 +26,13 @@ class HomePage extends StatelessWidget {
     final clientSession = context.read<ClientSession>();
 
     return ChangeNotifierProvider<HomePageViewmodel>(
-      create: (_) => HomePageViewmodel(context.read(), context.read(), clientSession, context.read())..init(),
+      create: (_) => HomePageViewmodel(
+        context.read(),
+        context.read(),
+        clientSession,
+        context.read(),
+        context.read(),
+      )..initialize(),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -43,16 +50,13 @@ class HomePage extends StatelessWidget {
                 clientSession.clearUserSession();
               },
               iconSize: 30,
-              icon: Icon(Icons.account_circle_outlined)
-            )
+              icon: Icon(Icons.account_circle_outlined),
+            ),
           ],
         ),
         backgroundColor: colorScheme.surface,
         body: Consumer<HomePageViewmodel>(
           builder: (context, vm, child) {
-            if(vm.loading){
-              return Center(child: CircularProgressIndicator());
-            }
             return Padding(
               padding: EdgeInsets.all(24),
               child: SingleChildScrollView(
@@ -62,19 +66,43 @@ class HomePage extends StatelessWidget {
                   children: [
                     Text(
                       "Hello ${vm.username.isNotEmpty ? vm.username : 'there'}",
-                      style: textTheme.headlineSmall?.copyWith(color: AppColors.textMain),
+                      style: textTheme.headlineSmall?.copyWith(
+                        color: AppColors.textMain,
+                      ),
                     ),
                     Text(
                       "Here's your academic overview",
-                      style: textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
+                      style: textTheme.titleMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     SizedBox(height: 20),
-                    ...[switch (vm.transcriptAvailability) {
-                      TranscriptAvailability.undefined => Text("undefined"),
-                      TranscriptAvailability.missing => Padding(padding: EdgeInsets.all(4), child: TranscriptMissingCard(onUploadPressed: () => context.push("/home/upload-transcript"), onSkipPressed: vm.onSkipUploadTranscript)),
-                      TranscriptAvailability.processing => Padding(padding: EdgeInsets.all(4), child: TranscriptProcessingCard(hasFinished: vm._transcriptAvailability != .processing, onAnimationComplete: () {})),
-                      TranscriptAvailability.available => _TranscriptWidget(gpa: vm.gpa, ects: vm.ects, categories: vm.categories),
-                    }],
+                    ...[
+                      switch (vm.transcriptAvailability) {
+                        TranscriptAvailability.undefined => Text("undefined"),
+                        TranscriptAvailability.missing => Padding(
+                          padding: EdgeInsets.all(4),
+                          child: TranscriptMissingCard(
+                            onUploadPressed: () =>
+                                context.push("/home/upload-transcript"),
+                            onSkipPressed: vm.onSkipUploadTranscript,
+                          ),
+                        ),
+                        TranscriptAvailability.processing => Padding(
+                          padding: EdgeInsets.all(4),
+                          child: TranscriptProcessingCard(
+                            hasFinished:
+                                vm._transcriptAvailability != .processing,
+                            onAnimationComplete: () {},
+                          ),
+                        ),
+                        TranscriptAvailability.available => _TranscriptWidget(
+                          gpa: vm.gpa,
+                          ects: vm.ects,
+                          categories: vm.categories,
+                        ),
+                      },
+                    ],
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Row(
@@ -83,97 +111,60 @@ class HomePage extends StatelessWidget {
                         children: [
                           Text(
                             "Recommended for you",
-                            style: textTheme.titleLarge?.copyWith(color: AppColors.textMain)
+                            style: textTheme.titleLarge?.copyWith(
+                              color: AppColors.textMain,
+                            ),
                           ),
                           TextButton(
                             onPressed: () {},
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: Text(
                               "See all",
-                              style: textTheme.titleMedium?.copyWith(color: colorScheme.primary)
+                              style: textTheme.titleMedium?.copyWith(
+                                color: colorScheme.primary,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    CourseCard(
-                      title: "Algorithm",
-                      moduleNr: "CS201",
-                      credits: "6",
-                      category: "Computer Science",
-                      tags: [
-                        ChipType("Data Science", colorScheme.primary),
-                        ChipType("C++",  Colors.purpleAccent)
-                      ],
-                      rating: 4.5,
-                      matchPercentage: 88,
-                      isFavorite: false,
-                      isPlanned: false,
-                      matchBasis: "interests",
-                      onCardTap: () => context.go('/home/course-details', extra: "404"),
-                      onFavoriteTap: () {},
-                      onPlanTap: () {},
-                    ),
-                    CourseCard(
-                      title: "Deep Learning",
-                      moduleNr: "AI301",
-                      credits: "6",
-                      category: "Computer Science",
-                      tags: [
-                        ChipType("AI", colorScheme.primary),
-                        ChipType("Python",  Colors.purpleAccent)
-                      ],
-                      rating: 4.2,
-                      matchPercentage: 95,
-                      isFavorite: false,
-                      isPlanned: false,
-                      matchBasis: "interests",
-                      onCardTap: () => context.go('/home/course-details', extra: "404"),
-                      onFavoriteTap: () {},
-                      onPlanTap: () {},
-                    ),
-                    CourseCard(
-                      title: "Data Mining",
-                      moduleNr: "DS202",
-                      credits: "6",
-                      category: "Computer Science",
-                      tags: [
-                        ChipType("Data Science", colorScheme.primary),
-                        ChipType("C++",  Colors.purpleAccent)
-                      ],
-                      rating: 3.9,
-                      matchPercentage: 92,
-                      isFavorite: false,
-                      isPlanned: false,
-                      matchBasis: "interests",
-                      onCardTap: () => context.go('/home/course-details', extra: "404"),
-                      onFavoriteTap: () {},
-                      onPlanTap: () {},
-                    ),
-                    CourseCard(
-                      title: "Advanced Algorithms",
-                      moduleNr: "CS204",
-                      credits: "6",
-                      category: "Computer Science",
-                      tags: [
-                        ChipType("Data Science", colorScheme.primary),
-                        ChipType("Java",  Colors.purpleAccent)
-                      ],
-                      rating: 4.8,
-                      matchPercentage: 88,
-                      isFavorite: false,
-                      isPlanned: false,
-                      matchBasis: "interests",
-                      onCardTap: () => context.go('/home/course-details', extra: "404"),
-                      onFavoriteTap: () {},
-                      onPlanTap: () {},
-                    ),
-                  ]
-                )
-              )
+                    if (vm.recommendationsLoading)
+                      Center(child: CircularProgressIndicator())
+                    else if (vm.recommendedModules.isEmpty)
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          "No recommendations available yet.",
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      )
+                    else
+                      ...vm.recommendedModules.take(5).map(
+                        (module) => CourseCard(
+                          title: module.title,
+                          moduleNr: module.moduleNr,
+                          credits: module.credits,
+                          tags: module.tags,
+                          rating: module.rating,
+                          isFavorite: module.isFavorite,
+                          isPlanned: module.isPlanned,
+                          isRecommended: module.isRecommended,
+                          onCardTap: () => context.go(
+                            '/home/course-details',
+                            extra: module.moduleNr,
+                          ),
+                          onFavoriteTap: () {},
+                          onPlanTap: () {},
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             );
           },
         ),
@@ -211,9 +202,19 @@ class _TranscriptWidget extends StatelessWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(bottom: 4.0),
-                      child: Text("Current GPA", style: textTheme.titleSmall?.copyWith(color: Colors.white)),
+                      child: Text(
+                        "Current GPA",
+                        style: textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    Text(gpa.toStringAsFixed(1), style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
+                    Text(
+                      gpa.toStringAsFixed(1),
+                      style: textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
                 Column(
@@ -221,9 +222,19 @@ class _TranscriptWidget extends StatelessWidget {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(bottom: 4.0),
-                      child: Text("Current ECTS", style: textTheme.titleSmall?.copyWith(color: Colors.white)),
+                      child: Text(
+                        "Current ECTS",
+                        style: textTheme.titleSmall?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                    Text(ects.toString(), style: textTheme.headlineMedium?.copyWith(color: Colors.white)),
+                    Text(
+                      ects.toString(),
+                      style: textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -234,35 +245,40 @@ class _TranscriptWidget extends StatelessWidget {
           padding: EdgeInsets.only(top: 20),
           child: CourseOverview(
             categories: categories,
-            detailsButtonDestination: "/review-courses"
-          )
+            detailsButtonDestination: "/review-courses",
+          ),
         ),
       ],
     );
   }
 }
 
-enum TranscriptAvailability {
-  undefined,
-  missing,
-  processing,
-  available
-}
+enum TranscriptAvailability { undefined, missing, processing, available }
 
 class HomePageViewmodel extends ChangeNotifier {
   final TranscriptRepository transcriptRepo;
   final UserRepository userRepo;
   final ClientSession clientSession;
   final TranscriptProcessor transcriptProcessor;
+  final Recommendation recommendation;
 
   HomePageViewmodel(
     this.transcriptRepo,
     this.userRepo,
     this.clientSession,
-    this.transcriptProcessor
+    this.transcriptProcessor,
+    this.recommendation,
   );
 
-  bool _loading = false;
+  /// Initializes the ViewModel by running init and loading recommendations sequentially.
+  /// This prevents concurrent MongoDB operations on the single connection.
+  Future<void> initialize() async {
+    await _init();
+    await _loadRecommendations();
+  }
+
+  bool _isDisposed = false;
+  bool _trascriptLoading = false;
   TranscriptAvailability _transcriptAvailability = .undefined;
   double _gpa = 0.0;
   int _ects = 0;
@@ -270,37 +286,55 @@ class HomePageViewmodel extends ChangeNotifier {
   String _username = '';
   String? _userId;
   UserDetails? _userDetails;
+  List<Module> _recommendedModules = [];
+  bool _recommendationsLoading = false;
 
-  bool get loading => _loading;
+  bool get loading => _trascriptLoading;
   TranscriptAvailability get transcriptAvailability => _transcriptAvailability;
   double get gpa => _gpa;
   int get ects => _ects;
   List<OverviewCategory> get categories => _categories;
   String get username => _username;
+  List<Module> get recommendedModules => _recommendedModules;
+  bool get recommendationsLoading => _recommendationsLoading;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    transcriptProcessor.removeListener(_listen);
+    super.dispose();
+  }
+
+  void _safeNotifyListeners() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
 
   void _listen() {
     if (transcriptProcessor.state == TranscriptProcessingState.processing) {
       _transcriptAvailability = .processing;
-      notifyListeners();
-    } else if (transcriptProcessor.state == TranscriptProcessingState.completed) {
+      _safeNotifyListeners();
+    } else if (transcriptProcessor.state ==
+        TranscriptProcessingState.completed) {
       _transcriptAvailability = .undefined;
       transcriptProcessor.removeListener(_listen);
       _loadTranscript(false);
     } else if (transcriptProcessor.state == TranscriptProcessingState.failed) {
       _transcriptAvailability = .undefined;
       transcriptProcessor.removeListener(_listen);
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
-  Future<void> init() async {
-    _loading = true;
-    notifyListeners();
+  Future<void> _init() async {
+    _trascriptLoading = true;
+    _safeNotifyListeners();
 
     _userId = clientSession.getUserID();
     if (_userId == null) {
-      _loading = false;
-      notifyListeners();
+      _trascriptLoading = false;
+      _safeNotifyListeners();
       return;
     }
 
@@ -309,48 +343,69 @@ class HomePageViewmodel extends ChangeNotifier {
       _username = username;
     }
 
-
     _userDetails = await userRepo.getUserDetails(_userId!);
 
     if (transcriptProcessor.state == TranscriptProcessingState.processing) {
-      _loading = false;
+      _trascriptLoading = false;
       _transcriptAvailability = .processing;
       transcriptProcessor.addListener(_listen);
-      notifyListeners();
+      _safeNotifyListeners();
     } else {
       _loadTranscript(false);
     }
   }
 
   Future<void> _loadTranscript(bool forceRefresh) async {
-    _loading = true;
-    notifyListeners();
+    _trascriptLoading = true;
+    _safeNotifyListeners();
 
-    final userTranscript = await transcriptRepo.getTranscript(userID: _userId!, forceRefresh: forceRefresh);
-    final dto = userTranscriptToDashboardDTO(userTranscript, _userDetails?.programLiteral);
+    final userTranscript = await transcriptRepo.getTranscript(
+      userID: _userId!,
+      forceRefresh: forceRefresh,
+    );
+    final dto = userTranscriptToDashboardDTO(
+      userTranscript,
+      _userDetails?.programLiteral,
+    );
     if (dto == null) {
-      _loading = false;
+      _trascriptLoading = false;
       _transcriptAvailability = .missing;
       transcriptProcessor.addListener(_listen);
-      notifyListeners();
+      _safeNotifyListeners();
       return;
     }
 
     _gpa = dto.gpa ?? 0.0;
     _ects = dto.earnedCredits;
     _categories = dto.categories;
-    _loading = false;
+    _trascriptLoading = false;
     _transcriptAvailability = .available;
     transcriptProcessor.removeListener(_listen);
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   Future<void> onSkipUploadTranscript() async {
-    _loading = true;
-    notifyListeners();
+    _trascriptLoading = true;
+    _safeNotifyListeners();
 
-    await transcriptRepo.uploadEmptyTranscript(_userId!, _userDetails?.programLiteral);
+    await transcriptRepo.uploadEmptyTranscript(
+      _userId!,
+      _userDetails?.programLiteral,
+    );
     await _loadTranscript(false);
-    _loading = false;
+    _trascriptLoading = false;
+  }
+
+  Future<void> _loadRecommendations() async {
+    final userId = clientSession.getUserID();
+    if (userId == null) return;
+
+    _recommendationsLoading = true;
+    _safeNotifyListeners();
+
+    final modules = await recommendation.getRecommendedModules(userId);
+    _recommendedModules = modules ?? [];
+    _recommendationsLoading = false;
+    _safeNotifyListeners();
   }
 }

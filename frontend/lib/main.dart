@@ -27,12 +27,14 @@ import 'package:frontend/ui/SearchPage.dart';
 import 'package:frontend/ui/CreateAccountPage.dart';
 import 'package:frontend/ui/OnboardingPage.dart';
 import 'package:frontend/ui/FavoritesPage.dart';
+import 'package:frontend/ui/FeedbackPage.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_widgetButton.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_searchfield.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_course_card_page.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_StatusMessage.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/ui/GiveFeedback.dart';
+import 'package:frontend/ui/FeedbackDetailPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,16 +48,35 @@ void main() async {
         Provider(create: (context) => OpenAIService()),
         Provider(create: (context) => MongoService()),
         Provider(create: (context) => SharedPreferencesService()),
-        Provider(create: (context) => TranscriptRepository(openAIService: context.read(), mongoService: context.read())),
-        Provider(create: (context) => CourseSearchRepo(mongoService: context.read())),
-        Provider(create: (context) => UserRepository(mongoService: context.read(), transcriptRepo: context.read())),
+        Provider(
+          create: (context) => TranscriptRepository(
+            openAIService: context.read(),
+            mongoService: context.read(),
+          ),
+        ),
+        Provider(
+          create: (context) => CourseSearchRepo(mongoService: context.read()),
+        ),
+        Provider(
+          create: (context) => UserRepository(
+            mongoService: context.read(),
+            transcriptRepo: context.read(),
+            openAIService: context.read(),
+          ),
+        ),
         Provider(
           create: (context) => Recommendation(
             openAIService: context.read(),
             mongoService: context.read(),
             courseRepo: context.read(),
-            userRepo: context.read()
-          )
+            userRepo: context.read(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TranscriptProcessor(repository: context.read()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ClientSession(context.read(), context.read()),
         ),
         ChangeNotifierProvider(create: (context) => TranscriptProcessor(repository: context.read())),
         ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())..init()),
@@ -113,11 +134,13 @@ GoRouter createRouter(ClientSession clientSession) {
 
     redirect: (context, state) async {
       final loggedIn = clientSession.isLoggedIn;
-      final onAuthFlow = state.uri.path.startsWith('/sign-in') ||
+      final onAuthFlow =
+          state.uri.path.startsWith('/sign-in') ||
           state.uri.path.startsWith('/register') ||
           state.uri.path.startsWith('/onboarding');
 
-      final isFirstAppStart = await SharedPreferencesService().isFirstAppStart();
+      final isFirstAppStart = await SharedPreferencesService()
+          .isFirstAppStart();
 
       if (isFirstAppStart) {
         return '/onboarding';
@@ -139,31 +162,28 @@ GoRouter createRouter(ClientSession clientSession) {
         builder: (context, state) => OnboardingPage(),
       ),
       GoRoute(
-          path: '/register',
-          builder: (context, state) => CreateAccountForm(),
-          routes: [
-            GoRoute(
-                path: 'specify-degree',
-                builder: (context, state) => SpecifyDegreePage(),
+        path: '/register',
+        builder: (context, state) => CreateAccountForm(),
+        routes: [
+          GoRoute(
+            path: 'specify-degree',
+            builder: (context, state) => SpecifyDegreePage(),
+            routes: [
+              GoRoute(
+                path: 'interests',
+                builder: (context, state) => InterestSelectionPage(),
                 routes: [
                   GoRoute(
-                      path: 'interests',
-                      builder: (context, state) => InterestSelectionPage(),
-                      routes: [
-                        GoRoute(
-                          path: 'upload-transcript',
-                          builder: (context, state) => UploadTranscriptPage(),
-                        ),
-                      ]
+                    path: 'upload-transcript',
+                    builder: (context, state) => UploadTranscriptPage(),
                   ),
-                ]
-            ),
-          ]
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
-      GoRoute(
-          path: '/sign-in',
-          builder: (context, state) => SignInPageForm()
-      ),
+      GoRoute(path: '/sign-in', builder: (context, state) => SignInPageForm()),
 
       ShellRoute(
         builder: (context, state, child) {
@@ -212,7 +232,8 @@ GoRouter createRouter(ClientSession clientSession) {
             routes: [
               GoRoute(
                 path: 'course-details',
-                builder: (context, state) {  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
+                builder: (context, state) {
+                  // https://stackoverflow.com/questions/72976031/flutter-go-router-how-to-pass-multiple-parameters-to-other-screen
                   final moduleNr = state.extra as String;
                   return CourseDetailsPage(moduleNr: moduleNr);
                 },
@@ -235,17 +256,45 @@ GoRouter createRouter(ClientSession clientSession) {
             ],
           ),
 
-          GoRoute(
-            path: '/planner',
-            builder: (context, state) => PlannerPage(),
-          ),
+          GoRoute(path: '/planner', builder: (context, state) => PlannerPage()),
           GoRoute(
             path: '/favourites',
             builder: (context, state) => FavoritesPage(),
           ),
           GoRoute(
             path: '/feedback',
-            builder: (context, state) => Center(child: Text("The FeedbackPage will be added here later")),
+            builder: (context, state) => FeedbackPage(),
+            routes: [
+              GoRoute(
+                path: 'course-details',
+                builder: (context, state) {  
+                  final moduleNr = state.extra as String;
+                  return CourseDetailsPage(moduleNr: moduleNr);
+                },
+                routes: [
+                  GoRoute(
+                    path: 'give-feedback',
+                    builder: (context, state) {
+                      final extra = state.extra as Map<String, dynamic>?;
+                      return GiveFeedbackPage(
+                        title: extra?["title"] ?? "",
+                        credits: extra?["credits"] ?? "",
+                        moduleNr: extra?["moduleNr"] ?? "",
+                        initialRating: extra?["initialRating"],
+                        initialComment: extra?["initialComment"]
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ]
+          ),
+          GoRoute(
+            path: '/feedback-detail',
+            builder: (context, state) {
+              final courseName = state.extra as String? ?? 'Course';
+              return FeedbackDetailPage(courseName: courseName);
+            },
           ),
           GoRoute(
             path: '/demo',
@@ -289,6 +338,15 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OnboardingPage()),
+                            );
+                          }, 
+                          child: const Text("Onboarding Flow"),
+                        ),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -321,9 +379,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CourseDetailsPage(
-                      moduleNr: "400", 
-                    ),
+                    builder: (context) => CourseDetailsPage(moduleNr: "400"),
                   ),
                 );
               },
@@ -333,7 +389,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => UploadTranscriptPage()),
+                  MaterialPageRoute(
+                    builder: (context) => UploadTranscriptPage(),
+                  ),
                 );
               },
               child: const Text("Upload transcript"),
@@ -359,7 +417,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("example Search Screen"),
             ),
-            
+
             // shows how to use course card
             ElevatedButton(
               onPressed: () {
@@ -384,7 +442,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text("Logout"),
             ),
-            
+
             // shows how to use course card
             ElevatedButton(
               onPressed: () {
@@ -399,9 +457,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () async {
                 debugPrint("starting");
-                final pdfFile = File('/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf');
+                final pdfFile = File(
+                  '/Users/I762666/Documents/private/reco/backend-appwrite/trans.pdf',
+                );
                 var repo = context.read<TranscriptRepository>();
-                var res = await repo.uploadAndParseTranscript(pdfFile: pdfFile, userID: "schwanz", programLiteral: "ISM_M");
+                var res = await repo.uploadAndParseTranscript(
+                  pdfFile: pdfFile,
+                  userID: "schwanz",
+                  programLiteral: "ISM_M",
+                );
                 if (res != null) {
                   debugPrint(res.toString());
                 } else {
@@ -415,7 +479,9 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TranscriptProcessingTestScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => TranscriptProcessingTestScreen(),
+                  ),
                 );
               },
               child: const Text("TranscriptProcessingTestScreen"),

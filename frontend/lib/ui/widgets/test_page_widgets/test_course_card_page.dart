@@ -7,25 +7,21 @@ class Course{
   final String title;
   final String moduleNr;
   final String credits;
-  final String category;
-  final String? matchBasis;
   final List<ChipType> tags;
   final double? rating;
-  final int matchPercentage;
   bool isFavorite;
   bool isPlanned;
+  bool isRecommended;
 
   Course({
     required this.title,
     required this.moduleNr,
     required this.credits,
-    required this.category,
     required this.tags,
     this.rating,
-    required this.matchPercentage,
     this.isFavorite = false,
     this.isPlanned = false,
-    this.matchBasis,
+    this.isRecommended = false,
   });
 }
 
@@ -42,7 +38,6 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
       title: "Algorithm and Data Structures",
       moduleNr: "CS 201",
       credits: "6",
-      category: "Computer Science",
       tags: [
         ChipType("Data Science", Colors.blueAccent),
         ChipType("C++",  Colors.purpleAccent),
@@ -51,16 +46,14 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
         ChipType("Logic", Colors.blueAccent),
       ],
       rating: 4.8,
-      matchPercentage: 95,
       isFavorite: false,
       isPlanned: false,
-      matchBasis: null
+      isRecommended: false,
     ),
     Course(
       title: "Deep Learning",
       moduleNr: "AI 301",
       credits: "6",
-      category: "Computer Science",
       tags: [
         ChipType("Neutral Networks", Colors.blueAccent),
         ChipType("Python",  Colors.purpleAccent),
@@ -68,10 +61,9 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
         ChipType("TensorFlow",  Colors.purpleAccent),
       ],
       rating: null,
-      matchPercentage: 45,
       isFavorite: true,
       isPlanned: true,
-      matchBasis: "interests"
+      isRecommended: true,
     ),
   ];
 
@@ -102,16 +94,14 @@ class _TestCourseCardPageState extends State<TestCourseCardPage>{
               title: course.title,
               moduleNr: course.moduleNr,
               credits: course.credits,
-              category: course.category,
               tags: course.tags,
               rating: course.rating,
-              matchPercentage: course.matchPercentage,
               isFavorite: course.isFavorite,
-              isPlanned: course.isPlanned, 
-              matchBasis: course.matchBasis,
+              isPlanned: course.isPlanned,
+              isRecommended: course.isRecommended,
               onCardTap: () => debugPrint(course.moduleNr),
               onFavoriteTap: () => clickFavorite(index),
-              onPlanTap: () => clickPlan(index), 
+              onPlanTap: () => clickPlan(index),
             ),
           );
         },

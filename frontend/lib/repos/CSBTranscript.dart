@@ -30,6 +30,7 @@ class CSBTranscript extends Transcript {
   UserTranscript createEmptyUserTranscript(String userID) {
     return UserTranscript(
       userID: userID,
+      programLiteral: "CS_B",
       transcript: TranscriptDocument(
         children: [
           TranscriptNode(name: "compulsory_modules"),

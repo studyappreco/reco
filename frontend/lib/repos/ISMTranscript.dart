@@ -5,7 +5,7 @@ import 'package:frontend/repos/transcriptUtils.dart';
 class ISMTranscript extends Transcript {
 
   @override
-  String get literal => "ISM_M";
+  String get literal => "ISM";
 
   @override
   int get programCredits => 120;
@@ -32,6 +32,7 @@ class ISMTranscript extends Transcript {
   UserTranscript createEmptyUserTranscript(String userID) {
     return UserTranscript(
       userID: userID,
+        programLiteral: "ISM",
       transcript: TranscriptDocument(
         children: [
           TranscriptNode(

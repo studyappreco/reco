@@ -30,6 +30,7 @@ class TranscriptRepository {
         // Store in MongoDB
         final userTranscript = UserTranscript(
           userID: userID,
+          programLiteral: programLiteral,
           transcript: transcript
         );
         _userTranscript = userTranscript;
@@ -143,7 +144,7 @@ class TranscriptRepository {
 
       if(added){
         await mongoService.updateTranscript(userID, userTranscript.transcript);
-        getTranscript(userID: userID, forceRefresh: true);
+        await getTranscript(userID: userID, forceRefresh: true);
         RecoLog.info("Added $courseName to transcript under $targetCategoryName");
         return true;
       } else {

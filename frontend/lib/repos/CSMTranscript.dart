@@ -38,6 +38,7 @@ class CSMTranscript extends Transcript {
   UserTranscript createEmptyUserTranscript(String userID) {
     return UserTranscript(
       userID: userID,
+        programLiteral: "CS_M",
       transcript: TranscriptDocument(
         children: [
           TranscriptNode(

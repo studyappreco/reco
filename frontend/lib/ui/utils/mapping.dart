@@ -1,7 +1,7 @@
 
 String? getFullProgramName(String programLiteral) {
   switch (programLiteral) {
-    case "ISM_M":
+    case "ISM":
         return "Information Systems Management (M. Sc.)";
     case "CS_M":
       return "Computer Science (M. Sc.)";
