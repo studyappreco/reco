@@ -181,7 +181,10 @@ class CourseDetailsPage extends StatelessWidget {
                             ),
                             children: [
                               GestureDetector(
-                                onTap: () => context.push('/feedback-detail', extra: vm.module!.title),
+                                onTap: () => context.push('${GoRouterState.of(context).uri.path}/feedback-detail', extra: {
+                                  'moduleNr': vm.module!.moduleNr,
+                                  'moduleTitle': vm.module!.title,
+                                }),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                                   decoration: BoxDecoration(

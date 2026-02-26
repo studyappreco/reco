@@ -99,6 +99,15 @@ class AppTheme {
         }),
       ),
 
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textMain,
+        centerTitle: false,
+        elevation: 0,
+        titleTextStyle: _baseTextTheme.titleLarge?.copyWith(color: AppColors.textMain),
+        iconTheme: IconThemeData(color: AppColors.textMain),
+      ),
+
     );
   }
 

@@ -275,15 +275,14 @@ class FeedbackPageViewmodel extends ChangeNotifier {
     try {
       final transcript = await transcriptRepo.getTranscript(userID: userID);
 
-      //  collecting all module numbers that have been passed
-      // TODO I used Set here because we can currently mark modules that have already been passed as passed again in the database, we should definitely adjust that there after the presentation
-      Set<String> completedModuleNrs = {};
+      Map<String, String> transcriptModules = {};
+
       if(transcript != null){
 
         void traverse(TranscriptNode node){
           if(node.courses != null){
             for(var c in node.courses!){
-              completedModuleNrs.add(c.id);
+              transcriptModules[c.id] = c.courseName; 
             }
           }
           if(node.children != null){
@@ -298,17 +297,35 @@ class FeedbackPageViewmodel extends ChangeNotifier {
         }
       }
 
-      if(completedModuleNrs.isEmpty){
+      if(transcriptModules.isEmpty){
         _allAwaiting = [];
         _allReviewed = [];
         _applyFilter();
         return;
       }
 
-      final userModules = await courseRepo.getModulesByModuleNrs(
-        completedModuleNrs.toList(),
-        userID,
-      );
+      // First searching  the modules by moduleNr
+      List<String> moduleNrs = transcriptModules.keys.toList();
+      List<Module> userModules = await courseRepo.getModulesByModuleNrs(moduleNrs, userID);
+
+      // Fallback for PDF uploads: As the official transcript does not contain 
+      // module numbers like in Moses, we match these remaining modules by using their names
+      // TODO I used Set here because we can currently mark modules that have already been passed as passed again in the database, we should definitely adjust that there after the presentation
+      Set<String> foundIds = userModules.map((m) => m.moduleNr).toSet();
+      List<String> missingNames = [];
+
+      for(var entry in transcriptModules.entries){
+        if(!foundIds.contains(entry.key) && entry.value.isNotEmpty) {
+          missingNames.add(entry.value);
+        }
+      }
+
+      // getting missing modules by title
+      if(missingNames.isNotEmpty){
+        RecoLog.info("Fallback: Searching ${missingNames.length} missing modules by titel");
+        List<Module> fallbackModules = await courseRepo.getModulesByTitles(missingNames, userID);
+        userModules.addAll(fallbackModules);
+      }
 
       List<Module> awaiting = [];
       List<Module> reviewed = [];

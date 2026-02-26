@@ -1,63 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:frontend/models/Module.dart';
+import 'package:frontend/repos/CourseSearchRepo.dart';
+import 'package:frontend/utils/RecoLog.dart';
+import 'package:frontend/theme/colors.dart'; 
 
-
-// TODO: In the future, connect this page to real feedback data (e.g., via Provider, Bloc, or direct API call)
 class FeedbackDetailPage extends StatelessWidget {
-  final String courseName;
-  const FeedbackDetailPage({Key? key, required this.courseName}) : super(key: key);
+  final String moduleNr; 
+  final String moduleTitle;
+
+  const FeedbackDetailPage({
+    super.key,
+    required this.moduleNr, 
+    required this.moduleTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Student Feedback'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return ChangeNotifierProvider<FeedbackDetailPageViewmodel>(
+      create: (_) => FeedbackDetailPageViewmodel(context.read(), moduleNr),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text('Student Feedback'),
         ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Use courseName passed from CourseDetailsPage
-              // Use the courseName passed from CourseDetailPage
-              Text(
-                courseName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        backgroundColor: colorScheme.surface,
+        body: Consumer<FeedbackDetailPageViewmodel>(
+          builder: (context, vm, child) {
+            // Loading status
+            if (vm.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final displayTitle = vm.module?.title ?? moduleTitle;
+            final feedbacks = vm.module?.feedbacks ?? [];
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayTitle,
+                    style: textTheme.headlineSmall?.copyWith(color: AppColors.textMain, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  _RatingSummary(feedbacks: feedbacks),
+                  
+                  const SizedBox(height: 24),
+                  Text(
+                    'Common themes',
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textMain, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // TODO placeholder (Future Work)
+                   _CommonThemes(),
+                  
+                  const SizedBox(height: 24),
+                  Text(
+                    'Reviews',
+                    style: textTheme.titleMedium?.copyWith(color: AppColors.textMain, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+
+                  feedbacks.isEmpty
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            "No feedback has been given for this module yet.",
+                            style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        )
+                      : _ReviewList(feedbacks: feedbacks),
+                ],
               ),
-            _RatingSummary(),
-            const SizedBox(height: 24),
-            const Text(
-              'Common themes',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            _CommonThemes(),
-            const SizedBox(height: 24),
-            const Text(
-              'Reviews',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-            const SizedBox(height: 8),
-            _ReviewList(),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 }
 
-// TODO: Replace with a widget that takes rating summary data from backend or state
 class _RatingSummary extends StatelessWidget {
-  const _RatingSummary();
+  final List<dynamic> feedbacks;
+
+  const _RatingSummary({required this.feedbacks});
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final int totalReviews = feedbacks.length;
+    
+    // calculating the average
+    double averageRating = 0.0;
+    if(totalReviews > 0){
+      final totalStars = feedbacks.fold(0, (sum, f) => sum + (f.rating as num).toInt());
+      averageRating = totalStars / totalReviews;
+    }
+
+    // calculation of the distribution for the progress bars
+    List<double> progressBars = [0.0, 0.0, 0.0, 0.0, 0.0];
+    if(totalReviews > 0){
+      for(var f in feedbacks){
+        int rating = (f.rating as num).toInt();
+        progressBars[rating - 1] += 1;
+      }
+      
+      for(int i = 0; i < 5; i++){
+        progressBars[i] = progressBars[i] / totalReviews;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -79,19 +138,19 @@ class _RatingSummary extends StatelessWidget {
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
-                    '4.5',
-                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                    averageRating.toStringAsFixed(1),
+                    style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textMain),
                   ),
                   SizedBox(width: 4),
                   Icon(Icons.star, color: Colors.amber, size: 32),
                 ],
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Based on 47 reviews',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+              Text(
+                'Based on $totalReviews reviews',
+                style: textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -102,16 +161,16 @@ class _RatingSummary extends StatelessWidget {
               for (var i = 5; i >= 1; i--)
                 Row(
                   children: [
-                    Text('$i', style: const TextStyle(fontSize: 12)),
+                    Text('$i', style: textTheme.labelSmall?.copyWith(color: AppColors.textMain)),
                     const SizedBox(width: 4),
                     SizedBox(
                       width: 60,
                       child: LinearProgressIndicator(
-                        // TODO: Replace hardcoded rating distribution with real data
-                        value: [0.6, 0.2, 0.1, 0.05, 0.05][5 - i],
+                        value: progressBars[i - 1],
                         backgroundColor: Colors.grey[200],
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
                         minHeight: 8,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ],
@@ -156,67 +215,49 @@ class _CommonThemes extends StatelessWidget {
 }
 
 class _ReviewList extends StatelessWidget {
-  // TODO: Replace hardcoded reviews with data fetched from backend or state
-  final List<_Review> reviews = const [
-    _Review(
-      name: 'Sarah M.',
-      date: 'Oct 2024',
-      rating: 5,
-      comment:
-          'Excellent course! The projects were challenging but very rewarding. The professor explains concepts clearly and provides great feedback.',
-    ),
-    _Review(
-      name: 'James K.',
-      date: 'Sep 2024',
-      rating: 4,
-      comment:
-          'Very practical course with real-world applications. The workload is heavy but manageable if you stay on top of assignments.',
-    ),
-    _Review(
-      name: 'Emma L.',
-      date: 'Sep 2024',
-      rating: 5,
-      comment:
-          'One of the best courses I’ve taken! Great balance between theory and practice. The final project was especially helpful.',
-    ),
-  ];
+  final List<dynamic> feedbacks;
+  const _ReviewList({required this.feedbacks});
 
-  _ReviewList();
+  DateTime _parseDate(String dateStr) {
+    final p = dateStr.split('.');
+    return DateTime(int.parse(p[2]), int.parse(p[1]), int.parse(p[0]));
+  }
 
   @override
   Widget build(BuildContext context) {
+    // sorting the list by date in descending order
+    // TODO we should add a filter button and change this, so that the user can sort by other criteria as well
+    final sortedFeedbacks = List<dynamic>.from(feedbacks)..sort((a, b) => 
+      _parseDate(b.createdAt).compareTo(_parseDate(a.createdAt))
+    );
+
     return Column(
-      children: reviews
-          .map((review) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _ReviewCard(review: review),
-              ))
-          .toList(),
+      children: sortedFeedbacks.map((feedback) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: _ReviewCard(feedback: feedback),
+        );
+      }).toList(),
     );
   }
 }
 
-class _Review {
-  final String name;
-  final String date;
-  final int rating;
-  final String comment;
-
-  const _Review({
-    required this.name,
-    required this.date,
-    required this.rating,
-    required this.comment,
-  });
-}
-
 class _ReviewCard extends StatelessWidget {
-  final _Review review;
+  final dynamic feedback;
 
-  const _ReviewCard({required this.review});
+  const _ReviewCard({required this.feedback});
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    final rating = (feedback.rating as num?)?.toInt() ?? 0;
+    final name = feedback.userName ?? "Anonymous"; 
+    final date = feedback.createdAt; 
+    
+    final String feedbackText = feedback.feedbackText ?? "";
+    final bool hasComment = feedbackText.isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -237,9 +278,10 @@ class _ReviewCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 18,
+                backgroundColor: AppColors.primaryBlueLight, 
                 child: Text(
-                  review.name[0],
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  name.isNotEmpty ? name[0].toUpperCase() : "?",
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primaryBlue),
                 ),
               ),
               const SizedBox(width: 12),
@@ -248,12 +290,12 @@ class _ReviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review.name,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      name,
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.textMain),
                     ),
                     Text(
-                      review.date,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      date,
+                      style: textTheme.labelSmall?.copyWith(color: AppColors.textSecondary),
                     ),
                   ],
                 ),
@@ -262,7 +304,7 @@ class _ReviewCard extends StatelessWidget {
                 children: List.generate(
                   5,
                   (index) => Icon(
-                    index < review.rating ? Icons.star : Icons.star_border,
+                    index < rating ? Icons.star : Icons.star_border,
                     color: Colors.amber,
                     size: 18,
                   ),
@@ -270,13 +312,43 @@ class _ReviewCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            review.comment,
-            style: const TextStyle(fontSize: 14),
-          ),
+          
+          // If the feedback contains text, it will only be displayed then
+          if(hasComment) ...[
+            const SizedBox(height: 12),
+            Text(
+              feedbackText,
+              style: textTheme.bodyMedium?.copyWith(color: AppColors.textMain),
+            ),
+          ],
         ],
       ),
     );
+  }
+}
+
+class FeedbackDetailPageViewmodel extends ChangeNotifier {
+  final CourseSearchRepo courseRepo;
+  final String moduleNr;
+
+  bool isLoading = true;
+  Module? module;
+
+  FeedbackDetailPageViewmodel(this.courseRepo, this.moduleNr) {
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      module = await courseRepo.getModuleByNumber(moduleNr, "");
+    } catch (e, s) {
+      RecoLog.error("Error loading feedback details", e, s);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

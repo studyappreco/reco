@@ -191,6 +191,43 @@ class MongoService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getModulesByTitles(
+    List<String> titles
+    ) async {
+    if (titles.isEmpty) return [];
+
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_coursesCollection);
+
+      final pipeline = [
+        {
+          '\$match': {
+            'title': {'\$in': titles} 
+          }
+        },
+        {
+          '\$lookup': {
+            'from': 'feedbacks',
+            'localField': 'number',
+            'foreignField': 'module_nr',
+            'as': 'feedbacks'
+          }
+        }
+      ];
+
+      final List<Map<String, dynamic>> jsonList = await collection
+          .aggregateToStream(pipeline)
+          .toList();
+
+      RecoLog.info("Loaded ${jsonList.length} modules from DB by title");
+      return jsonList;
+    } catch (e, s) {
+      RecoLog.error("Error loading modules by title from DB", e, s);
+      rethrow;
+    }
+  }
+
   // updates the status (planned/favorite) by adding or removing the module
   Future<void> toggleModuleState(
     String userID,
@@ -455,7 +492,7 @@ class MongoService {
     }
   }
 
-  Future<bool> submitFeedback(String moduleNr, String userId, int rating, String feedbackText) async {
+  Future<bool> submitFeedback(String moduleNr, String userId, String userName, int rating, String feedbackText) async {
     try {
       final db = await _getDb();
       final feedbacksCollection = db.collection(_feedbacksCollection);
@@ -475,6 +512,7 @@ class MongoService {
           modify
             .set('feedbackText', feedbackText) 
             .set('rating', rating)
+            .set('userName', userName)
             .set('created_at', formattedDate)
         );
         RecoLog.info("Existing feedback updated for module $moduleNr");
@@ -484,6 +522,7 @@ class MongoService {
         final feedbackDoc = {
           'module_nr': parsedModuleNr,
           'userId': userId,
+          'userName': userName,
           'feedbackText': feedbackText, 
           'rating': rating,
           'created_at': formattedDate,
