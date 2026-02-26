@@ -15,9 +15,11 @@ import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/PlannerPage.dart';
 import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
+import 'package:frontend/ui/SplashScreen.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_TranscriptWidgets.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
@@ -91,31 +93,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loading = context.watch<ClientSession>().loading;
-
-    return loading ? MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Reco Demo',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      // themeMode: ThemeMode.system, // = Switches automatically depending on cell phone settings
-      themeMode: ThemeMode.light, //  = Always forces light mode
-      home: Scaffold(
-        backgroundColor: AppColors.standardWhitebackground,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              Image.asset(
-                "assets/images/reco_logo_transparent_bg.png",
-                fit: BoxFit.contain,
-              ),
-              CircularProgressIndicator()
-            ]
-          )
-        ),
-      )
-    ) : MaterialApp.router(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Reco Demo',
       theme: AppTheme.lightTheme,
@@ -129,11 +107,12 @@ class MyApp extends StatelessWidget {
 
 GoRouter createRouter(ClientSession clientSession) {
   return GoRouter(
-    initialLocation: '/sign-in',
+    initialLocation: '/splash',
     refreshListenable: clientSession,
 
     redirect: (context, state) async {
       final loggedIn = clientSession.isLoggedIn;
+      final onSplash = state.uri.path.startsWith('/splash');
       final onAuthFlow =
           state.uri.path.startsWith('/sign-in') ||
           state.uri.path.startsWith('/register') ||
@@ -142,14 +121,14 @@ GoRouter createRouter(ClientSession clientSession) {
       final isFirstAppStart = await SharedPreferencesService()
           .isFirstAppStart();
 
-      if (isFirstAppStart) {
+      if (isFirstAppStart && !clientSession.loading) {
         return '/onboarding';
       }
-      if (!loggedIn && !onAuthFlow) {
+      if (!loggedIn && !onAuthFlow && !clientSession.loading) {
         return '/sign-in';
       }
 
-      if (loggedIn && onAuthFlow && !clientSession.loading) {
+      if (loggedIn && (onAuthFlow || onSplash) && !clientSession.loading) {
         return '/home';
       }
 
@@ -157,6 +136,10 @@ GoRouter createRouter(ClientSession clientSession) {
     },
 
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => SplashScreen()
+      ),
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => OnboardingPage(),
