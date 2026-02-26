@@ -94,6 +94,30 @@ class CourseSearchRepo {
     }
   }
 
+  Future<List<Module>> getModulesByTitles(
+    List<String> titles,
+    String userID,
+  ) async {
+    if (titles.isEmpty) return [];
+
+    try {
+      final jsonList = await mongoService.getModulesByTitles(titles);
+      final favorites = await mongoService.getFavoriteModuleNrs(userID);
+      final planned = await mongoService.getAllPlannedModuleNrs(userID);
+
+      return jsonList.map((json) {
+        return Module.fromMap(
+          json,
+          userFavorites: favorites,
+          userPlanned: planned,
+        );
+      }).toList();
+    } catch (e, s) {
+      RecoLog.error("Error inside getModulesByNames", e, s);
+      rethrow;
+    }
+  }
+
   // Load data (only if necessary or forced)
   Future<List<Module>> fetchModules({
     bool forceRefresh = false,

@@ -191,6 +191,43 @@ class MongoService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getModulesByTitles(
+    List<String> titles
+    ) async {
+    if (titles.isEmpty) return [];
+
+    try {
+      final db = await _getDb();
+      final collection = db.collection(_coursesCollection);
+
+      final pipeline = [
+        {
+          '\$match': {
+            'title': {'\$in': titles} 
+          }
+        },
+        {
+          '\$lookup': {
+            'from': 'feedbacks',
+            'localField': 'number',
+            'foreignField': 'module_nr',
+            'as': 'feedbacks'
+          }
+        }
+      ];
+
+      final List<Map<String, dynamic>> jsonList = await collection
+          .aggregateToStream(pipeline)
+          .toList();
+
+      RecoLog.info("Loaded ${jsonList.length} modules from DB by title");
+      return jsonList;
+    } catch (e, s) {
+      RecoLog.error("Error loading modules by title from DB", e, s);
+      rethrow;
+    }
+  }
+
   // updates the status (planned/favorite) by adding or removing the module
   Future<void> toggleModuleState(
     String userID,
