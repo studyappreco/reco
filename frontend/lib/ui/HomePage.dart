@@ -77,32 +77,35 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    ...[
-                      switch (vm.transcriptAvailability) {
-                        TranscriptAvailability.undefined => Text("undefined"),
-                        TranscriptAvailability.missing => Padding(
-                          padding: EdgeInsets.all(4),
-                          child: TranscriptMissingCard(
-                            onUploadPressed: () =>
-                                context.push("/home/upload-transcript"),
-                            onSkipPressed: vm.onSkipUploadTranscript,
+                    if (vm.transcriptLoading)
+                      Center(child: CircularProgressIndicator())
+                    else
+                      ...[
+                        switch (vm.transcriptAvailability) {
+                          TranscriptAvailability.undefined => Text("undefined"),
+                          TranscriptAvailability.missing => Padding(
+                            padding: EdgeInsets.all(4),
+                            child: TranscriptMissingCard(
+                              onUploadPressed: () =>
+                                  context.push("/home/upload-transcript"),
+                              onSkipPressed: vm.onSkipUploadTranscript,
+                            ),
                           ),
-                        ),
-                        TranscriptAvailability.processing => Padding(
-                          padding: EdgeInsets.all(4),
-                          child: TranscriptProcessingCard(
-                            hasFinished:
-                                vm._transcriptAvailability != .processing,
-                            onAnimationComplete: () {},
+                          TranscriptAvailability.processing => Padding(
+                            padding: EdgeInsets.all(4),
+                            child: TranscriptProcessingCard(
+                              hasFinished:
+                                  vm._transcriptAvailability != .processing,
+                              onAnimationComplete: () {},
+                            ),
                           ),
-                        ),
-                        TranscriptAvailability.available => _TranscriptWidget(
-                          gpa: vm.gpa,
-                          ects: vm.ects,
-                          categories: vm.categories,
-                        ),
-                      },
-                    ],
+                          TranscriptAvailability.available => _TranscriptWidget(
+                            gpa: vm.gpa,
+                            ects: vm.ects,
+                            categories: vm.categories,
+                          ),
+                        },
+                      ],
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Row(
@@ -278,7 +281,7 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   bool _isDisposed = false;
-  bool _trascriptLoading = false;
+  bool _trascriptLoading = true;
   TranscriptAvailability _transcriptAvailability = .undefined;
   double _gpa = 0.0;
   int _ects = 0;
@@ -287,9 +290,9 @@ class HomePageViewmodel extends ChangeNotifier {
   String? _userId;
   UserDetails? _userDetails;
   List<Module> _recommendedModules = [];
-  bool _recommendationsLoading = false;
+  bool _recommendationsLoading = true;
 
-  bool get loading => _trascriptLoading;
+  bool get transcriptLoading => _trascriptLoading;
   TranscriptAvailability get transcriptAvailability => _transcriptAvailability;
   double get gpa => _gpa;
   int get ects => _ects;

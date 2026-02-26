@@ -139,7 +139,7 @@ class ClientSession extends ChangeNotifier {
     }
     if (_session != null) {
       await transcriptRepo.getTranscript(userID: _session!.userId);
-      await courseRepo.fetchModules(userID: _session!.userId);
+      courseRepo.fetchModules(userID: _session!.userId);
     }
     _loading = false;
     notifyListeners();
