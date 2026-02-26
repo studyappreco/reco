@@ -132,9 +132,9 @@ class Module {
       students: 0,     // Static placeholder
       duration: "X",  // Static placeholder
 
-      // Community Ratings (Future Work)
-      rating: null, // Static placeholder
-      ratingCount: 0, // Static placeholder
+      // Community Ratings
+      rating: calculatedRating,
+      ratingCount: calculatedRatingCount,
 
       // account-specific data
       isFavorite: userFavorites.contains(moduleNr),
