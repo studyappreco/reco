@@ -281,7 +281,7 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   bool _isDisposed = false;
-  bool _trascriptLoading = true;
+  bool _transcriptLoading = true;
   TranscriptAvailability _transcriptAvailability = .undefined;
   double _gpa = 0.0;
   int _ects = 0;
@@ -292,7 +292,7 @@ class HomePageViewmodel extends ChangeNotifier {
   List<Module> _recommendedModules = [];
   bool _recommendationsLoading = true;
 
-  bool get transcriptLoading => _trascriptLoading;
+  bool get transcriptLoading => _transcriptLoading;
   TranscriptAvailability get transcriptAvailability => _transcriptAvailability;
   double get gpa => _gpa;
   int get ects => _ects;
@@ -309,9 +309,9 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   void _safeNotifyListeners() {
-    if (!_isDisposed) {
+    //if (!_isDisposed) {
       notifyListeners();
-    }
+    //}
   }
 
   void _listen() {
@@ -331,12 +331,12 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     _userId = clientSession.getUserID();
     if (_userId == null) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _safeNotifyListeners();
       return;
     }
@@ -349,7 +349,7 @@ class HomePageViewmodel extends ChangeNotifier {
     _userDetails = await userRepo.getUserDetails(_userId!);
 
     if (transcriptProcessor.state == TranscriptProcessingState.processing) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _transcriptAvailability = .processing;
       transcriptProcessor.addListener(_listen);
       _safeNotifyListeners();
@@ -359,7 +359,7 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   Future<void> _loadTranscript(bool forceRefresh) async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     final userTranscript = await transcriptRepo.getTranscript(
@@ -371,7 +371,7 @@ class HomePageViewmodel extends ChangeNotifier {
       _userDetails?.programLiteral,
     );
     if (dto == null) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _transcriptAvailability = .missing;
       transcriptProcessor.addListener(_listen);
       _safeNotifyListeners();
@@ -381,14 +381,14 @@ class HomePageViewmodel extends ChangeNotifier {
     _gpa = dto.gpa ?? 0.0;
     _ects = dto.earnedCredits;
     _categories = dto.categories;
-    _trascriptLoading = false;
+    _transcriptLoading = false;
     _transcriptAvailability = .available;
     transcriptProcessor.removeListener(_listen);
     _safeNotifyListeners();
   }
 
   Future<void> onSkipUploadTranscript() async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     await transcriptRepo.uploadEmptyTranscript(
@@ -396,7 +396,8 @@ class HomePageViewmodel extends ChangeNotifier {
       _userDetails?.programLiteral,
     );
     await _loadTranscript(false);
-    _trascriptLoading = false;
+    _transcriptLoading = false;
+    _safeNotifyListeners();
   }
 
   Future<void> _loadRecommendations() async {
