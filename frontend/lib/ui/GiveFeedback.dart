@@ -23,6 +23,8 @@ class GiveFeedbackPage extends StatefulWidget {
 class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
   int? _rating;
   final TextEditingController _commentController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  
   bool _isLoading = false;
   late bool _isUpdate;
 
@@ -34,16 +36,35 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
       _commentController.text = widget.initialComment!;
     }
     _isUpdate = widget.initialRating != null;
+    _loadInitialName();
+  }
+
+  Future<void> _loadInitialName() async {
+    setState(() => _isLoading = true);
+    
+    final userID = context.read<ClientSession>().getUserID() ?? "";
+    final userRepo = context.read<UserRepository>();
+    final userName = await userRepo.getUsername(userID) ?? "Anonymous";
+    
+    if(mounted){
+      setState(() {
+        _nameController.text = userName;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
     _commentController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     final comment = _commentController.text.trim();
+    final displayUserName = _nameController.text.isNotEmpty 
+        ? _nameController.text : "Anonymous";
 
     if (_rating == null) {
       StatusMessage.show(
@@ -60,7 +81,7 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
 
     final userID = context.read<ClientSession>().getUserID() ?? "";
     final userRepo = context.read<UserRepository>();
-    bool success = await userRepo.submitFeedback(moduleNr: widget.moduleNr, userId: userID, rating: _rating!, feedbackText: comment);
+    bool success = await userRepo.submitFeedback(moduleNr: widget.moduleNr, userId: userID, userName: displayUserName, rating: _rating!, feedbackText: comment);
 
     setState(() {
       _isLoading = false;
@@ -218,6 +239,29 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
 
                   const SizedBox(height: 16),
 
+                  // Set Public Name TextField
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: "Display Name (Public)",
+                      hintText: "Enter your name or a pseudonym",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 1.2),
+                      ),
+                      contentPadding: EdgeInsets.all(14),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   // Comment box (textable)
                   TextField(
                     controller: _commentController,
@@ -242,7 +286,7 @@ class _GiveFeedbackPageState extends State<GiveFeedbackPage> {
 
                   const Spacer(),
 
-              // Bottom button
+                  // Bottom button
                   SizedBox(
                     width: double.infinity,
                     child: AdaptiveButton(

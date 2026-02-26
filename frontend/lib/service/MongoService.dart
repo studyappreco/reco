@@ -455,7 +455,7 @@ class MongoService {
     }
   }
 
-  Future<bool> submitFeedback(String moduleNr, String userId, int rating, String feedbackText) async {
+  Future<bool> submitFeedback(String moduleNr, String userId, String userName, int rating, String feedbackText) async {
     try {
       final db = await _getDb();
       final feedbacksCollection = db.collection(_feedbacksCollection);
@@ -475,6 +475,7 @@ class MongoService {
           modify
             .set('feedbackText', feedbackText) 
             .set('rating', rating)
+            .set('userName', userName)
             .set('created_at', formattedDate)
         );
         RecoLog.info("Existing feedback updated for module $moduleNr");
@@ -484,6 +485,7 @@ class MongoService {
         final feedbackDoc = {
           'module_nr': parsedModuleNr,
           'userId': userId,
+          'userName': userName,
           'feedbackText': feedbackText, 
           'rating': rating,
           'created_at': formattedDate,
