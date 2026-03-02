@@ -35,7 +35,8 @@ class _SpecifyDegreePageState extends State<SpecifyDegreePage> {
     final literal = fieldOfStudy == "CS"
         ? (degreeType == "B" ? "CS_B" : "CS_M")
         : "ISM";
-
+    
+    
     await userRepo.setProgramLiteral(userId, literal);
     clientSession.setNewUserLiteral(literal);
 
