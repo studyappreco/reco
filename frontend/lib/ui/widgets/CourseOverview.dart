@@ -111,6 +111,7 @@ class PercentageBar extends StatelessWidget {
 
           ],
         ),
+        SizedBox(height: 5),
         Stack(
           children: [
             SizedBox(

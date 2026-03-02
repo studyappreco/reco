@@ -8,16 +8,18 @@ import 'package:frontend/repos/UserRepository.dart';
 import 'package:frontend/service/MongoService.dart';
 import 'package:frontend/service/OpenAIService.dart';
 import 'package:frontend/service/SharedPreferencesService.dart';
+import 'package:frontend/theme/colors.dart';
 import 'package:frontend/theme/theme.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dart_openai/dart_openai.dart';
 import 'package:frontend/ui/InterestSelectionPage.dart';
 import 'package:frontend/ui/PlannerPage.dart';
 import 'package:frontend/ui/ReviewCoursesPage.dart';
 import 'package:frontend/ui/SpecifyDegreePage.dart';
+import 'package:frontend/ui/SplashScreen.dart';
 import 'package:frontend/ui/UploadTranscriptPage.dart';
 import 'package:frontend/ui/utils/auth.dart';
 import 'package:frontend/ui/widgets/test_page_widgets/test_TranscriptWidgets.dart';
+import 'package:frontend/utils/RecoLog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/ui/NavigationWrapper.dart';
 import 'package:frontend/ui/CourseDetailsPage.dart';
@@ -37,9 +39,11 @@ import 'package:frontend/ui/GiveFeedback.dart';
 import 'package:frontend/ui/FeedbackDetailPage.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
-  OpenAI.apiKey = dotenv.env['OPENAI_API_KEY']!;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  OpenAI.apiKey = const String.fromEnvironment('OPENAI_API_KEY');
   OpenAI.requestsTimeOut = const Duration(minutes: 3);
+
   runApp(
     MultiProvider(
       providers: [
@@ -76,6 +80,8 @@ void main() async {
         ChangeNotifierProvider(
           create: (context) => ClientSession(context.read(), context.read()),
         ),
+        ChangeNotifierProvider(create: (context) => TranscriptProcessor(repository: context.read())),
+        ChangeNotifierProvider(create: (context) => ClientSession(context.read(), context.read())..init()),
       ],
       child: MyApp(),
     ),
@@ -85,10 +91,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'Reco Demo',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
@@ -101,11 +107,12 @@ class MyApp extends StatelessWidget {
 
 GoRouter createRouter(ClientSession clientSession) {
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/splash',
     refreshListenable: clientSession,
 
     redirect: (context, state) async {
       final loggedIn = clientSession.isLoggedIn;
+      final onSplash = state.uri.path.startsWith('/splash');
       final onAuthFlow =
           state.uri.path.startsWith('/sign-in') ||
           state.uri.path.startsWith('/register') ||
@@ -114,14 +121,14 @@ GoRouter createRouter(ClientSession clientSession) {
       final isFirstAppStart = await SharedPreferencesService()
           .isFirstAppStart();
 
-      if (!loggedIn && !onAuthFlow && isFirstAppStart) {
+      if (isFirstAppStart && !clientSession.loading) {
         return '/onboarding';
       }
-      if (!loggedIn && !onAuthFlow) {
+      if (!loggedIn && !onAuthFlow && !clientSession.loading) {
         return '/sign-in';
       }
 
-      if (loggedIn && onAuthFlow) {
+      if (loggedIn && (onAuthFlow || onSplash) && !clientSession.loading) {
         return '/home';
       }
 
@@ -129,6 +136,10 @@ GoRouter createRouter(ClientSession clientSession) {
     },
 
     routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => SplashScreen()
+      ),
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => OnboardingPage(),

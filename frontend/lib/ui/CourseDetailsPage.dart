@@ -138,7 +138,7 @@ class CourseDetailsPage extends StatelessWidget {
                               ],
                             ),
 
-                            // TODO missing in DB
+                            /*// TODO missing in DB
                             Section(
                             title: "Prerequisites",
                               children: [
@@ -151,7 +151,7 @@ class CourseDetailsPage extends StatelessWidget {
                                   style: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                                 ),
                               ],
-                            ),
+                            ),*/
 
                           if(vm.module!.learnResult != null && vm.module!.learnResult!.isNotEmpty)
                             Section(

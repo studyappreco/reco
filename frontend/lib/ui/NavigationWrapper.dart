@@ -20,7 +20,6 @@ class NavigationWrapper extends StatelessWidget {
       '/planner',
       '/favourites',
       '/feedback',
-      '/demo',
     ];
 
     void onTabSelected(int index) {
@@ -33,7 +32,6 @@ class NavigationWrapper extends StatelessWidget {
       '/planner' => 2,
       '/favourites' => 3,
       '/feedback' => 4,
-      '/demo' => 5,
       _ => 0,
     };
 

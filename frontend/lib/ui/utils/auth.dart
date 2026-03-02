@@ -1,16 +1,14 @@
 import 'dart:async';
-
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/repos/CourseSearchRepo.dart';
 import 'package:frontend/repos/TranscriptRepository.dart';
-import 'package:frontend/utils/RecoLog.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 import 'package:mongo_dart/mongo_dart.dart' hide Log;
 
-final PROJECT_ID = dotenv.env['PROJECT_ID'];
-final MONGO_URI = dotenv.env['MONGO_URI'];
+const PROJECT_ID = String.fromEnvironment('PROJECT_ID');
+const MONGO_URI = String.fromEnvironment('MONGO_URI');
 const CUSTOM_ENDPOINT = "https://apps-tub.de/v1";
 const DATABASE_NAME = "reco_db";
 
@@ -21,10 +19,8 @@ class BackendClient {
     if (backendClient != null) {
       return backendClient;
     } else {
-      try {
-        backendClient = Client()
-            .setProject(PROJECT_ID!)
-            .setEndpoint(CUSTOM_ENDPOINT);
+      try{
+        backendClient = Client().setProject(PROJECT_ID).setEndpoint(CUSTOM_ENDPOINT);
         return backendClient;
       } on Exception {
         return null;
@@ -74,7 +70,7 @@ class DbCLient {
   static Future<Db?> _createConnection({int maxRetries = 5}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        final uri = Uri.parse(MONGO_URI!);
+        final uri = Uri.parse(MONGO_URI);
         final dbUri = uri.replace(path: '/$_databaseName').toString();
         mongoDB = await Db.create(dbUri);
         await mongoDB?.open(secure : true);
@@ -118,16 +114,18 @@ class ClientSession extends ChangeNotifier {
   final TranscriptRepository transcriptRepo;
   final CourseSearchRepo courseRepo;
 
+  bool _loading = true;
   Session? _session;
   User? _newUser;
   String? _newUserPassword;
   String? _newUserLiteral;
 
-  ClientSession(this.transcriptRepo, this.courseRepo) {
-    _initUserSession();
-  }
+  ClientSession(this.transcriptRepo, this.courseRepo) { }
 
-  Future<void> _initUserSession() async {
+  Future<void> init() async {
+    _loading = true;
+    notifyListeners();
+
     try {
       Client? client = BackendClient.getBackendClient();
       if (client == null)
@@ -136,13 +134,18 @@ class ClientSession extends ChangeNotifier {
       _session = await account.getSession(sessionId: 'current');
     } catch (e) {
       _session = null;
+      _loading = false;
+      notifyListeners();
     }
     if (_session != null) {
       await transcriptRepo.getTranscript(userID: _session!.userId);
-      await courseRepo.fetchModules(userID: _session!.userId);
+      courseRepo.fetchModules(userID: _session!.userId);
     }
+    _loading = false;
     notifyListeners();
   }
+
+  bool get loading => _loading;
 
   Session? get session => _session;
 

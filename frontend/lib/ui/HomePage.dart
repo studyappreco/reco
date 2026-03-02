@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
         clientSession,
         context.read(),
         context.read(),
-      ),
+      )..initialize(),
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -77,32 +77,35 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20),
-                    ...[
-                      switch (vm.transcriptAvailability) {
-                        TranscriptAvailability.undefined => Text("undefined"),
-                        TranscriptAvailability.missing => Padding(
-                          padding: EdgeInsets.all(4),
-                          child: TranscriptMissingCard(
-                            onUploadPressed: () =>
-                                context.push("/home/upload-transcript"),
-                            onSkipPressed: vm.onSkipUploadTranscript,
+                    if (vm.transcriptLoading)
+                      Center(child: CircularProgressIndicator())
+                    else
+                      ...[
+                        switch (vm.transcriptAvailability) {
+                          TranscriptAvailability.undefined => Text("undefined"),
+                          TranscriptAvailability.missing => Padding(
+                            padding: EdgeInsets.all(4),
+                            child: TranscriptMissingCard(
+                              onUploadPressed: () =>
+                                  context.push("/home/upload-transcript"),
+                              onSkipPressed: vm.onSkipUploadTranscript,
+                            ),
                           ),
-                        ),
-                        TranscriptAvailability.processing => Padding(
-                          padding: EdgeInsets.all(4),
-                          child: TranscriptProcessingCard(
-                            hasFinished:
-                                vm._transcriptAvailability != .processing,
-                            onAnimationComplete: () {},
+                          TranscriptAvailability.processing => Padding(
+                            padding: EdgeInsets.all(4),
+                            child: TranscriptProcessingCard(
+                              hasFinished:
+                                  vm._transcriptAvailability != .processing,
+                              onAnimationComplete: () {},
+                            ),
                           ),
-                        ),
-                        TranscriptAvailability.available => _TranscriptWidget(
-                          gpa: vm.gpa,
-                          ects: vm.ects,
-                          categories: vm.categories,
-                        ),
-                      },
-                    ],
+                          TranscriptAvailability.available => _TranscriptWidget(
+                            gpa: vm.gpa,
+                            ects: vm.ects,
+                            categories: vm.categories,
+                          ),
+                        },
+                      ],
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: Row(
@@ -268,19 +271,17 @@ class HomePageViewmodel extends ChangeNotifier {
     this.clientSession,
     this.transcriptProcessor,
     this.recommendation,
-  ) {
-    _initialize();
-  }
+  );
 
   /// Initializes the ViewModel by running init and loading recommendations sequentially.
   /// This prevents concurrent MongoDB operations on the single connection.
-  Future<void> _initialize() async {
+  Future<void> initialize() async {
     await _init();
     await _loadRecommendations();
   }
 
   bool _isDisposed = false;
-  bool _trascriptLoading = false;
+  bool _transcriptLoading = true;
   TranscriptAvailability _transcriptAvailability = .undefined;
   double _gpa = 0.0;
   int _ects = 0;
@@ -289,9 +290,9 @@ class HomePageViewmodel extends ChangeNotifier {
   String? _userId;
   UserDetails? _userDetails;
   List<Module> _recommendedModules = [];
-  bool _recommendationsLoading = false;
+  bool _recommendationsLoading = true;
 
-  bool get loading => _trascriptLoading;
+  bool get transcriptLoading => _transcriptLoading;
   TranscriptAvailability get transcriptAvailability => _transcriptAvailability;
   double get gpa => _gpa;
   int get ects => _ects;
@@ -308,9 +309,9 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   void _safeNotifyListeners() {
-    if (!_isDisposed) {
+    //if (!_isDisposed) {
       notifyListeners();
-    }
+    //}
   }
 
   void _listen() {
@@ -330,12 +331,12 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   Future<void> _init() async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     _userId = clientSession.getUserID();
     if (_userId == null) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _safeNotifyListeners();
       return;
     }
@@ -348,7 +349,7 @@ class HomePageViewmodel extends ChangeNotifier {
     _userDetails = await userRepo.getUserDetails(_userId!);
 
     if (transcriptProcessor.state == TranscriptProcessingState.processing) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _transcriptAvailability = .processing;
       transcriptProcessor.addListener(_listen);
       _safeNotifyListeners();
@@ -358,7 +359,7 @@ class HomePageViewmodel extends ChangeNotifier {
   }
 
   Future<void> _loadTranscript(bool forceRefresh) async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     final userTranscript = await transcriptRepo.getTranscript(
@@ -370,7 +371,7 @@ class HomePageViewmodel extends ChangeNotifier {
       _userDetails?.programLiteral,
     );
     if (dto == null) {
-      _trascriptLoading = false;
+      _transcriptLoading = false;
       _transcriptAvailability = .missing;
       transcriptProcessor.addListener(_listen);
       _safeNotifyListeners();
@@ -380,14 +381,14 @@ class HomePageViewmodel extends ChangeNotifier {
     _gpa = dto.gpa ?? 0.0;
     _ects = dto.earnedCredits;
     _categories = dto.categories;
-    _trascriptLoading = false;
+    _transcriptLoading = false;
     _transcriptAvailability = .available;
     transcriptProcessor.removeListener(_listen);
     _safeNotifyListeners();
   }
 
   Future<void> onSkipUploadTranscript() async {
-    _trascriptLoading = true;
+    _transcriptLoading = true;
     _safeNotifyListeners();
 
     await transcriptRepo.uploadEmptyTranscript(
@@ -395,7 +396,8 @@ class HomePageViewmodel extends ChangeNotifier {
       _userDetails?.programLiteral,
     );
     await _loadTranscript(false);
-    _trascriptLoading = false;
+    _transcriptLoading = false;
+    _safeNotifyListeners();
   }
 
   Future<void> _loadRecommendations() async {

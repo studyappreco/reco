@@ -47,6 +47,7 @@ dependencies:
   dart_openai: ^6.1.1
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
   flutter_test:
     sdk: flutter
 
@@ -63,7 +64,6 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - .env
     - assets/icons/
     - assets/images/
 
@@ -111,3 +111,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/reco_app_icon.png"
+  adaptive_icon_background: "assets/icons/reco_app_icon.png"
+  adaptive_icon_foreground: "assets/icons/reco_app_icon.png"
